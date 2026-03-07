@@ -8,6 +8,9 @@ const outfit = Outfit({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Traffix | AI-Powered Smart Traffic Management Platform",
   description: "Advanced traffic monitoring, prediction, and signal optimization system for city traffic authorities.",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 export default function RootLayout({
