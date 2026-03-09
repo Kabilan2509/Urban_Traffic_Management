@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
 import "./globals.css";
 import React from "react";
-
-const outfit = Outfit({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Traffix | AI-Powered Smart Traffic Management Platform",
@@ -20,7 +17,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${outfit.className} bg-slate-900 text-slate-100 antialiased`}>
+      <head>
+        {/* Initialize theme immediately to prevent flash */}
+        <script dangerouslySetInnerHTML={{__html: `
+          const themeKey = 'traffix-theme-preference';
+          const darkClass = 'dark-mode';
+          const saved = localStorage.getItem(themeKey);
+          const dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (dark) document.documentElement.classList.add(darkClass);
+        `}} />
+      </head>
+      <body style={{ margin: 0, padding: 0, fontFamily: "'Inter', 'Outfit', sans-serif" }}>
         {children}
       </body>
     </html>
