@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Users,
@@ -18,52 +18,46 @@ type UserStatus = "Active" | "Suspended";
 
 interface AuthorityUser {
   id: string;
+  userId: string;
   name: string;
   email: string;
   role: UserRole;
   zone: string;
   status: UserStatus;
+  createdAt?: string;
 }
 
-const initialUsers: AuthorityUser[] = [
-  {
-    id: "USR-001",
-    name: "Kabil R",
-    email: "kabil@citytraffic.gov",
-    role: "Super Admin",
-    zone: "Central Command",
-    status: "Active",
-  },
-  {
-    id: "USR-002",
-    name: "Anita Sharma",
-    email: "anita.sharma@citytraffic.gov",
-    role: "Traffic Engineer",
-    zone: "Downtown Sector",
-    status: "Active",
-  },
-  {
-    id: "USR-003",
-    name: "Rahul Menon",
-    email: "rahul.menon@citytraffic.gov",
-    role: "Traffic Operator",
-    zone: "West Corridor",
-    status: "Active",
-  },
-  {
-    id: "USR-004",
-    name: "Priya Nair",
-    email: "priya.nair@citytraffic.gov",
-    role: "Emergency Authority",
-    zone: "Rapid Response Unit",
-    status: "Suspended",
-  },
-];
+const emptyForm = {
+  name: "",
+  email: "",
+  role: "Traffic Operator" as UserRole,
+  zone: "",
+  status: "Active" as UserStatus,
+};
 
 export default function UsersPage() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<UserRole | "All">("All");
-  const [users] = useState(initialUsers);
+  const [users, setUsers] = useState<AuthorityUser[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState(emptyForm);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch("/api/users");
+        const data = await res.json();
+        setUsers(data);
+      } catch (fetchError) {
+        console.error("Failed to load users", fetchError);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
@@ -72,12 +66,51 @@ export default function UsersPage() {
       const textMatch =
         user.name.toLowerCase().includes(query) ||
         user.email.toLowerCase().includes(query) ||
-        user.id.toLowerCase().includes(query) ||
+        user.userId.toLowerCase().includes(query) ||
         user.zone.toLowerCase().includes(query);
 
       return roleMatch && textMatch;
     });
   }, [users, roleFilter, search]);
+
+  async function handleAddUser() {
+    setMessage(null);
+    setError(null);
+
+    if (!form.name.trim() || !form.email.trim() || !form.zone.trim()) {
+      setError("Name, email, and zone are required.");
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const actor = localStorage.getItem("traffix_role") || "Super Admin";
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          actor: "Traffix Admin",
+          actorRole: actor,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Unable to create user.");
+      }
+
+      setUsers((current) => [data.user, ...current]);
+      setForm(emptyForm);
+      setShowForm(false);
+      setMessage(`User ${data.user.name} added successfully with ID ${data.user.userId}.`);
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Unable to create user.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className="p-6 pb-20 max-w-7xl mx-auto space-y-6">
@@ -92,10 +125,72 @@ export default function UsersPage() {
           </div>
         </div>
 
-        <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold shadow-lg shadow-cyan-600/20 transition-colors">
-          <UserPlus className="w-4 h-4" /> Add User
+        <button
+          onClick={() => setShowForm((current) => !current)}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold shadow-lg shadow-cyan-600/20 transition-colors"
+        >
+          <UserPlus className="w-4 h-4" /> {showForm ? "Close Form" : "Add User"}
         </button>
       </div>
+
+      {message && <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">{message}</div>}
+      {error && <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>}
+
+      {showForm && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-panel border border-slate-700/50 rounded-2xl p-5"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+            <input
+              value={form.name}
+              onChange={(e) => setForm((current) => ({ ...current, name: e.target.value }))}
+              placeholder="Full name"
+              className="bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500"
+            />
+            <input
+              value={form.email}
+              onChange={(e) => setForm((current) => ({ ...current, email: e.target.value }))}
+              placeholder="Official email"
+              className="bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500"
+            />
+            <input
+              value={form.zone}
+              onChange={(e) => setForm((current) => ({ ...current, zone: e.target.value }))}
+              placeholder="Assigned zone"
+              className="bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500"
+            />
+            <select
+              value={form.role}
+              onChange={(e) => setForm((current) => ({ ...current, role: e.target.value as UserRole }))}
+              className="bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-500"
+            >
+              <option value="Super Admin">Super Admin</option>
+              <option value="Traffic Engineer">Traffic Engineer</option>
+              <option value="Traffic Operator">Traffic Operator</option>
+              <option value="Emergency Authority">Emergency Authority</option>
+            </select>
+            <div className="flex gap-3">
+              <select
+                value={form.status}
+                onChange={(e) => setForm((current) => ({ ...current, status: e.target.value as UserStatus }))}
+                className="flex-1 bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-500"
+              >
+                <option value="Active">Active</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+              <button
+                onClick={handleAddUser}
+                disabled={saving}
+                className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-sm font-semibold transition-colors"
+              >
+                {saving ? "Saving..." : "Create"}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="glass-panel border border-slate-700/50 rounded-xl p-4">
@@ -149,7 +244,7 @@ export default function UsersPage() {
                 <th className="px-5 py-3">Role</th>
                 <th className="px-5 py-3">Zone</th>
                 <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3 text-right">Actions</th>
+                <th className="px-5 py-3 text-right">Created</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/30 bg-slate-900/20">
@@ -158,7 +253,7 @@ export default function UsersPage() {
                   <td className="px-5 py-4">
                     <div className="space-y-0.5">
                       <p className="font-medium text-slate-100">{user.name}</p>
-                      <p className="text-xs text-slate-400 font-mono">{user.id}</p>
+                      <p className="text-xs text-slate-400 font-mono">{user.userId}</p>
                       <p className="text-xs text-slate-500 inline-flex items-center gap-1">
                         <Mail className="w-3 h-3" /> {user.email}
                       </p>
@@ -186,10 +281,8 @@ export default function UsersPage() {
                       {user.status}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-right">
-                    <button className="px-3 py-1.5 text-xs rounded-lg border border-slate-600 text-slate-300 hover:text-white hover:border-cyan-500 transition-colors">
-                      Manage
-                    </button>
+                  <td className="px-5 py-4 text-right text-xs text-slate-400 font-mono">
+                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Now"}
                   </td>
                 </tr>
               ))}

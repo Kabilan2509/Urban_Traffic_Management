@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Initialize theme immediately to prevent flash */}
         <script dangerouslySetInnerHTML={{__html: `
@@ -25,7 +25,7 @@ export default function RootLayout({
           const saved = localStorage.getItem(themeKey);
           const dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
           if (dark) document.documentElement.classList.add(darkClass);
-        `}} />
+        `}} suppressHydrationWarning/>
       </head>
       <body style={{ margin: 0, padding: 0, fontFamily: "'Inter', 'Outfit', sans-serif" }}>
         {children}

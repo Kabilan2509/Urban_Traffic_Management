@@ -37,8 +37,8 @@ const STYLES = `
   --text1:#374151;
   --text2:#6B7280;
   --mono:'Space Mono',monospace;
-  --sans:'DM Sans',sans-serif;
-  --display:'Syne',sans-serif;
+  --sans:Arial,sans-serif;
+  --display:Arial,sans-serif;
   --sidebar:220px;
   --topbar:48px;
 }
@@ -87,7 +87,7 @@ a{color:var(--cyan);text-decoration:none;}
 
 body::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);
+  background:none;
 }
 
 :root.dark-mode body::before {
@@ -886,17 +886,30 @@ function MapPage({junctions=JUNCTIONS}){
     go();
     return()=>{c=true;if(leafletMap.current){leafletMap.current.remove();leafletMap.current=null;}};
   },[initMap]);
+  // LSTM and RL integration planning
+  // Backend: Add endpoints
+  //   - POST /api/predict/lstm: Accepts historical and current traffic data, returns LSTM predictions
+  //   - POST /api/optimize/rl: Accepts current junction state, returns optimized signal timings
+  // Frontend:
+  //   - Analytics page: Fetch LSTM predictions from backend, display in charts
+  //   - Signals page: Fetch RL optimization results, update signal controls
+  // Data flow:
+  //   - Collect traffic data from sensors/API, store in backend
+  //   - LSTM model trained on historical + real-time data
+  //   - RL agent optimizes signal timings based on current state and reward feedback
+  //   - UI updates with prediction and optimization results
+
   return(
     <div className="content fade-up">
       <div className="header-row">
         <div className="page-header"><h1>◈ Live Traffic Map</h1><div className="accent-rule"/><p>// INTERACTIVE JUNCTION MAP · CLICK MARKERS FOR DETAILS</p></div>
       </div>
-      <div className="g13">
-        <div className="panel">
+      <div className="g13" style={{minHeight:"calc(100vh - 120px)"}}>
+        <div className="panel" style={{height:"100%",minHeight:400,display:"flex",flexDirection:"column",flex:1}}>
           <div className="panel-head">
             <div className="panel-title">Chennai Network — Live</div>
             <div style={{display:"flex",gap:10,fontSize:9,fontFamily:"var(--mono)"}}>
-              {[["#059669","Low"],["#D97706","Med"],["#DC2626","High"]].map(([c,l])=>(
+              {[ ["#059669","Low"], ["#D97706","Med"], ["#DC2626","High"] ].map(([c,l])=>(
                 <span key={l} style={{color:c,display:"flex",alignItems:"center",gap:4}}>
                   <span style={{width:5,height:5,borderRadius:"50%",background:c,display:"inline-block"}}/>
                   {l}
@@ -904,13 +917,13 @@ function MapPage({junctions=JUNCTIONS}){
               ))}
             </div>
           </div>
-          <div style={{padding:10,position:"relative"}}>
-            <div ref={mapRef} id="traffix-map"/>
+          <div style={{padding:10,position:"relative",flex:1}}>
+            <div ref={mapRef} id="traffix-map" style={{height:"100%",minHeight:340}}/>
             {!loaded&&!err&&<div style={{position:"absolute",inset:10,display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg2)",borderRadius:4,fontFamily:"var(--mono)",fontSize:11,color:"var(--text2)"}}>LOADING MAP…</div>}
             {err&&<div style={{position:"absolute",inset:10,display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg2)",borderRadius:4,fontFamily:"var(--mono)",fontSize:11,color:"var(--red)"}}>⚠ MAP UNAVAILABLE</div>}
           </div>
         </div>
-        <div className="panel" style={{alignSelf:"start"}}>
+        <div className="panel" style={{alignSelf:"start",maxHeight:400,overflowY:"auto"}}>
           <div className="panel-head"><div className="panel-title">Junction Status</div></div>
           <div style={{padding:8}}>
             {junctions.map((j)=>(
@@ -1273,11 +1286,20 @@ function Users(){
   const [q,setQ]=useState("");const [rf,setRf]=useState("All");
   const roles=["All","Super Admin","Traffic Engineer","Traffic Operator","Emergency Authority"];
   const rows=USERS.filter(u=>(rf==="All"||u.role===rf)&&(u.name+u.id).toLowerCase().includes(q.toLowerCase()));
+  // Modal state for new user
+  const [showModal,setShowModal]=useState(false);
+  const [newUser,setNewUser]=useState({id:"",name:"",role:"Traffic Operator",zone:"",status:"Active",last:"Never"});
+  function handleAddUser(){
+    if(!newUser.id||!newUser.name||!newUser.zone)return;
+    USERS.push({...newUser});
+    setShowModal(false);
+    setNewUser({id:"",name:"",role:"Traffic Operator",zone:"",status:"Active",last:"Never"});
+  }
   return(
     <div className="content fade-up">
       <div className="header-row">
         <div className="page-header"><h1>◎ Users</h1><div className="accent-rule"/><p>// AUTHORITY ACCOUNTS · ROLES · ZONE ASSIGNMENTS</p></div>
-        <div className="page-actions"><button className="btn btn-amber">+ ADD USER</button></div>
+        <div className="page-actions"><button className="btn btn-amber" onClick={()=>setShowModal(true)}>+ ADD USER</button></div>
       </div>
       <div className="kpi-strip" style={{gridTemplateColumns:"repeat(3,1fr)"}}>
         {[
@@ -1325,6 +1347,28 @@ function Users(){
           </table>
         </div>
       </div>
+      {showModal&&(
+        <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.4)",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <div style={{background:"#fff",padding:32,borderRadius:8,minWidth:320,boxShadow:"0 8px 32px rgba(0,0,0,0.2)"}}>
+            <h2 style={{fontSize:18,fontWeight:700,marginBottom:16}}>Add New User</h2>
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              <input className="inp" placeholder="User ID" value={newUser.id} onChange={e=>setNewUser({...newUser,id:e.target.value})}/>
+              <input className="inp" placeholder="Name" value={newUser.name} onChange={e=>setNewUser({...newUser,name:e.target.value})}/>
+              <input className="inp" placeholder="Zone" value={newUser.zone} onChange={e=>setNewUser({...newUser,zone:e.target.value})}/>
+              <select className="sel" value={newUser.role} onChange={e=>setNewUser({...newUser,role:e.target.value})}>
+                {roles.filter(r=>r!=="All").map(r=><option key={r}>{r}</option>)}
+              </select>
+              <select className="sel" value={newUser.status} onChange={e=>setNewUser({...newUser,status:e.target.value})}>
+                {["Active","Suspended"].map(s=><option key={s}>{s}</option>)}
+              </select>
+            </div>
+            <div style={{display:"flex",gap:10,marginTop:24,justifyContent:"flex-end"}}>
+              <button className="btn btn-ghost" onClick={()=>setShowModal(false)}>Cancel</button>
+              <button className="btn btn-amber" onClick={handleAddUser}>Add User</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

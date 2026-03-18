@@ -12,16 +12,16 @@ import { motion } from "framer-motion";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
-    const [role, setRole] = useState("");
+    const [role] = useState(() => {
+        if (typeof window === "undefined") return "";
+        return localStorage.getItem("traffix_role") || "";
+    });
     const [isSidebarOpen, setSidebarOpen] = useState(true);
 
     useEffect(() => {
         const token = localStorage.getItem("traffix_token");
-        const userRole = localStorage.getItem("traffix_role");
         if (!token) {
             router.push("/");
-        } else {
-            setRole(userRole || "");
         }
     }, [router]);
 
@@ -33,6 +33,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     const navItems = [
         { label: "City Map", icon: Map, path: "/dashboard", allowed: ["Super Admin", "Traffic Engineer", "Traffic Operator", "Emergency Authority"] },
+        { label: "Authority Desk", icon: Activity, path: "/dashboard/authority", allowed: ["Super Admin", "Traffic Engineer", "Traffic Operator", "Emergency Authority"] },
         { label: "Analytics", icon: BarChart2, path: "/dashboard/analytics", allowed: ["Super Admin", "Traffic Engineer"] },
         { label: "History", icon: Calendar, path: "/dashboard/history", allowed: ["Super Admin", "Traffic Engineer"] },
         { label: "Emergency", icon: ShieldAlert, path: "/dashboard/emergency", allowed: ["Super Admin", "Emergency Authority"], highlight: true },
