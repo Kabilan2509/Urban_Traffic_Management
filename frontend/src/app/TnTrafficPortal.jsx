@@ -70,18 +70,20 @@ a{color:var(--cyan);text-decoration:none;}
   transition:transform .25s ease;
 }
 .sidebar-header{
-  padding:0 16px;height:var(--topbar);display:flex;align-items:center;gap:10px;
+  padding:0 18px;height:var(--topbar);display:flex;align-items:center;gap:12px;
   border-bottom:1px solid var(--border);flex-shrink:0;
   background:linear-gradient(135deg,var(--primary),var(--primary2));
 }
 .logo-emblem{
-  width:32px;height:32px;background:rgba(255,255,255,0.2);border-radius:6px;
+  width:34px;height:34px;background:rgba(255,255,255,0.18);border-radius:9px;
   display:flex;align-items:center;justify-content:center;
   font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;
-  border:1px solid rgba(255,255,255,0.3);flex-shrink:0;letter-spacing:-.5px;
+  border:1px solid rgba(255,255,255,0.32);flex-shrink:0;letter-spacing:-.5px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.16),0 8px 18px rgba(15,23,42,0.18);
 }
-.logo-text-wrap .logo-text{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.01em;}
-.logo-text-wrap .logo-sub{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.65);letter-spacing:.15em;text-transform:uppercase;margin-top:1px;}
+.logo-text-wrap{display:flex;flex-direction:column;justify-content:center;min-width:0;line-height:1;}
+.logo-text-wrap .logo-text{font-size:15px;font-weight:800;color:#fff;letter-spacing:.08em;line-height:1;}
+.logo-text-wrap .logo-sub{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.74);letter-spacing:.18em;text-transform:uppercase;margin-top:4px;line-height:1.2;}
 .sidebar-body{flex:1;overflow-y:auto;padding:10px 0;}
 .sidebar-section{padding:0 10px;margin-bottom:4px;}
 .sidebar-label{font-family:var(--mono);font-size:8px;font-weight:700;color:var(--text3);letter-spacing:.18em;text-transform:uppercase;padding:8px 8px 5px;}
@@ -118,10 +120,12 @@ a{color:var(--cyan);text-decoration:none;}
 /* ════ MAIN AREA ════ */
 .main-area{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh;}
 .topbar{
-  height:var(--topbar);background:var(--bg1);border-bottom:1px solid var(--border);
+  min-height:var(--topbar);background:var(--bg1);border-bottom:1px solid var(--border);
   display:flex;align-items:center;padding:0 20px;gap:12px;
   position:sticky;top:0;z-index:100;flex-shrink:0;
 }
+.topbar-primary{display:flex;align-items:center;gap:12px;flex:1;min-width:0;}
+.topbar-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
 .topbar-breadcrumb{font-family:var(--mono);font-size:10px;color:var(--text3);display:flex;align-items:center;gap:4px;flex:1;}
 .topbar-breadcrumb b{color:var(--amber);font-weight:700;}
 .live-pill{
@@ -149,11 +153,19 @@ a{color:var(--cyan);text-decoration:none;}
 }
 .notif-head{padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;justify-content:space-between;align-items:center;}
 .notif-head h4{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text0);letter-spacing:.08em;text-transform:uppercase;}
-.notif-item{padding:10px 14px;border-bottom:1px solid var(--borderFaint);cursor:pointer;transition:var(--transition);}
-.notif-item:hover{background:var(--bg2);}
-.notif-item:last-child{border-bottom:none;}
+.notif-item{
+  display:block;width:100%;text-align:left;
+  background:none;border:none;padding:0;
+  cursor:pointer;transition:var(--transition);
+  font-family:inherit;
+}
+.notif-item:focus-visible{outline:2px solid var(--amber);outline-offset:-2px;}
+.notif-item .notif-inner{padding:10px 14px;border-bottom:1px solid var(--borderFaint);}
+.notif-item:hover .notif-inner{background:var(--bg2);}
+.notif-item:last-of-type .notif-inner{border-bottom:none;}
 .notif-title{font-size:12px;font-weight:500;color:var(--text0);margin-bottom:2px;}
 .notif-meta{font-family:var(--mono);font-size:9px;color:var(--text3);}
+
 
 .content{padding:20px 24px;flex:1;}
 .page-header{margin-bottom:18px;}
@@ -397,19 +409,22 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .login-head{text-align:center;margin-bottom:32px;}
 .login-emblem{
   display:inline-flex;align-items:center;justify-content:center;gap:14px;margin-bottom:18px;
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
-  border-radius:12px;padding:14px 24px;max-width:100%;
+  background:linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.12);
+  border-radius:16px;padding:16px 22px;max-width:100%;
+  box-shadow:0 20px 45px rgba(0,0,0,0.2);
 }
 .login-emblem-icon{
-  width:52px;height:52px;border-radius:10px;flex-shrink:0;
+  width:54px;height:54px;border-radius:14px;flex-shrink:0;
   background:linear-gradient(135deg,#1A56A8,#0F4C75);
   display:flex;align-items:center;justify-content:center;
   font-family:var(--mono);font-size:20px;font-weight:700;color:#fff;
-  border:1px solid rgba(255,255,255,0.2);
+  border:1px solid rgba(255,255,255,0.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.15),0 12px 25px rgba(15,76,117,0.35);
 }
-.login-emblem-text .login-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.02em;text-align:left;}
-.login-emblem-text .login-sub{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.5);letter-spacing:.15em;text-transform:uppercase;margin-top:2px;text-align:left;}
-.login-dept{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:.12em;text-transform:uppercase;}
+.login-emblem-text{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;}
+.login-emblem-text .login-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:.08em;text-align:left;line-height:1;}
+.login-emblem-text .login-sub{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.62);letter-spacing:.16em;text-transform:uppercase;margin-top:6px;text-align:left;line-height:1.35;}
+.login-dept{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.48);letter-spacing:.12em;text-transform:uppercase;max-width:34rem;margin:0 auto;line-height:1.6;}
 .login-card{
   background:rgba(13,20,32,0.9);border:1px solid rgba(255,255,255,0.12);
   border-radius:12px;padding:32px;backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,0,0,0.3);
@@ -452,6 +467,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;backdrop-filter:blur(4px);}
 .mob-overlay.open{display:block;}
 
+.app-footer{
+  padding:10px 24px;border-top:1px solid var(--border);background:var(--bg1);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;
+}
+.app-footer-copy,.app-footer-links{
+  font-family:var(--mono);font-size:8px;color:var(--text3);line-height:1.6;
+}
+
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+
 /* ════ MAINTENANCE ALERT ════ */
 .maint-card{
   background:var(--redBg);border:1px solid rgba(176,48,48,0.2);border-radius:5px;
@@ -475,25 +503,49 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .spin{animation:spin 1s linear infinite;}
 
 /* ════ RESPONSIVE ════ */
+@media(max-width:1200px){
+  .content{padding:18px 20px;}
+  .page-header h1{font-size:20px;}
+}
 @media(max-width:900px){
   .sidebar{transform:translateX(-100%);}
   .sidebar.open{transform:translateX(0);}
   .main-area{margin-left:0;}
   .mob-menu{display:flex!important;}
+  .topbar{padding:10px 16px;flex-wrap:wrap;gap:10px;}
+  .topbar-primary,.topbar-tools{width:100%;}
+  .topbar-tools{justify-content:space-between;}
+  .topbar-breadcrumb{font-size:9px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .notif-panel{right:0;left:auto;width:min(320px,calc(100vw - 32px));}
+  .content{padding:16px 18px;}
+  .header-row{align-items:stretch;}
+  .page-header,.page-actions{width:100%;}
+  .page-actions{justify-content:flex-start;}
+  .app-footer{padding:10px 16px;align-items:flex-start;}
+  .app-footer-copy,.app-footer-links{width:100%;}
   .kpi-strip,.g4{grid-template-columns:repeat(2,1fr);}
   .signal-grid{grid-template-columns:repeat(2,1fr);}
   .g2,.g3,.g13,.g31{grid-template-columns:1fr;}
   .hide-mob{display:none!important;}
 }
-@media(max-width:500px){
+@media(max-width:640px){
   .kpi-strip,.g4{grid-template-columns:1fr;}
   .cred-grid{grid-template-columns:1fr;}
   .signal-grid{grid-template-columns:1fr;}
   .content{padding:14px 16px;}
-  .login-box{max-width:95%;}
-  .login-card{padding:24px;}
-  .login-emblem{flex-direction:column;gap:10px;}
-  .login-emblem-text{text-align:center;}
+  .login-shell{padding:16px;}
+  .login-box{max-width:100%;}
+  .login-head{margin-bottom:24px;}
+  .login-card{padding:22px 18px;}
+  .login-emblem{width:100%;padding:16px;flex-direction:column;gap:12px;align-items:flex-start;}
+  .login-emblem-text,.login-emblem-text .login-title,.login-emblem-text .login-sub{text-align:left;}
+  .login-title{font-size:20px;}
+  .login-dept{font-size:8px;letter-spacing:.1em;}
+  .topbar-tools{gap:8px;}
+  .live-pill,.clock-box{font-size:8.5px;}
+  .page-header h1{font-size:18px;line-height:1.3;}
+  .btn{white-space:normal;justify-content:center;}
+  .notif-panel{width:calc(100vw - 24px);}
 }
 `;
 
@@ -863,6 +915,9 @@ function buildExcelSpreadsheet(rows,sheetName){
 function Login({onLogin}){
   const [u,setU]=useState("");const [p,setP]=useState("");
   const [show,setShow]=useState(false);const [err,setErr]=useState("");const [ld,setLd]=useState(false);
+  const authorityIdInputId="authority-id";
+  const passkeyInputId="authority-passkey";
+  const loginErrorId="login-error";
   const submit=(e)=>{
     e.preventDefault();setErr("");setLd(true);
     setTimeout(()=>{
@@ -891,16 +946,16 @@ function Login({onLogin}){
           <div className="alert alert-i" style={{marginBottom:16,fontSize:9.5}}>
             🛡️ RESTRICTED GOVERNMENT SYSTEM — AUTHORISED PERSONNEL ONLY · ALL ACCESS IS AUDITED UNDER IT ACT 2000
           </div>
-          {err&&<div className="alert alert-e" style={{marginBottom:14,fontSize:9.5}}>{err}</div>}
+          {err&&<div id={loginErrorId} className="alert alert-e" role="alert" aria-live="assertive" style={{marginBottom:14,fontSize:9.5}}>{err}</div>}
           <form onSubmit={submit}>
             <div className="field">
-              <label>Authority ID</label>
-              <input className="inp" type="text" placeholder="Enter your authority ID" value={u} onChange={e=>setU(e.target.value)} required autoComplete="username"/>
+              <label htmlFor={authorityIdInputId}>Authority ID</label>
+              <input id={authorityIdInputId} className="inp" type="text" placeholder="Enter your authority ID" value={u} onChange={e=>setU(e.target.value)} required autoComplete="username" aria-invalid={!!err} aria-describedby={err?loginErrorId:undefined}/>
             </div>
             <div className="field">
-              <label>Secure Passkey</label>
+              <label htmlFor={passkeyInputId}>Secure Passkey</label>
               <div className="pw-wrap">
-                <input className="inp" type={show?"text":"password"} placeholder="Enter passkey" value={p} onChange={e=>setP(e.target.value)} required/>
+                <input id={passkeyInputId} className="inp" type={show?"text":"password"} placeholder="Enter passkey" value={p} onChange={e=>setP(e.target.value)} required autoComplete="current-password" aria-invalid={!!err} aria-describedby={err?loginErrorId:undefined}/>
                 <button type="button" className="eye" onClick={()=>setShow(s=>!s)}>{show?"●":"○"}</button>
               </div>
             </div>
@@ -909,7 +964,7 @@ function Login({onLogin}){
           <div className="login-sep"><span>Demo Credentials</span></div>
           <div className="cred-grid">
             {Object.keys(CREDS).map(id=>(
-              <button key={id} className="cred-pill" onClick={()=>{setU(id);setP(id);}}>
+              <button key={id} type="button" className="cred-pill" onClick={()=>{setU(id);setP(id);}}>
                 <div className="cred-role">{CREDS[id].role}</div>
                 <div className="cred-id">{id} / {id}</div>
               </button>
@@ -930,10 +985,10 @@ function Sidebar({tab,setTab,user,open,onClose,onLogout}){
   const initials=user.name.split(" ").map(n=>n[0]).join("").slice(0,2).toUpperCase();
   return(
     <>
-      {open&&<div className="mob-overlay open" onClick={onClose}/>}
-      <aside className={`sidebar${open?" open":""}`}>
+      {open&&<button type="button" className="mob-overlay open" onClick={onClose} aria-label="Close navigation menu"/>}
+      <aside className={`sidebar${open?" open":""}`} aria-label="Primary navigation">
         <div className="sidebar-header">
-          <div className="logo-emblem">TX</div>
+          <div className="logo-emblem" aria-hidden="true">TX</div>
           <div className="logo-text-wrap">
             <div className="logo-text">TRAFFIX</div>
             <div className="logo-sub">TN · Traffic Command</div>
@@ -980,10 +1035,47 @@ function Sidebar({tab,setTab,user,open,onClose,onLogout}){
 /* ══════════════════════════════════════════════════════════════
    TOPBAR
 ══════════════════════════════════════════════════════════════ */
-function Topbar({tab,onMenuToggle,alerts,user}){
+// Maps each alert scope to the tab it belongs to
+const ALERT_SCOPE_TAB={
+  signals:   "junction",
+  emergency: "emergency",
+  sensors:   "sensors",
+  weather:   "weather",
+  analytics: "analytics",
+  audit:     "history",
+  network:   "map",
+};
+
+const SCOPE_LABEL={
+  signals:   "Junction Control",
+  emergency: "Emergency Ops",
+  sensors:   "Sensor Health",
+  weather:   "Weather Intel",
+  analytics: "Analytics",
+  audit:     "Audit Log",
+  network:   "Live Map",
+};
+
+const SEVERITY_ICON={
+  CRITICAL: "🔴",
+  HIGH:     "🟠",
+  MEDIUM:   "🟡",
+  LOW:      "🟢",
+};
+
+function Topbar({tab,onMenuToggle,alerts,user,onNav}){
   const meta=ALL_TABS.find(t=>t.id===tab);
   const [notifOpen,setNotifOpen]=useState(false);
   const activeAlerts=alerts.filter(a=>a.severity==="CRITICAL"||a.severity==="HIGH");
+
+  const handleNotifClick=(alert)=>{
+    const dest=ALERT_SCOPE_TAB[alert.scope];
+    if(dest&&onNav){
+      onNav(dest);
+      setNotifOpen(false);
+    }
+  };
+
   return(
     <div className="topbar" style={{position:"relative"}}>
       <button className="mob-menu" onClick={onMenuToggle} style={{display:"none"}}>☰</button>
@@ -1003,15 +1095,45 @@ function Topbar({tab,onMenuToggle,alerts,user}){
               <h4>Active Alerts ({activeAlerts.length})</h4>
               <button className="btn btn-ghost btn-sm" onClick={()=>setNotifOpen(false)}>✕</button>
             </div>
-            {activeAlerts.slice(0,5).map(a=>(
-              <div key={a.id} className="notif-item">
-                <div className="notif-title">{a.message}</div>
-                <div className="notif-meta">{a.junction} · {a.severity}</div>
-              </div>
-            ))}
             {activeAlerts.length===0&&(
               <div style={{padding:16,textAlign:"center",fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)"}}>No critical alerts</div>
             )}
+            {activeAlerts.slice(0,6).map(a=>{
+              const dest=ALERT_SCOPE_TAB[a.scope];
+              const destLabel=SCOPE_LABEL[a.scope];
+              const ico=SEVERITY_ICON[a.severity]||"⚪";
+              return(
+                <button
+                  key={a.id}
+                  className="notif-item"
+                  onClick={()=>handleNotifClick(a)}
+                  title={dest?`Click to open ${destLabel}`:""}
+                  style={{cursor:dest?"pointer":"default"}}
+                >
+                  <div className="notif-inner" style={{display:"flex",alignItems:"flex-start",gap:8}}>
+                    <span style={{fontSize:13,flexShrink:0,marginTop:1}}>{ico}</span>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div className="notif-title">{a.message}</div>
+                      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,marginTop:3}}>
+                        <span className="notif-meta">{a.junction} · {a.severity}</span>
+                        {dest&&(
+                          <span style={{
+                            fontFamily:"var(--mono)",fontSize:8,fontWeight:700,
+                            color:"var(--amber)",letterSpacing:".08em",
+                            whiteSpace:"nowrap",flexShrink:0,
+                          }}>→ {destLabel}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+
+              );
+            })}
+            <div style={{padding:"8px 14px",borderTop:"1px solid var(--borderFaint)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}>Click alert to navigate to related page</span>
+              {onNav&&<button className="btn btn-ghost btn-sm" style={{fontSize:9}} onClick={()=>{onNav("history");setNotifOpen(false);}}>VIEW ALL LOGS →</button>}
+            </div>
           </div>
         )}
       </div>
@@ -1381,51 +1503,248 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
 ══════════════════════════════════════════════════════════════ */
 let leafletLoader;
 function MapPage({junctions=JUNCTIONS}){
-  const mapRef=useRef(null);const leafletMap=useRef(null);
-  const [loaded,setLoaded]=useState(false);const [err,setErr]=useState(false);
+  const mapRef=useRef(null);
+  const leafletMap=useRef(null);
+  const markerRefs=useRef({});          // { junctionId -> L.Marker }
+  const highlightRingRef=useRef(null);  // pulsing amber ring marker — persists across data refreshes
+  const highlightedIdRef=useRef(null);  // ref copy so data-refresh effects can read it without deps
+  const sidebarListRef=useRef(null);
+  const activeRowRef=useRef(null);
+  const mapInitialisedRef=useRef(false);// guard: build map only once
+
+  const [loaded,setLoaded]=useState(false);
+  const [err,setErr]=useState(false);
   const [selJ,setSelJ]=useState(null);
+  const [highlightedId,setHighlightedId]=useState(null);
   const [filter,setFilter]=useState("All");
   const [mapSearch,setMapSearch]=useState("");
-  const getMapCongestion=useCallback((junction)=>getDensityCongestion(junction?.density??0),[]);
 
+  /* ── Helper: colour from density ── */
+  const getMapCongestion=useCallback((junction)=>getDensityCongestion(junction?.density??0),[]);
+  const congColor={Red:"#B03030",Yellow:"#C97D10",Green:"#1A7F4B",Blue:"#1A56A8"};
+
+  /* ── Fly to a junction, open popup, draw highlight ring ── */
+  // Stable callback — no junction-array dependency so it never triggers map rebuild
+  const flyToJunction=useCallback((j)=>{
+    const map=leafletMap.current;
+    const L=window._leafletLib;
+    if(!map||!j||!L) return;
+
+    // Remove previous ring (if any)
+    if(highlightRingRef.current){ highlightRingRef.current.remove(); highlightRingRef.current=null; }
+
+    const c=congColor[getDensityCongestion(j.density)]||"#1A7F4B";
+
+    // Smooth fly-to — stays at zoom 15 until user manually moves the map
+    map.flyTo([j.lat,j.lng],15,{animate:true,duration:1.2,easeLinearity:0.3});
+
+    // Pulsing amber ring — placed on map as a non-interactive marker overlay
+    const ringIcon=L.divIcon({
+      className:"",
+      html:`<div style="
+        width:52px;height:52px;border-radius:50%;
+        border:3px solid #FFB830;
+        box-shadow:0 0 0 4px rgba(255,184,48,0.25),0 0 28px rgba(255,184,48,0.55);
+        animation:map-hl-pulse 1.3s ease-in-out infinite alternate;
+        background:transparent;pointer-events:none;position:relative;">
+        <div style="position:absolute;inset:8px;border-radius:50%;background:${c};opacity:0.3;"></div>
+      </div>
+      <style>
+        @keyframes map-hl-pulse{
+          from{box-shadow:0 0 0 4px rgba(255,184,48,0.25),0 0 28px rgba(255,184,48,0.55);}
+          to{box-shadow:0 0 0 14px rgba(255,184,48,0.06),0 0 44px rgba(255,184,48,0.85);}
+        }
+      </style>`,
+      iconSize:[52,52],iconAnchor:[26,26],
+    });
+    const ring=L.marker([j.lat,j.lng],{icon:ringIcon,interactive:false,zIndexOffset:500});
+    ring.addTo(map);
+    highlightRingRef.current=ring;   // persists — only removed by clearHighlight()
+
+    // Open popup 400 ms after flyTo starts
+    setTimeout(()=>{ const m=markerRefs.current[j.id]; if(m) m.openPopup(); },400);
+
+    // Keep ref in sync for data-refresh effects
+    highlightedIdRef.current=j.id;
+    setSelJ(j);
+    setHighlightedId(j.id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);  // ← EMPTY deps — never recreated, never triggers map teardown
+
+  /* ── Build map ONCE — use JUNCTIONS const for stable positions ── */
   const initMap=useCallback((L)=>{
-    if(leafletMap.current||!mapRef.current||!L) return;
-    const map=L.map(mapRef.current,{center:[13.02,80.21],zoom:11});
+    if(mapInitialisedRef.current||!mapRef.current||!L) return;
+    mapInitialisedRef.current=true;
+    window._leafletLib=L;
+
+    const map=L.map(mapRef.current,{center:[13.02,80.21],zoom:11,zoomControl:true});
     leafletMap.current=map;
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:'© OSM Contributors',maxZoom:18}).addTo(map);
-    const color={Red:"#B03030",Yellow:"#C97D10",Green:"#1A7F4B",Blue:"#1A56A8"};
-    junctions.forEach(j=>{
-      const congestion=getMapCongestion(j);
-      const c=color[congestion]||color.Green;
-      const icon=L.divIcon({className:"",html:`<div style="width:14px;height:14px;border-radius:50%;background:${c};border:2px solid #fff;box-shadow:0 0 10px ${c};position:relative;"><div style="position:absolute;inset:-4px;border-radius:50%;background:${c};opacity:0.2;animation:pulse-ring 2s infinite;"></div></div>`,iconSize:[14,14],iconAnchor:[7,7]});
-      L.marker([j.lat,j.lng],{icon}).addTo(map)
-        .bindPopup(`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;"><b style="font-size:13px;color:#0F172A;">${j.name}</b><br/><span style="color:#64748B;">${j.id} · ${j.zone}</span><br/><span style="color:${c};font-weight:700;">${j.congestion} · ${j.density}%</span><br/><span>Vehicles: ${j.vehicles} · Delay: ${j.delay}m</span></div>`)
-        .on("click",()=>setSelJ(j));
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OSM Contributors",maxZoom:19}).addTo(map);
+
+    // Build markers from stable JUNCTIONS data (positions never change)
+    JUNCTIONS.forEach(j=>{
+      const congestion=getDensityCongestion(j.density);
+      const c=congColor[congestion]||congColor.Green;
+      const icon=L.divIcon({
+        className:"",
+        html:`<div style="width:16px;height:16px;border-radius:50%;background:${c};border:2.5px solid #fff;box-shadow:0 0 10px ${c},0 2px 6px rgba(0,0,0,0.3);cursor:pointer;position:relative;">
+          <div style="position:absolute;inset:-5px;border-radius:50%;background:${c};opacity:0.18;animation:pulse-ring 2s infinite;"></div>
+        </div>`,
+        iconSize:[16,16],iconAnchor:[8,8],
+      });
+      const marker=L.marker([j.lat,j.lng],{icon,zIndexOffset:10})
+        .bindPopup(`
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;min-width:200px;padding:2px 0;">
+            <div style="font-size:14px;font-weight:700;color:#0F172A;margin-bottom:4px;">${j.name}</div>
+            <div style="color:#64748B;margin-bottom:6px;">${j.id} · ${j.zone}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+              <span style="background:${c};color:#fff;border-radius:4px;padding:2px 8px;font-weight:700;font-size:10px;">${congestion}</span>
+              <span style="background:#f1f5f9;color:#475569;border-radius:4px;padding:2px 8px;font-size:10px;">${j.priority}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:10px;color:#475569;">
+              <span>Density</span><span style="font-weight:700;color:#0F172A;">${j.density}%</span>
+              <span>Vehicles</span><span style="font-weight:700;color:#0F172A;">${j.vehicles}</span>
+              <span>Avg Delay</span><span style="font-weight:700;color:#0F172A;">${j.delay} min</span>
+              <span>Region</span><span style="font-weight:700;color:#0F172A;">${j.region}</span>
+            </div>
+          </div>`)
+        .on("click",()=>{setSelJ(j);setHighlightedId(j.id);});
+      marker.addTo(map);
+      markerRefs.current[j.id]=marker;
     });
     setLoaded(true);
-  },[junctions,getMapCongestion]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);  // ← EMPTY: map built once from JUNCTIONS const, never rebuilt on data change
 
   useEffect(()=>{
-    let c=false;
-    const go=async()=>{try{if(!leafletLoader)leafletLoader=import("leaflet");const mod=await leafletLoader;if(!c)initMap(mod.default??mod);}catch{if(!c)setErr(true);}};
+    let cancelled=false;
+    const go=async()=>{
+      try{
+        if(!leafletLoader) leafletLoader=import("leaflet");
+        const mod=await leafletLoader;
+        if(!cancelled) initMap(mod.default??mod);
+      }catch{ if(!cancelled) setErr(true); }
+    };
     go();
-    return()=>{c=true;if(leafletMap.current){leafletMap.current.remove();leafletMap.current=null;}};
-  },[initMap]);
+    return()=>{
+      cancelled=true;
+      if(highlightRingRef.current){ highlightRingRef.current.remove(); highlightRingRef.current=null; }
+      if(leafletMap.current){ leafletMap.current.remove(); leafletMap.current=null; }
+      markerRefs.current={};
+      mapInitialisedRef.current=false;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);  // ← EMPTY: runs once on mount, cleanup on unmount only
+
+  /* ── Update popups + marker colours with live data — highlight ring is untouched ── */
+  useEffect(()=>{
+    const L=window._leafletLib;
+    junctions.forEach(j=>{
+      const m=markerRefs.current[j.id];
+      if(!m) return;
+      // Refresh popup text with latest density/vehicle/delay numbers
+      const congestion=getDensityCongestion(j.density);
+      const c=congColor[congestion]||"#1A7F4B";
+      m.setPopupContent(`
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;min-width:200px;padding:2px 0;">
+          <div style="font-size:14px;font-weight:700;color:#0F172A;margin-bottom:4px;">${j.name}</div>
+          <div style="color:#64748B;margin-bottom:6px;">${j.id} · ${j.zone}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+            <span style="background:${c};color:#fff;border-radius:4px;padding:2px 8px;font-weight:700;font-size:10px;">${congestion}</span>
+            <span style="background:#f1f5f9;color:#475569;border-radius:4px;padding:2px 8px;font-size:10px;">${j.priority}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:10px;color:#475569;">
+            <span>Density</span><span style="font-weight:700;color:#0F172A;">${j.density}%</span>
+            <span>Vehicles</span><span style="font-weight:700;color:#0F172A;">${j.vehicles}</span>
+            <span>Avg Delay</span><span style="font-weight:700;color:#0F172A;">${j.delay} min</span>
+            <span>Region</span><span style="font-weight:700;color:#0F172A;">${j.region}</span>
+          </div>
+        </div>`);
+      // Refresh marker colour to reflect latest congestion level
+      if(L){
+        const newIcon=L.divIcon({
+          className:"",
+          html:`<div style="width:16px;height:16px;border-radius:50%;background:${c};border:2.5px solid #fff;box-shadow:0 0 10px ${c},0 2px 6px rgba(0,0,0,0.3);cursor:pointer;position:relative;">
+            <div style="position:absolute;inset:-5px;border-radius:50%;background:${c};opacity:0.18;animation:pulse-ring 2s infinite;"></div>
+          </div>`,
+          iconSize:[16,16],iconAnchor:[8,8],
+        });
+        m.setIcon(newIcon);
+      }
+    });
+    // Keep detail panel fresh for the highlighted junction
+    if(highlightedIdRef.current){
+      const fresh=junctions.find(j=>j.id===highlightedIdRef.current);
+      if(fresh) setSelJ(fresh);  // updates numbers in sidebar panel only
+    }
+  },[junctions]);  // ← safe: only touches popup content + icon, never the ring or map view
+
+  /* ── Scroll the active junction row into view in the sidebar ── */
+  useEffect(()=>{
+    if(activeRowRef.current&&sidebarListRef.current){
+      activeRowRef.current.scrollIntoView({block:"nearest",behavior:"smooth"});
+    }
+  },[selJ]);
 
   const filtered=filter==="All"?junctions:junctions.filter(j=>getMapCongestion(j)===filter);
+
+  /* ── Handle sidebar junction click: flyTo + highlight ── */
+  const handleJunctionClick=useCallback((j)=>{
+    flyToJunction(j);
+  },[flyToJunction]);
+
+
+  /* ── Clear highlight ── */
+  const clearHighlight=()=>{
+    if(highlightRingRef.current){ highlightRingRef.current.remove(); highlightRingRef.current=null; }
+    highlightedIdRef.current=null;
+    if(leafletMap.current) leafletMap.current.flyTo([13.02,80.21],11,{animate:true,duration:1});
+    setHighlightedId(null);
+    setSelJ(null);
+    setMapSearch("");
+  };
 
   return(
     <div className="content fade-up">
       <div className="header-row">
-        <div className="page-header"><h1>◈ Live City Map</h1><div className="accent-rule"/><p>// INTERACTIVE GIS MAP · REAL-TIME JUNCTION STATUS · CLICK MARKERS FOR DETAILS</p></div>
-        <div className="page-actions" style={{display:"flex",gap:8,alignItems:"center"}}>
+        <div className="page-header">
+          <h1>◈ Live City Map</h1>
+          <div className="accent-rule"/>
+          <p>// INTERACTIVE GIS MAP · REAL-TIME JUNCTION STATUS · SEARCH TO FLY-TO ANY JUNCTION</p>
+        </div>
+        <div className="page-actions" style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
           {["All","Green","Yellow","Red"].map(f=>(
             <button key={f} className={`btn ${filter===f?"btn-amber":"btn-ghost"}`} onClick={()=>setFilter(f)}>{f}</button>
           ))}
-          <JunctionSearchBar junctions={junctions} searchTerm={mapSearch} setSearchTerm={setMapSearch} onSelect={(j)=>setSelJ(j)} />
+          {/* Enhanced search bar — onSelect triggers flyTo + highlight */}
+          <JunctionSearchBar
+            junctions={junctions}
+            searchTerm={mapSearch}
+            setSearchTerm={setMapSearch}
+            onSelect={(j)=>{flyToJunction(j);}}
+          />
+          {highlightedId&&(
+            <button className="btn btn-red btn-sm" onClick={clearHighlight} title="Clear highlight and reset map view">
+              ✕ CLEAR
+            </button>
+          )}
         </div>
       </div>
-      <div className="g13" style={{minHeight:"calc(100vh - 150px)"}}>
+
+      {/* Highlight notification banner */}
+      {highlightedId&&selJ&&(
+        <div className="alert alert-ok" style={{marginBottom:10,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+          <span>
+            📍 <strong>{selJ.id}</strong> — {selJ.name} · Map zoomed to junction location ·&nbsp;
+            <span style={{fontFamily:"var(--mono)",fontSize:10}}>
+              {selJ.lat.toFixed(4)}°N, {selJ.lng.toFixed(4)}°E
+            </span>
+          </span>
+          <button className="btn btn-ghost btn-sm" onClick={clearHighlight}>✕ Reset View</button>
+        </div>
+      )}
+
+      <div className="g13" style={{minHeight:"calc(100vh - 180px)"}}>
         <div className="panel" style={{display:"flex",flexDirection:"column"}}>
           <div className="panel-head">
             <div className="panel-title">Chennai Network — Live GIS View</div>
@@ -1436,6 +1755,12 @@ function MapPage({junctions=JUNCTIONS}){
                   {l}
                 </span>
               ))}
+              {highlightedId&&(
+                <span style={{color:"#FFB830",display:"flex",alignItems:"center",gap:4,fontWeight:"700",animation:"blink 1.5s infinite"}}>
+                  <span style={{width:8,height:8,borderRadius:"50%",background:"#FFB830",display:"inline-block"}}/>
+                  🔍 FOCUSED
+                </span>
+              )}
             </div>
           </div>
           <div style={{padding:10,position:"relative",flex:1,minHeight:450}}>
@@ -1444,40 +1769,73 @@ function MapPage({junctions=JUNCTIONS}){
             {err&&<div style={{position:"absolute",inset:10,display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg2)",borderRadius:4,fontFamily:"var(--mono)",fontSize:11,color:"var(--red)"}}>⚠ MAP SERVICE UNAVAILABLE — Using static schematic</div>}
           </div>
         </div>
+
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           <div className="panel" style={{flex:1}}>
-            <div className="panel-head"><div className="panel-title">Junction Status ({filter})</div></div>
-            <div style={{padding:8,maxHeight:320,overflowY:"auto"}}>
-              {filtered.map(j=>(
-                <div key={j.id} style={{marginBottom:8,cursor:"pointer"}} onClick={()=>setSelJ(j)}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                    <div>
-                      <span className="mono-cell" style={{fontSize:8}}>{j.id}</span>
-                      <div style={{fontSize:11.5,fontWeight:500,color:"var(--text0)",marginTop:1,maxWidth:200,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{j.name}</div>
+            <div className="panel-head">
+              <div className="panel-title">Junction Status ({filter})</div>
+              {highlightedId&&<span className="badge badge-a" style={{animation:"blink 1.5s infinite",fontSize:9}}>FOCUSED: {highlightedId}</span>}
+            </div>
+            <div ref={sidebarListRef} style={{padding:8,maxHeight:320,overflowY:"auto"}}>
+              {filtered.map(j=>{
+                const isHighlighted=j.id===highlightedId;
+                return(
+                  <div
+                    key={j.id}
+                    ref={isHighlighted?activeRowRef:null}
+                    style={{
+                      marginBottom:6,cursor:"pointer",
+                      borderRadius:5,
+                      padding:"6px 8px",
+                      border:`1px solid ${isHighlighted?"var(--amber)":"transparent"}`,
+                      background:isHighlighted?"var(--amberBg)":"transparent",
+                      transition:"all 0.2s",
+                    }}
+                    onClick={()=>handleJunctionClick(j)}
+                  >
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+                      <div>
+                        <span className="mono-cell" style={{fontSize:8,background:isHighlighted?"var(--amber)":"",color:isHighlighted?"#fff":""}}>{j.id}</span>
+                        <div style={{fontSize:11.5,fontWeight:isHighlighted?700:500,color:isHighlighted?"var(--amber)":"var(--text0)",marginTop:1,maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{j.name}</div>
+                      </div>
+                      <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
+                        <SdotFor c={getMapCongestion(j)}/>
+                        {isHighlighted&&<span style={{fontSize:8,fontFamily:"var(--mono)",color:"var(--amber)",fontWeight:700}}>📍 FOCUSED</span>}
+                      </div>
                     </div>
-                    <SdotFor c={getMapCongestion(j)}/>
+                    <DBar value={j.density}/>
                   </div>
-                  <DBar value={j.density}/>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
+
           {selJ&&(
             <div className="panel">
               <div className="panel-head">
-                <div className="panel-title">{selJ.id} Details</div>
-                <button className="btn btn-ghost btn-sm" onClick={()=>setSelJ(null)}>✕</button>
+                <div className="panel-title">{selJ.id} — Details</div>
+                <button className="btn btn-ghost btn-sm" onClick={clearHighlight}>✕</button>
               </div>
               <div style={{padding:12}}>
-                <div style={{fontFamily:"var(--mono)",fontSize:11,fontWeight:700,color:"var(--text0)",marginBottom:8}}>{selJ.name}</div>
-                {[["Zone",selJ.zone],["Region",selJ.region],["Vehicles",selJ.vehicles],["Density",`${selJ.density}%`],["Delay",`${selJ.delay}m`]].map(([k,v])=>(
+                <div style={{fontFamily:"var(--mono)",fontSize:11,fontWeight:700,color:"var(--text0)",marginBottom:6}}>{selJ.name}</div>
+                <div style={{fontSize:9,fontFamily:"var(--mono)",color:"var(--amber)",marginBottom:8}}>
+                  📍 {selJ.lat.toFixed(5)}°N, {selJ.lng.toFixed(5)}°E
+                </div>
+                {[["Zone",selJ.zone],["Region",selJ.region],["Vehicles",`${selJ.vehicles} now`],["Density",`${selJ.density}%`],["Delay",`${selJ.delay} min`],["Police Station",selJ.policeStation]].map(([k,v])=>(
                   <div key={k} className="detail-row"><span className="detail-key">{k}</span><span className="detail-val">{v}</span></div>
                 ))}
-                <div style={{marginTop:8,display:"flex",gap:6}}>
+                <div style={{marginTop:8,display:"flex",gap:6,flexWrap:"wrap"}}>
                   <span className={badgeClass(getMapCongestion(selJ))}>{getMapCongestion(selJ)}</span>
                   <span className={badgeClass(selJ.priority)}>{selJ.priority}</span>
                   {selJ.emergencyReady&&<span className="badge badge-g">EMG READY</span>}
                 </div>
+                <button
+                  className="btn btn-amber"
+                  style={{width:"100%",justifyContent:"center",fontSize:9,marginTop:10}}
+                  onClick={()=>flyToJunction(selJ,window._leafletLib)}
+                >
+                  📍 RE-CENTRE MAP
+                </button>
               </div>
             </div>
           )}
@@ -1653,12 +2011,110 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
 /* ══════════════════════════════════════════════════════════════
    LSTM AI PREDICTION ENGINE
 ══════════════════════════════════════════════════════════════ */
+const LSTM_HORIZONS=[
+  {label:"5 MIN",key:"5m",color:"#1A7F4B",minutes:5},
+  {label:"15 MIN",key:"15m",color:"#0077CC",minutes:15},
+  {label:"30 MIN",key:"30m",color:"#C97D10",minutes:30},
+  {label:"1 HOUR",key:"1h",color:"#B03030",minutes:60},
+];
+
+function clampNumber(value,min,max){
+  return Math.min(max,Math.max(min,value));
+}
+
+function getTrafficTemporalContext(now=new Date()){
+  const hour=now.getHours();
+  const minute=now.getMinutes();
+  const weekday=now.getDay();
+  const isWeekend=weekday===0||weekday===6;
+  const morningPeak=!isWeekend&&hour>=7&&hour<11;
+  const eveningPeak=!isWeekend&&hour>=16&&hour<21;
+  const schoolRush=!isWeekend&&hour>=12&&hour<14;
+  const lateNight=hour>=22||hour<5;
+  const peakBias=morningPeak?9:eveningPeak?12:schoolRush?4:lateNight?-10:1;
+  const minuteBias=minute>=45?2:minute<=10?-1:0;
+  return{
+    hour,
+    minute,
+    weekday,
+    isWeekend,
+    morningPeak,
+    eveningPeak,
+    lateNight,
+    peakBias,
+    minuteBias,
+    timeLabel:now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true,timeZoneName:"short"}),
+    dayLabel:now.toLocaleDateString("en-IN",{weekday:"long"}),
+  };
+}
+
+function buildRealtimePredictionModel(junction,now=new Date()){
+  const temporal=getTrafficTemporalContext(now);
+  const density=junction?.density??0;
+  const vehicles=junction?.vehicles??0;
+  const delay=junction?.delay??0;
+  const vehiclePressure=clampNumber((vehicles-80)/5,0,22);
+  const delayPressure=delay*3.8;
+  const priorityPressure=junction?.priority==="Critical"?6:junction?.priority==="High"?3:0;
+  const baselinePressure=density*0.56+vehiclePressure+delayPressure+temporal.peakBias+temporal.minuteBias+priorityPressure+(temporal.isWeekend?-4:0);
+  const occupancy=clampNumber(Math.round(density*0.92+delay*1.8),8,99);
+  const avgSpeed=clampNumber(Math.round(54-density*0.26-delay*1.9-(temporal.morningPeak||temporal.eveningPeak?4:0)),8,58);
+  const prediction=LSTM_HORIZONS.reduce((acc,horizon,idx)=>{
+    const horizonWeight=horizon.minutes/15;
+    const directionalTrend=(baselinePressure-46)*0.14;
+    const recoveryFactor=temporal.lateNight?-0.75:temporal.isWeekend?-0.35:0;
+    const futureDensity=clampNumber(Math.round(density+directionalTrend*horizonWeight+recoveryFactor*horizonWeight),8,99);
+    const congestionProb=clampNumber(Math.round(futureDensity*0.82+delay*2.1+(horizon.minutes>=30?4:0)),5,99);
+    const queue=clampNumber(Math.round((vehicles/12)+(futureDensity*0.34)+(delay*1.7)+(idx*3)),6,240);
+    const waitTime=clampNumber(Math.round(delay*32+(futureDensity*0.68)+(idx*10)),12,180);
+    const densityDelta=futureDensity-density;
+    const signal=densityDelta>=10
+      ?"Pre-extend inbound green and trigger adaptive overflow plan."
+      :densityDelta>=4
+        ?"Hold adaptive cycle and add green time to the dominant approach."
+        :densityDelta<=-6
+          ?"Compress off-peak cycle and rebalance side-road clearance."
+          :"Maintain current adaptive cycle with rolling sensor validation.";
+    const confidenceBase=0.95-(idx*0.07)-(Math.abs(densityDelta)/220);
+    acc[horizon.key]={
+      density:futureDensity,
+      prob:congestionProb,
+      queue,
+      signal,
+      waitTime,
+      confidence:+clampNumber(confidenceBase,0.68,0.97).toFixed(2),
+    };
+    return acc;
+  },{});
+  const chartData=[];
+  for(let min=0;min<=60;min+=5){
+    const bucket=min<=5?prediction["5m"]:min<=15?prediction["15m"]:min<=30?prediction["30m"]:prediction["1h"];
+    chartData.push({min,density:bucket.density,prob:bucket.prob,waitTime:bucket.waitTime});
+  }
+  return{
+    temporal,
+    prediction,
+    chartData,
+    inputs:{
+      vehicleCount:`${vehicles} now`,
+      density:`${density}%`,
+      avgSpeed:`${avgSpeed} km/h`,
+      laneOccupancy:`${occupancy}%`,
+      currentDelay:`${delay.toFixed(1)} min`,
+      priority:junction?.priority||"Standard",
+      timeOfDay:temporal.timeLabel,
+      day:temporal.dayLabel,
+    },
+  };
+}
+
 function LSTMPredictions({junctions=JUNCTIONS}){
-  const [selJ,setSelJ]=useState(junctions[0]);
+  const [selectedJunctionId,setSelectedJunctionId]=useState(junctions[0]?.id);
   const [loading,setLoading]=useState(false);
   const [pred,setPred]=useState(null);
   const [chartData,setChartData]=useState([]);
   const [lstmSearch,setLstmSearch]=useState("");
+  const [currentTime,setCurrentTime]=useState(()=>new Date());
 
   // Filter junctions by search term
   const filteredLstm=useMemo(()=>{
@@ -1671,68 +2127,47 @@ function LSTMPredictions({junctions=JUNCTIONS}){
     );
   },[junctions,lstmSearch]);
 
-  const horizons=[
-    {label:"5 MIN",key:"5m",color:"#1A7F4B"},
-    {label:"15 MIN",key:"15m",color:"#0077CC"},
-    {label:"30 MIN",key:"30m",color:"#C97D10"},
-    {label:"1 HOUR",key:"1h",color:"#B03030"},
-  ];
+  const selJ=useMemo(
+    ()=>junctions.find(j=>j.id===selectedJunctionId)||junctions[0]||null,
+    [junctions,selectedJunctionId]
+  );
 
-  const generatePrediction=useCallback((j)=>{
-    setLoading(true);
-    const fetchPredictions=async()=>{
-      try{
-        const response=await fetch('/api/lstm/predict',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({junction_id:j.id,current_density:j.density,vehicle_count:j.vehicles,hour:new Date().getHours()})
-        });
-        if(!response.ok) throw new Error('API error');
-        const data=await response.json();
-        const newPred={
-          "5m":{density:Math.min(99,data.predictions[0]||j.density+Math.random()*5),prob:Math.round(Math.random()*100),queue:Math.round(j.density*0.4),signal:data.signals?.[0]||"Maintain current",waitTime:Math.round(j.density*0.8),confidence:0.92},
-          "15m":{density:Math.min(99,data.predictions[1]||j.density+Math.random()*8),prob:Math.round(Math.random()*100),queue:Math.round(j.density*0.42),signal:data.signals?.[1]||"Extend green",waitTime:Math.round(j.density*0.85),confidence:0.87},
-          "30m":{density:Math.min(99,data.predictions[2]||j.density+Math.random()*12),prob:Math.round(Math.random()*100),queue:Math.round(j.density*0.45),signal:data.signals?.[2]||"Peak mode",waitTime:Math.round(j.density*0.9),confidence:0.81},
-          "1h":{density:Math.min(99,data.predictions[3]||j.density+Math.random()*15),prob:Math.round(Math.random()*100),queue:Math.round(j.density*0.5),signal:data.signals?.[3]||"Flow optimize",waitTime:Math.round(j.density*0.95),confidence:0.73},
-        };
-        setPred(newPred);
-        const cd=[];
-        for(let i=0;i<=60;i+=5){
-          const t=i<=5?newPred["5m"]:i<=15?newPred["15m"]:i<=30?newPred["30m"]:newPred["1h"];
-          cd.push({min:i,density:t.density,prob:t.prob,waitTime:t.waitTime});
-        }
-        setChartData(cd);
-      }catch(e){
-        console.log('Using fallback predictions');
-        const base=j.density;
-        const newPred={
-          "5m":{density:Math.min(99,base+Math.round(Math.random()*6-2)),prob:Math.round(base/100*85+Math.random()*10),queue:Math.round(base*0.4),signal:"Maintain current",waitTime:Math.round(base*0.8),confidence:0.94},
-          "15m":{density:Math.min(99,base+Math.round(Math.random()*10-3)),prob:Math.round(base/100*75+Math.random()*15),queue:Math.round(base*0.42),signal:"Extend green +8s",waitTime:Math.round(base*0.85),confidence:0.88},
-          "30m":{density:Math.min(99,base+Math.round(Math.random()*16-5)),prob:Math.round(base/100*65+Math.random()*20),queue:Math.round(base*0.45),signal:"Switch to peak",waitTime:Math.round(base*0.9),confidence:0.82},
-          "1h":{density:Math.min(99,base+Math.round(Math.random()*20-7)),prob:Math.round(base/100*55+Math.random()*25),queue:Math.round(base*0.5),signal:"Flow optimize",waitTime:Math.round(base*0.95),confidence:0.74},
-        };
-        setPred(newPred);
-        const cd=[];
-        for(let i=0;i<=60;i+=5){
-          const t=i<=5?newPred["5m"]:i<=15?newPred["15m"]:i<=30?newPred["30m"]:newPred["1h"];
-          cd.push({min:i,density:t.density,prob:t.prob,waitTime:t.waitTime});
-        }
-        setChartData(cd);
-      }finally{
-        setLoading(false);
-      }
-    };
-    fetchPredictions();
+  useEffect(()=>{
+    if(!selJ&&junctions[0]) setSelectedJunctionId(junctions[0].id);
+  },[junctions,selJ]);
+
+  useEffect(()=>{
+    const id=setInterval(()=>setCurrentTime(new Date()),1000);
+    return()=>clearInterval(id);
   },[]);
 
-  useEffect(()=>{generatePrediction(selJ);},[selJ,generatePrediction]);
+  const generatePrediction=useCallback((j,atTime=new Date())=>{
+    if(!j) return;
+    setLoading(true);
+    const realtimeModel=buildRealtimePredictionModel(j,atTime);
+    setPred(realtimeModel.prediction);
+    setChartData(realtimeModel.chartData);
+    setLoading(false);
+  },[]);
+
+  const realtimeModel=useMemo(
+    ()=>selJ?buildRealtimePredictionModel(selJ,currentTime):null,
+    [selJ,currentTime]
+  );
+
+  useEffect(()=>{
+    if(selJ&&realtimeModel){
+      setPred(realtimeModel.prediction);
+      setChartData(realtimeModel.chartData);
+    }
+  },[selJ,realtimeModel]);
 
   return(
     <div className="content fade-up">
       <div className="header-row">
         <div className="page-header"><h1>⬠ LSTM AI Prediction Engine</h1><div className="accent-rule"/><p>// LONG SHORT-TERM MEMORY NETWORK · MULTI-HORIZON TRAFFIC FORECASTING · CONFIDENCE SCORES</p></div>
         <div className="page-actions">
-          <button className="btn btn-amber" onClick={()=>generatePrediction(selJ)} disabled={loading}>{loading?"COMPUTING…":"↻ REFRESH PREDICTION"}</button>
+          <button className="btn btn-amber" onClick={()=>{const now=new Date();setCurrentTime(now);generatePrediction(selJ,now);}} disabled={loading||!selJ}>{loading?"COMPUTING…":"↻ REFRESH PREDICTION"}</button>
         </div>
       </div>
 
@@ -1765,7 +2200,7 @@ function LSTMPredictions({junctions=JUNCTIONS}){
               </div>
             )}
             {filteredLstm.map(j=>(
-              <div key={j.id} className={`jrow${selJ?.id===j.id?" active-j":""}`} onClick={()=>setSelJ(j)}>
+              <div key={j.id} className={`jrow${selJ?.id===j.id?" active-j":""}`} onClick={()=>setSelectedJunctionId(j.id)}>
                 <SdotFor c={j.congestion}/>
                 <span className="jrow-id">{j.id}</span>
                 <span className="jrow-name">{j.name}</span>
@@ -1779,14 +2214,14 @@ function LSTMPredictions({junctions=JUNCTIONS}){
           <div className="panel-body">
             <div className="g2">
               {[
-                ["Vehicle Count",`${selJ?.vehicles} now`,"#0077CC"],
-                ["Current Density",`${selJ?.density}%`,"#C97D10"],
-                ["Avg Speed","28 km/h","#1A7F4B"],
-                ["Lane Occupancy","62%","#6B35B8"],
-                ["Temperature","33°C","#B03030"],
-                ["Humidity","74%","#0077CC"],
-                ["Time of Day","17:22 IST","#C97D10"],
-                ["Day","Saturday","#1A7F4B"],
+                ["Vehicle Count",realtimeModel?.inputs.vehicleCount||"--","#0077CC"],
+                ["Current Density",realtimeModel?.inputs.density||"--","#C97D10"],
+                ["Avg Speed",realtimeModel?.inputs.avgSpeed||"--","#1A7F4B"],
+                ["Lane Occupancy",realtimeModel?.inputs.laneOccupancy||"--","#6B35B8"],
+                ["Current Delay",realtimeModel?.inputs.currentDelay||"--","#B03030"],
+                ["Priority",realtimeModel?.inputs.priority||"--","#0077CC"],
+                ["Time of Day",realtimeModel?.inputs.timeOfDay||"--","#C97D10"],
+                ["Day",realtimeModel?.inputs.day||"--","#1A7F4B"],
               ].map(([k,v,c])=>(
                 <div key={k} className="sensor-card">
                   <div className="sensor-name">{k}</div>
@@ -1802,7 +2237,7 @@ function LSTMPredictions({junctions=JUNCTIONS}){
       {pred&&(
         <>
           <div className="g4" style={{marginBottom:12}}>
-            {horizons.map(h=>(
+            {LSTM_HORIZONS.map(h=>(
               <div key={h.key} className="pred-card" style={{"--pred-color":h.color}}>
                 <div style={{position:"absolute",bottom:0,left:0,right:0,height:2,background:h.color}}/>
                 <div className="pred-horizon">{h.label} FORECAST</div>
@@ -2835,6 +3270,13 @@ export default function App(){
 
   useEffect(()=>{setSignalPhases(junctions.map(j=>j.phase));},[junctions]);
 
+  useEffect(()=>{
+    if(!drawerOpen) return;
+    const previousOverflow=document.body.style.overflow;
+    document.body.style.overflow="hidden";
+    return()=>{document.body.style.overflow=previousOverflow;};
+  },[drawerOpen]);
+
   const alerts=useMemo(()=>{
     const a=[];
     const severe=junctions.filter(j=>j.density>=settings.congestionThreshold);
@@ -2878,9 +3320,9 @@ export default function App(){
         <div className="app-shell">
           <Sidebar tab={tab} setTab={setTab} user={user} open={drawerOpen} onClose={()=>setDrawerOpen(false)} onLogout={logout}/>
           <div className="main-area">
-            <Topbar tab={tab} onMenuToggle={()=>setDrawerOpen(o=>!o)} alerts={alerts} user={user}/>
+            <Topbar tab={tab} onMenuToggle={()=>setDrawerOpen(o=>!o)} alerts={alerts} user={user} onNav={setTab}/>
             <main style={{flex:1}}>{renderPage()}</main>
-            <footer style={{padding:"8px 24px",borderTop:"1px solid var(--border)",background:"var(--bg1)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:5}}>
+            <footer className="app-footer">
               <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}>© 2026 GOVT OF TAMIL NADU · DEPT. OF HIGHWAYS & TRAFFIC ENGINEERING · TRAFFIX PORTAL v4.0.1</span>
               <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}>SECURED · IT ACT 2000 · <a href="#" style={{color:"var(--amber)"}}>DISCLAIMER</a> · <a href="#" style={{color:"var(--amber)"}}>PRIVACY POLICY</a></span>
             </footer>
