@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
@@ -7,13 +7,13 @@ import {
 } from "recharts";
 import DarkModeToggle from "@/components/DarkModeToggle";
 
-/* ══════════════════════════════════════════════════════════════
-   GLOBAL STYLES — Traffix Portal v4.0 Government Command Platform
-══════════════════════════════════════════════════════════════ */
+/* --------------------------------------------------------------
+   GLOBAL STYLES  Traffix Portal v4.0 Government Command Platform
+-------------------------------------------------------------- */
 const STYLES = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
-/* ════ LIGHT MODE ════ */
+/* ---- LIGHT MODE ---- */
 :root {
   --bg0:#F8FAFC; --bg1:#FFFFFF; --bg2:#F1F5F9; --bg3:#E8EEF6; --bg4:#DDE6F0;
   --primary:#0F4C75; --primary2:#1B6CA8; --accent:#3282B8; --accent2:#6BB6FF;
@@ -31,7 +31,7 @@ const STYLES = `
   --transition:all 0.2s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* ════ DARK MODE ════ */
+/* ---- DARK MODE ---- */
 :root.dark-mode {
   --bg0:#060A10; --bg1:#0D1420; --bg2:#121B2B; --bg3:#192438; --bg4:#1E2D44;
   --primary:#5BAEE8; --primary2:#7AC4FF; --accent:#3E9ADB; --accent2:#87CEEB;
@@ -60,14 +60,15 @@ a{color:var(--cyan);text-decoration:none;}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:999px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--accent);}
 
-/* ════ LAYOUT ════ */
+/* ---- LAYOUT ---- */
 .app-shell{display:flex;min-height:100vh;}
 .sidebar{
   width:var(--sidebar);flex-shrink:0;
   background:var(--bg1);border-right:1px solid var(--border);
   display:flex;flex-direction:column;
-  position:fixed;top:0;left:0;bottom:0;z-index:200;
-  transition:transform .25s ease;
+  position:fixed;top:0;left:0;bottom:0;z-index:400; /* highest: always above overlay */
+  transition:transform .28s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
 }
 .sidebar-header{
   padding:0 18px;height:var(--topbar);display:flex;align-items:center;gap:12px;
@@ -117,7 +118,7 @@ a{color:var(--cyan);text-decoration:none;}
 .sys-stat-key{font-family:var(--mono);font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;}
 .sys-stat-val{font-family:var(--mono);font-size:8.5px;font-weight:700;}
 
-/* ════ MAIN AREA ════ */
+/* ---- MAIN AREA ---- */
 .main-area{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh;}
 .topbar{
   min-height:var(--topbar);background:var(--bg1);border-bottom:1px solid var(--border);
@@ -178,8 +179,8 @@ a{color:var(--cyan);text-decoration:none;}
 .header-row{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
 .accent-rule{width:32px;height:2px;background:linear-gradient(90deg,var(--amber),transparent);border-radius:1px;margin:4px 0 8px;}
 
-/* ════ KPI CARDS ════ */
-.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+/* ---- KPI CARDS ---- */
+.kpi-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
 .kpi-card{
   background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);
   padding:14px 16px;position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s;cursor:default;
@@ -194,7 +195,7 @@ a{color:var(--cyan);text-decoration:none;}
 .kpi-delta.dn{color:var(--red);}
 .kpi-ico{position:absolute;top:12px;right:14px;font-size:18px;opacity:0.4;}
 
-/* ════ PANELS ════ */
+/* ---- PANELS ---- */
 .panel{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .2s;}
 .panel:hover{border-color:var(--border2);}
 .panel-head{
@@ -208,14 +209,14 @@ a{color:var(--cyan);text-decoration:none;}
 .panel-title::before{content:'';width:3px;height:3px;background:var(--amber);border-radius:50%;}
 .panel-body{padding:14px;}
 
-/* ════ GRID HELPERS ════ */
+/* ---- GRID HELPERS ---- */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
 .g13{display:grid;grid-template-columns:1fr 300px;gap:12px;}
 .g31{display:grid;grid-template-columns:300px 1fr;gap:12px;}
 
-/* ════ JUNCTION LIST ════ */
+/* ---- JUNCTION LIST ---- */
 .jlist{display:flex;flex-direction:column;gap:2px;}
 .jrow{
   display:flex;align-items:center;gap:8px;padding:7px 10px;
@@ -227,14 +228,14 @@ a{color:var(--cyan);text-decoration:none;}
 .jrow-id{font-family:var(--mono);font-size:8.5px;color:var(--text3);width:46px;flex-shrink:0;}
 .jrow-name{flex:1;font-size:12.5px;font-weight:500;color:var(--text0);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-/* ════ STATUS DOTS ════ */
+/* ---- STATUS DOTS ---- */
 .sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .sdot-g{background:var(--green);box-shadow:0 0 6px var(--green);}
 .sdot-y{background:var(--amber);box-shadow:0 0 6px var(--amber);}
 .sdot-r{background:var(--red);box-shadow:0 0 6px var(--red);}
 .sdot-b{background:var(--blue);box-shadow:0 0 6px var(--blue);}
 
-/* ════ BADGES ════ */
+/* ---- BADGES ---- */
 .badge{
   display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:3px;
   font-family:var(--mono);font-size:9px;font-weight:700;
@@ -252,14 +253,16 @@ a{color:var(--cyan);text-decoration:none;}
 .badge-p{background:var(--purpleBg);color:var(--purple);border-color:rgba(107,53,184,0.25);}
 :root.dark-mode .badge-p{border-color:rgba(187,134,252,0.25);}
 .badge-k{background:var(--bg3);color:var(--text2);border-color:var(--border);}
+.badge-a{background:var(--amberBg);color:var(--amber);border-color:rgba(201,125,16,0.35);}
+:root.dark-mode .badge-a{background:rgba(255,184,48,0.1);border-color:rgba(255,184,48,0.35);}
 
-/* ════ DENSITY BAR ════ */
+/* ---- DENSITY BAR ---- */
 .dbar{display:flex;align-items:center;gap:8px;}
 .dbar-track{flex:1;background:var(--bg3);border-radius:2px;height:4px;overflow:hidden;}
 .dbar-fill{height:100%;border-radius:2px;transition:width .4s ease;}
 .dbar-pct{font-family:var(--mono);font-size:10px;font-weight:700;min-width:32px;text-align:right;}
 
-/* ════ TRAFFIC LIGHT ════ */
+/* ---- TRAFFIC LIGHT ---- */
 .tlight{width:30px;height:75px;background:var(--bg0);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;padding:5px;border:1px solid var(--border2);}
 .tb{width:15px;height:15px;border-radius:50%;transition:all .4s;}
 .tb-r{background:rgba(176,48,48,0.15);}
@@ -269,7 +272,7 @@ a{color:var(--cyan);text-decoration:none;}
 .tb-g{background:rgba(26,127,75,0.15);}
 .tb-g.on{background:var(--green);box-shadow:0 0 10px var(--green);}
 
-/* ════ SIGNAL GRID ════ */
+/* ---- SIGNAL GRID ---- */
 .signal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
 .sig-card{
   background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);
@@ -280,7 +283,7 @@ a{color:var(--cyan);text-decoration:none;}
 .sig-label{font-size:11.5px;font-weight:500;color:var(--text0);margin-top:8px;}
 .sig-id{font-family:var(--mono);font-size:8px;color:var(--text3);margin-bottom:6px;}
 
-/* ════ BUTTONS ════ */
+/* ---- BUTTONS ---- */
 .btn{
   display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:4px;
   font-family:var(--mono);font-size:10px;font-weight:700;cursor:pointer;border:1px solid;
@@ -304,7 +307,7 @@ a{color:var(--cyan);text-decoration:none;}
 .btn-sm{padding:4px 9px;font-size:9px;}
 .btn:disabled{opacity:.35;cursor:not-allowed;}
 
-/* ════ FORM ELEMENTS ════ */
+/* ---- FORM ELEMENTS ---- */
 .field{margin-bottom:13px;}
 .field label{display:block;font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;}
 .inp{width:100%;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:12px;color:var(--text0);outline:none;transition:border-color .15s;}
@@ -313,7 +316,7 @@ a{color:var(--cyan);text-decoration:none;}
 .sel{width:100%;padding:7px 11px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:11px;color:var(--text1);outline:none;cursor:pointer;}
 .sel:focus{border-color:var(--amber);}
 
-/* ════ TABLES ════ */
+/* ---- TABLES ---- */
 table{width:100%;border-collapse:collapse;font-size:12px;}
 thead th{background:var(--bg2);padding:8px 12px;font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--text3);text-align:left;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;}
 tbody tr{border-bottom:1px solid var(--borderFaint);transition:background .12s;}
@@ -322,14 +325,14 @@ tbody tr:hover{background:var(--bg2);}
 tbody td{padding:8px 12px;vertical-align:middle;color:var(--text1);}
 .mono-cell{font-family:var(--mono);font-size:10px;color:var(--text3);}
 
-/* ════ ALERTS ════ */
+/* ---- ALERTS ---- */
 .alert{padding:9px 13px;border-radius:4px;border-left:3px solid;font-family:var(--mono);font-size:10px;margin-bottom:10px;display:flex;align-items:flex-start;gap:8px;line-height:1.5;}
 .alert-w{background:var(--amberBg);border-color:var(--amber);color:var(--amber);}
 .alert-e{background:var(--redBg);border-color:var(--red);color:var(--red);}
 .alert-i{background:var(--blueBg);border-color:var(--cyan);color:var(--cyan);}
 .alert-ok{background:var(--greenBg);border-color:var(--green);color:var(--green);}
 
-/* ════ TOGGLES ════ */
+/* ---- TOGGLES ---- */
 .tog{width:36px;height:20px;background:var(--bg3);border-radius:10px;position:relative;cursor:pointer;transition:background .2s;border:1px solid var(--border);}
 .tog.on{background:var(--amberBg);border-color:rgba(201,125,16,0.4);}
 .tog::after{content:'';position:absolute;width:14px;height:14px;background:var(--text3);border-radius:50%;top:2px;left:2px;transition:transform .2s,background .2s;}
@@ -338,20 +341,20 @@ tbody td{padding:8px 12px;vertical-align:middle;color:var(--text1);}
 input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--bg3);outline:none;cursor:pointer;border-radius:1px;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--amber);cursor:pointer;border:2px solid var(--bg1);box-shadow:0 0 6px rgba(201,125,16,0.3);}
 
-/* ════ DETAIL ROW ════ */
+/* ---- DETAIL ROW ---- */
 .detail-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--borderFaint);}
 .detail-row:last-child{border-bottom:none;}
 .detail-key{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;}
 .detail-val{font-family:var(--mono);font-size:11px;color:var(--text0);font-weight:700;}
 
-/* ════ SENSOR CARDS ════ */
+/* ---- SENSOR CARDS ---- */
 .sensor-card{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:10px 12px;}
 .sensor-name{font-family:var(--mono);font-size:8.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
 .sensor-val{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text0);line-height:1;}
 .sensor-unit{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:2px;}
 .sensor-status{display:flex;align-items:center;gap:5px;margin-top:6px;font-family:var(--mono);font-size:8px;}
 
-/* ════ PREDICTION CARDS ════ */
+/* ---- PREDICTION CARDS ---- */
 .pred-card{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:12px;position:relative;overflow:hidden;}
 .pred-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
 .pred-horizon{font-family:var(--mono);font-size:8.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
@@ -359,7 +362,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .pred-conf{font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:8px;}
 .pred-recommend{font-size:11px;color:var(--text2);line-height:1.4;}
 
-/* ════ EMERGENCY ════ */
+/* ---- EMERGENCY ---- */
 .emg-card{background:var(--bg1);border:1px solid var(--border);border-radius:5px;padding:14px;border-top:3px solid;transition:all .2s;margin-bottom:10px;}
 .emg-card.active-c{border-top-color:var(--red);background:var(--redBg);}
 .emg-card.standby-c{border-top-color:var(--amber);}
@@ -375,7 +378,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .route-node.active-node{background:var(--greenBg);border-color:rgba(26,127,75,0.3);color:var(--green);}
 :root.dark-mode .route-node.active-node{border-color:rgba(0,232,122,0.3);color:var(--green2);}
 
-/* ════ WEATHER ════ */
+/* ---- WEATHER ---- */
 .weather-card{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden;}
 .weather-temp{font-family:var(--mono);font-size:32px;font-weight:700;color:var(--text0);line-height:1;}
 .weather-cond{font-size:13px;color:var(--text2);margin-top:3px;}
@@ -386,7 +389,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 }
 :root.dark-mode .weather-impact{background:rgba(255,184,48,0.08);border-color:rgba(255,184,48,0.2);}
 
-/* ════ SYSTEM HEALTH ════ */
+/* ---- SYSTEM HEALTH ---- */
 .health-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:4px;}
 .health-bar-fill{height:100%;border-radius:3px;transition:width .5s ease;}
 .health-item{padding:10px 0;border-bottom:1px solid var(--borderFaint);}
@@ -395,7 +398,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .health-label{font-family:var(--mono);font-size:9.5px;color:var(--text2);font-weight:600;}
 .health-value{font-family:var(--mono);font-size:10px;font-weight:700;}
 
-/* ════ LOGIN ════ */
+/* ---- LOGIN ---- */
 .login-shell{
   min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
   position:relative;overflow:hidden;
@@ -460,12 +463,23 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .login-submit:disabled{opacity:.4;cursor:not-allowed;}
 .login-footer-text{text-align:center;margin-top:14px;font-family:var(--mono);font-size:8.5px;color:rgba(255,255,255,0.25);letter-spacing:.06em;}
 
-/* ════ ANALYTICS EXPORT ════ */
+/* ---- ANALYTICS EXPORT ---- */
 .export-btn-group{display:flex;gap:6px;}
 
-/* ════ MOBILE OVERLAY ════ */
-.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;backdrop-filter:blur(4px);}
-.mob-overlay.open{display:block;}
+/* ---- MOBILE OVERLAY ----
+   Scrim sits BEHIND the sidebar (z-index:350) so sidebar content is never blurred.
+   NO backdrop-filter  that was blurring the sidebar itself.
+-------------------- */
+.mob-overlay{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.55);
+  z-index:350;            /* above content, below sidebar */
+  cursor:pointer;
+  /* NO backdrop-filter here  it blurred the drawer */
+}
+.mob-overlay.open{display:block;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
 .app-footer{
   padding:10px 24px;border-top:1px solid var(--border);background:var(--bg1);
@@ -480,7 +494,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   clip:rect(0,0,0,0);white-space:nowrap;border:0;
 }
 
-/* ════ MAINTENANCE ALERT ════ */
+/* ---- MAINTENANCE ALERT ---- */
 .maint-card{
   background:var(--redBg);border:1px solid rgba(176,48,48,0.2);border-radius:5px;
   padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--red);
@@ -489,11 +503,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .maint-card-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--red);margin-bottom:3px;}
 .maint-card-detail{font-family:var(--mono);font-size:9px;color:var(--text2);}
 
-/* ════ CHART TOOLTIP ════ */
+/* ---- CHART TOOLTIP ---- */
 .ct{background:var(--bg1);border:1px solid var(--border);border-radius:5px;padding:9px 12px;font-family:var(--mono);font-size:10px;color:var(--text0);box-shadow:var(--shadowMd);}
 .ct-lbl{color:var(--text3);font-size:8.5px;margin-bottom:3px;letter-spacing:.1em;text-transform:uppercase;}
 
-/* ════ ANIMATIONS ════ */
+/* ---- ANIMATIONS ---- */
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse-ring{0%{transform:scale(.95)}70%{transform:scale(1);opacity:.8}100%{transform:scale(.95)}}
@@ -502,56 +516,196 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .fade-up{animation:fadeUp .3s ease both;}
 .spin{animation:spin 1s linear infinite;}
 
-/* ════ RESPONSIVE ════ */
+/* ---- RESPONSIVE ---- */
 @media(max-width:1200px){
   .content{padding:18px 20px;}
   .page-header h1{font-size:20px;}
 }
+
+/* -- TABLET (769px1024px) -- */
+@media(max-width:1024px){
+  .signal-grid{grid-template-columns:repeat(3,1fr);}
+  .kpi-strip{grid-template-columns:repeat(2,1fr);}
+}
+
+/* -- SMALL TABLET / LARGE PHONE (577px900px) -- */
 @media(max-width:900px){
-  .sidebar{transform:translateX(-100%);}
-  .sidebar.open{transform:translateX(0);}
+  /* Sidebar becomes a slide-in drawer */
+  .sidebar{transform:translateX(-100%);box-shadow:none;}
+  .sidebar.open{
+    transform:translateX(0);
+    box-shadow:4px 0 32px rgba(0,0,0,0.35);
+  }
   .main-area{margin-left:0;}
   .mob-menu{display:flex!important;}
-  .topbar{padding:10px 16px;flex-wrap:wrap;gap:10px;}
-  .topbar-primary,.topbar-tools{width:100%;}
-  .topbar-tools{justify-content:space-between;}
-  .topbar-breadcrumb{font-size:9px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-  .notif-panel{right:0;left:auto;width:min(320px,calc(100vw - 32px));}
-  .content{padding:16px 18px;}
-  .header-row{align-items:stretch;}
+
+  /* Topbar: single compact row, no wrapping */
+  .topbar{
+    padding:0 14px;
+    min-height:52px;
+    flex-wrap:nowrap;
+    gap:8px;
+    justify-content:space-between;
+  }
+  .topbar-breadcrumb{
+    font-size:9px;min-width:0;
+    overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+    flex:1;
+  }
+  /* Keep live-pill + clock small but visible */
+  .live-pill{padding:2px 7px;font-size:8px;}
+  .clock-box{padding:3px 7px;font-size:9px;}
+
+  /* Notification panel: edge-aware */
+  .notif-panel{
+    position:fixed;
+    top:56px;right:12px;left:12px;
+    width:auto;
+    border-radius:10px;
+  }
+
+  /* Content padding */
+  .content{padding:14px 16px;}
+  .header-row{flex-direction:column;align-items:stretch;gap:8px;}
   .page-header,.page-actions{width:100%;}
   .page-actions{justify-content:flex-start;}
-  .app-footer{padding:10px 16px;align-items:flex-start;}
-  .app-footer-copy,.app-footer-links{width:100%;}
+
+  /* Grids */
   .kpi-strip,.g4{grid-template-columns:repeat(2,1fr);}
-  .signal-grid{grid-template-columns:repeat(2,1fr);}
   .g2,.g3,.g13,.g31{grid-template-columns:1fr;}
+  .signal-grid{grid-template-columns:repeat(2,1fr);}
+
+  /* Footer */
+  .app-footer{padding:10px 16px;flex-direction:column;align-items:flex-start;gap:4px;}
   .hide-mob{display:none!important;}
 }
-@media(max-width:640px){
-  .kpi-strip,.g4{grid-template-columns:1fr;}
-  .cred-grid{grid-template-columns:1fr;}
+
+/* -- PHONE (max 576px) -- */
+@media(max-width:576px){
+  /* ---- Layout ---- */
+  .content{padding:12px 14px;}
+  .main-area{padding-bottom:env(safe-area-inset-bottom,0px);}
+
+  /* ---- Topbar: minimal one-liner ---- */
+  .topbar{padding:0 12px;min-height:50px;gap:6px;}
+  .topbar-breadcrumb{font-size:8.5px;max-width:120px;}
+  /* Hide less critical topbar items on very small screens */
+  .live-pill{display:none;}
+  .clock-box{display:none;}
+
+  /* ---- Sidebar drawer  full width minus a gutter ---- */
+  .sidebar{width:min(var(--sidebar), calc(100vw - 56px));}
+
+  /* ---- Grids: always single column ---- */
+  .kpi-strip,.g4,.g2,.g3,.g13,.g31,.signal-grid{
+    grid-template-columns:1fr;
+  }
+
+  /* ---- KPI cards: horizontal compact ---- */
+  .kpi-card{padding:12px 14px;}
+  .kpi-value{font-size:22px;}
+  .kpi-label{font-size:8px;}
+
+  /* ---- Panel heads: allow wrap ---- */
+  .panel-head{flex-wrap:wrap;gap:6px;}
+  .panel-title{font-size:9px;}
+
+  /* ---- Buttons: full-width feel ---- */
+  .btn{padding:8px 12px;font-size:9.5px;}
+  .btn-sm{padding:5px 9px;font-size:9px;}
+
+  /* ---- Tables: horizontal scroll ---- */
+  .panel > div[style*="overflow"],
+  .panel > div > div[style*="overflow"]{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  table{min-width:480px;}
+
+  /* ---- Signal grid single ---- */
   .signal-grid{grid-template-columns:1fr;}
-  .content{padding:14px 16px;}
+  .sig-card{padding:10px;}
+
+  /* ---- Login ---- */
   .login-shell{padding:16px;}
   .login-box{max-width:100%;}
-  .login-head{margin-bottom:24px;}
-  .login-card{padding:22px 18px;}
-  .login-emblem{width:100%;padding:16px;flex-direction:column;gap:12px;align-items:flex-start;}
-  .login-emblem-text,.login-emblem-text .login-title,.login-emblem-text .login-sub{text-align:left;}
-  .login-title{font-size:20px;}
-  .login-dept{font-size:8px;letter-spacing:.1em;}
-  .topbar-tools{gap:8px;}
-  .live-pill,.clock-box{font-size:8.5px;}
-  .page-header h1{font-size:18px;line-height:1.3;}
-  .btn{white-space:normal;justify-content:center;}
-  .notif-panel{width:calc(100vw - 24px);}
+  .login-head{margin-bottom:20px;}
+  .login-card{padding:20px 16px;}
+  .login-emblem{width:100%;padding:14px;flex-direction:column;gap:10px;align-items:flex-start;}
+  .login-emblem-text .login-title{font-size:19px;}
+  .login-dept{font-size:8px;letter-spacing:.08em;}
+  .cred-grid{grid-template-columns:1fr 1fr;}
+
+  /* ---- Page header ---- */
+  .page-header h1{font-size:17px;gap:7px;}
+  .page-header p{font-size:9.5px;}
+  .accent-rule{width:24px;}
+
+  /* ---- Junction rows: touch-friendly ---- */
+  .jrow{padding:10px 10px;min-height:44px;}
+  .jrow-name{font-size:12px;}
+
+  /* ---- Notification panel: full-width near top ---- */
+  .notif-panel{
+    top:54px;right:10px;left:10px;
+    max-height:70vh;
+    overflow-y:auto;
+  }
+
+  /* ---- Nav buttons: taller tap targets ---- */
+  .nav-btn{padding:11px 10px;font-size:13px;}
+  .nav-ico{font-size:16px;}
+
+  /* ---- Footer ---- */
+  .app-footer{display:none;} /* hide on phone to save space */
+}
+
+/* ---- MOBILE BOTTOM NAV ---- */
+.mob-bottom-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  height:58px;
+  background:var(--bg1);border-top:1px solid var(--border);
+  z-index:200;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  box-shadow:0 -4px 16px rgba(0,0,0,0.1);
+}
+.mob-bottom-nav-inner{
+  display:flex;height:100%;align-items:stretch;
+}
+.mob-nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;border:none;background:none;cursor:pointer;
+  color:var(--text3);font-family:var(--mono);font-size:7px;
+  font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  transition:color .15s,background .15s;
+  border-top:2.5px solid transparent;
+  padding:6px 2px 4px;
+  -webkit-tap-highlight-color:transparent;
+  min-width:0;
+}
+.mob-nav-item:active{background:var(--bg2);}
+.mob-nav-item.mob-active{
+  color:var(--amber);
+  border-top-color:var(--amber);
+  background:var(--amberBg);
+}
+:root.dark-mode .mob-nav-item.mob-active{background:rgba(255,184,48,0.08);}
+.mob-nav-ico{font-size:17px;line-height:1;margin-bottom:1px;}
+@media(max-width:900px){
+  .mob-bottom-nav{display:flex;flex-direction:column;justify-content:flex-end;}
+  .main-area{padding-bottom:60px;}
+}
+@media(max-width:576px){
+  .main-area{padding-bottom:calc(60px + env(safe-area-inset-bottom,0px));}
+  .mob-nav-item{font-size:6.5px;}
+  .mob-nav-ico{font-size:15px;}
 }
 `;
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    STATIC DATA
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 const JUNCTIONS = [
   {id:"J-001",name:"Anna Salai Command Junction",lat:13.0604,lng:80.2496,zone:"Central Business District",region:"Chennai Central",policeStation:"PS-001",congestion:"Red",phase:"Red",density:84,vehicles:347,delay:9.2,priority:"Critical",sensorStatus:{camera:"Healthy",radar:"Healthy",temp:"Healthy",humidity:"Healthy",gpsRf:"Healthy"},emergencyReady:true},
   {id:"J-002",name:"Koyambedu Interchange",lat:13.0713,lng:80.1946,zone:"Intercity Gateway",region:"Chennai West",policeStation:"PS-002",congestion:"Yellow",phase:"Green",density:68,vehicles:218,delay:5.1,priority:"High",sensorStatus:{camera:"Healthy",radar:"Degraded",temp:"Healthy",humidity:"Healthy",gpsRf:"Healthy"},emergencyReady:true},
@@ -559,7 +713,7 @@ const JUNCTIONS = [
   {id:"J-004",name:"Vadapalani Junction",lat:13.0528,lng:80.2121,zone:"Residential Connector",region:"Chennai West",policeStation:"PS-002",congestion:"Green",phase:"Green",density:44,vehicles:138,delay:2.2,priority:"Medium",sensorStatus:{camera:"Healthy",radar:"Healthy",temp:"Healthy",humidity:"Healthy",gpsRf:"Healthy"},emergencyReady:true},
   {id:"J-005",name:"Guindy Industrial Corridor",lat:13.0069,lng:80.2206,zone:"Industrial Zone",region:"Chennai South",policeStation:"PS-003",congestion:"Yellow",phase:"Yellow",density:62,vehicles:187,delay:4.4,priority:"High",sensorStatus:{camera:"Healthy",radar:"Healthy",temp:"Healthy",humidity:"Healthy",gpsRf:"Healthy"},emergencyReady:true},
   {id:"J-006",name:"Adyar Signal Point",lat:13.0012,lng:80.2565,zone:"Coastal Residential",region:"Chennai South",policeStation:"PS-003",congestion:"Green",phase:"Green",density:36,vehicles:108,delay:1.6,priority:"Low",sensorStatus:{camera:"Healthy",radar:"Healthy",temp:"Healthy",humidity:"Healthy",gpsRf:"Healthy"},emergencyReady:false},
-  {id:"J-007",name:"Egmore – NSC Bose Road",lat:13.0732,lng:80.2609,zone:"Administrative Hub",region:"Chennai Central",policeStation:"PS-001",congestion:"Yellow",phase:"Yellow",density:72,vehicles:271,delay:6.3,priority:"High",sensorStatus:{camera:"Healthy",radar:"Healthy",temp:"Healthy",humidity:"Healthy",gpsRf:"Healthy"},emergencyReady:true},
+  {id:"J-007",name:"Egmore  NSC Bose Road",lat:13.0732,lng:80.2609,zone:"Administrative Hub",region:"Chennai Central",policeStation:"PS-001",congestion:"Yellow",phase:"Yellow",density:72,vehicles:271,delay:6.3,priority:"High",sensorStatus:{camera:"Healthy",radar:"Healthy",temp:"Healthy",humidity:"Healthy",gpsRf:"Healthy"},emergencyReady:true},
   {id:"J-008",name:"Tambaram Bypass",lat:12.9249,lng:80.1000,zone:"Suburban Transit",region:"Chennai South",policeStation:"PS-004",congestion:"Green",phase:"Green",density:28,vehicles:86,delay:1.2,priority:"Low",sensorStatus:{camera:"Healthy",radar:"Healthy",temp:"Healthy",humidity:"Healthy",gpsRf:"Healthy"},emergencyReady:false},
   {id:"J-009",name:"Perambur Junction",lat:13.1143,lng:80.2322,zone:"North Industrial",region:"Chennai North",policeStation:"PS-005",congestion:"Yellow",phase:"Green",density:55,vehicles:164,delay:3.9,priority:"Medium",sensorStatus:{camera:"Healthy",radar:"Healthy",temp:"Healthy",humidity:"Degraded",gpsRf:"Healthy"},emergencyReady:true},
   {id:"J-010",name:"Velachery IT Corridor",lat:12.9816,lng:80.2209,zone:"IT Hub",region:"Chennai South",policeStation:"PS-004",congestion:"Red",phase:"Red",density:88,vehicles:395,delay:10.5,priority:"High",sensorStatus:{camera:"Healthy",radar:"Healthy",temp:"Healthy",humidity:"Healthy",gpsRf:"Healthy"},emergencyReady:true},
@@ -642,14 +796,14 @@ const ALL_TABS = [
   {id:"emergency",label:"Emergency Ops",ico:"⚠",roles:["Super Administrator","Emergency Operations Controller"],badge:true},
   {id:"sensors",label:"Sensor Health",ico:"◎",roles:["Super Administrator","Regional Traffic Authority","Police Station Controller"]},
   {id:"analytics",label:"Analytics",ico:"▦",roles:["Super Administrator","Regional Traffic Authority"]},
-  {id:"history",label:"Audit Log",ico:"≡",roles:["Super Administrator","Regional Traffic Authority"]},
+  {id:"history",label:"Audit Log",ico:"=",roles:["Super Administrator","Regional Traffic Authority"]},
   {id:"users",label:"User Management",ico:"◌",roles:["Super Administrator"]},
   {id:"settings",label:"System Settings",ico:"⚙",roles:["Super Administrator"]},
 ];
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    HELPER UTILITIES
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 function congestColor(c){
   return c==="Red"?"#B03030":c==="Yellow"?"#C97D10":c==="Blue"?"#1A56A8":"#1A7F4B";
 }
@@ -909,9 +1063,9 @@ function buildExcelSpreadsheet(rows,sheetName){
   return new Blob([header,workbook],{type:"application/vnd.ms-excel"});
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    LOGIN PAGE
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 function Login({onLogin}){
   const [u,setU]=useState("");const [p,setP]=useState("");
   const [show,setShow]=useState(false);const [err,setErr]=useState("");const [ld,setLd]=useState(false);
@@ -923,7 +1077,7 @@ function Login({onLogin}){
     setTimeout(()=>{
       const c=CREDS[u.trim().toLowerCase()];
       if(c&&p===u.trim().toLowerCase()){onLogin(c);}
-      else{setErr("AUTHENTICATION FAILED — INVALID AUTHORITY ID OR PASSKEY");setLd(false);}
+      else{setErr("AUTHENTICATION FAILED  INVALID AUTHORITY ID OR PASSKEY");setLd(false);}
     },800);
   };
   return(
@@ -940,11 +1094,11 @@ function Login({onLogin}){
               <div className="login-sub">Smart Traffic Management System v4.0</div>
             </div>
           </div>
-          <div className="login-dept">Government of Tamil Nadu · Dept. of Highways & Traffic Engineering</div>
+          <div className="login-dept">Government of Tamil Nadu  Dept. of Highways & Traffic Engineering</div>
         </div>
         <div className="login-card">
           <div className="alert alert-i" style={{marginBottom:16,fontSize:9.5}}>
-            🛡️ RESTRICTED GOVERNMENT SYSTEM — AUTHORISED PERSONNEL ONLY · ALL ACCESS IS AUDITED UNDER IT ACT 2000
+            ⚠️ RESTRICTED GOVERNMENT SYSTEM  AUTHORISED PERSONNEL ONLY  ALL ACCESS IS AUDITED UNDER IT ACT 2000
           </div>
           {err&&<div id={loginErrorId} className="alert alert-e" role="alert" aria-live="assertive" style={{marginBottom:14,fontSize:9.5}}>{err}</div>}
           <form onSubmit={submit}>
@@ -956,10 +1110,10 @@ function Login({onLogin}){
               <label htmlFor={passkeyInputId}>Secure Passkey</label>
               <div className="pw-wrap">
                 <input id={passkeyInputId} className="inp" type={show?"text":"password"} placeholder="Enter passkey" value={p} onChange={e=>setP(e.target.value)} required autoComplete="current-password" aria-invalid={!!err} aria-describedby={err?loginErrorId:undefined}/>
-                <button type="button" className="eye" onClick={()=>setShow(s=>!s)}>{show?"●":"○"}</button>
+                <button type="button" className="eye" onClick={()=>setShow(s=>!s)} aria-label={show?"Hide passkey":"Show passkey"}>{show?"🙈":"👁️"}</button>
               </div>
             </div>
-            <button className="login-submit" type="submit" disabled={ld}>{ld?"VERIFYING CREDENTIALS…":"ACCESS TRAFFIX PORTAL →"}</button>
+            <button className="login-submit" type="submit" disabled={ld}>{ld?"VERIFYING CREDENTIALS":"ACCESS TRAFFIX PORTAL"}</button>
           </form>
           <div className="login-sep"><span>Demo Credentials</span></div>
           <div className="cred-grid">
@@ -971,15 +1125,15 @@ function Login({onLogin}){
             ))}
           </div>
         </div>
-        <div className="login-footer-text">SECURED · JWT HS256 · IT ACT 2000 SECTION 66 · UNAUTHORIZED ACCESS IS A COGNIZABLE OFFENCE</div>
+        <div className="login-footer-text">SECURED  JWT HS256  IT ACT 2000 SECTION 66  UNAUTHORIZED ACCESS IS A COGNIZABLE OFFENCE</div>
       </div>
     </div>
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    SIDEBAR
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 function Sidebar({tab,setTab,user,open,onClose,onLogout}){
   const tabs=ALL_TABS.filter(t=>t.roles.includes(user.role));
   const initials=user.name.split(" ").map(n=>n[0]).join("").slice(0,2).toUpperCase();
@@ -991,7 +1145,7 @@ function Sidebar({tab,setTab,user,open,onClose,onLogout}){
           <div className="logo-emblem" aria-hidden="true">TX</div>
           <div className="logo-text-wrap">
             <div className="logo-text">TRAFFIX</div>
-            <div className="logo-sub">TN · Traffic Command</div>
+            <div className="logo-sub">TN  Traffic Command</div>
           </div>
         </div>
         <div className="sidebar-body">
@@ -1032,9 +1186,9 @@ function Sidebar({tab,setTab,user,open,onClose,onLogout}){
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    TOPBAR
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 // Maps each alert scope to the tab it belongs to
 const ALERT_SCOPE_TAB={
   signals:   "junction",
@@ -1057,8 +1211,8 @@ const SCOPE_LABEL={
 };
 
 const SEVERITY_ICON={
-  CRITICAL: "🔴",
-  HIGH:     "🟠",
+  CRITICAL: "⚠️",
+  HIGH:     "🔴",
   MEDIUM:   "🟡",
   LOW:      "🟢",
 };
@@ -1101,7 +1255,7 @@ function Topbar({tab,onMenuToggle,alerts,user,onNav}){
             {activeAlerts.slice(0,6).map(a=>{
               const dest=ALERT_SCOPE_TAB[a.scope];
               const destLabel=SCOPE_LABEL[a.scope];
-              const ico=SEVERITY_ICON[a.severity]||"⚪";
+              const ico=SEVERITY_ICON[a.severity]||"ℹ️";
               return(
                 <button
                   key={a.id}
@@ -1115,7 +1269,7 @@ function Topbar({tab,onMenuToggle,alerts,user,onNav}){
                     <div style={{flex:1,minWidth:0}}>
                       <div className="notif-title">{a.message}</div>
                       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,marginTop:3}}>
-                        <span className="notif-meta">{a.junction} · {a.severity}</span>
+                        <span className="notif-meta">{a.junction}  {a.severity}</span>
                         {dest&&(
                           <span style={{
                             fontFamily:"var(--mono)",fontSize:8,fontWeight:700,
@@ -1142,9 +1296,9 @@ function Topbar({tab,onMenuToggle,alerts,user,onNav}){
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    JUNCTION SEARCH COMPONENT - Reusable Across All Pages
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 function matchesJunctionSearch(junction,searchTerm){
   const q=searchTerm.trim().toLowerCase();
   if(!q) return true;
@@ -1162,13 +1316,14 @@ function JunctionSearchBar({junctions=[],searchTerm,setSearchTerm,onSelect,place
   const showDropdown=searchTerm.trim().length>0&&filtered.length>0;
   return(
     <div style={{position:"relative",flex:1,maxWidth:"320px"}}>
+      <span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",fontSize:"11px",color:"var(--text3)",pointerEvents:"none"}}>🔍</span>
       <input
         type="text"
-        placeholder="🔍 Search Junction ID, Name or Zone..."
+        placeholder={placeholder}
         value={searchTerm}
         onChange={(e)=>setSearchTerm(e.target.value)}
         style={{
-          width:"100%",padding:"8px 12px",
+          width:"100%",padding:"8px 12px 8px 30px",
           border:"1px solid var(--border)",borderRadius:"5px",
           background:"var(--bg1)",color:"var(--text0)",
           fontFamily:"var(--mono)",fontSize:"11px",
@@ -1199,8 +1354,8 @@ function JunctionSearchBar({junctions=[],searchTerm,setSearchTerm,onSelect,place
               onMouseEnter={(e)=>e.target.style.background="var(--bg2)"}
               onMouseLeave={(e)=>e.target.style.background="transparent"}
             >
-              <div style={{fontWeight:700,color:"var(--text0)"}}>{j.id} · {j.name.split("–")[0]}</div>
-              <div style={{fontSize:"9px",color:"var(--text3)",marginTop:"2px"}}>{j.zone} · {j.region}</div>
+              <div style={{fontWeight:700,color:"var(--text0)"}}>{j.id}  {j.name.split("")[0]}</div>
+              <div style={{fontSize:"9px",color:"var(--text3)",marginTop:"2px"}}>{j.zone}  {j.region}</div>
             </div>
           ))}
         </div>
@@ -1228,9 +1383,9 @@ function getDensityCongestion(density){
   return "Green";
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    COMMAND CENTRE DASHBOARD
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){  
   const [dashboardSearch,setDashboardSearch]=useState("");
   const [selJ,setSelJ]=useState(null);
@@ -1247,8 +1402,8 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
     }
   },[junctions,selJ]);
 
-  const congested=junctions.filter(j=>j.congestion==="Red").length;
-  const moderate=junctions.filter(j=>j.congestion==="Yellow").length;
+  const congested=junctions.filter(j=>getDensityCongestion(j.density)==="Red").length;
+  const moderate=junctions.filter(j=>getDensityCongestion(j.density)==="Yellow").length;
   const avgDensity=Math.round(junctions.reduce((a,j)=>a+j.density,0)/junctions.length);
   const totalVeh=junctions.reduce((a,j)=>a+j.vehicles,0);
   const avgDelay=(junctions.reduce((a,j)=>a+j.delay,0)/junctions.length).toFixed(1);
@@ -1257,6 +1412,8 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
   const systemHealth=100-Math.round((congested/junctions.length)*30+sensorFails*5);
   const dotColor={Red:"#B03030",Yellow:"#C97D10",Green:"#1A7F4B",Blue:"#1A56A8"};
   const statusLabel={Green:"NORMAL",Yellow:"MODERATE",Red:"CONGESTED",Blue:"EMERGENCY"};
+  // freshSelJ: re-derived on every render so detail panel shows latest live data
+  const freshSelJ=selJ?junctions.find(j=>j.id===selJ.id)||selJ:null;
   const junctionById=useMemo(()=>Object.fromEntries(junctions.map(j=>[j.id,j])),[junctions]);
   const schematicNodes=useMemo(()=>[
     {id:"J-004",x:150,y:205,label:"Vadapalani Junction"},
@@ -1278,7 +1435,7 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
     ["J-005","J-008"],
     ["J-004","J-006"],
   ];
-  const selectedSchematicNode=selJ?schematicNodes.find(node=>node.id===selJ.id):null;
+  const selectedSchematicNode=freshSelJ?schematicNodes.find(node=>node.id===freshSelJ.id):null;
 
   return(
     <div className="content fade-up">
@@ -1291,23 +1448,22 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
           <p>// REAL-TIME OVERVIEW · GREATER CHENNAI METROPOLITAN NETWORK · <LiveDate/></p>
         </div>
         <div className="page-actions">
-          <button className="btn btn-ghost" onClick={()=>onNav("map")}>OPEN MAP →</button>
-          <button className="btn btn-red btn-sm" onClick={()=>onNav("emergency")}>⚠ EMERGENCY</button>
+          <button className="btn btn-ghost" onClick={()=>onNav("map")}>OPEN MAP</button>
+          <button className="btn btn-red btn-sm" onClick={()=>onNav("emergency")}>EMERGENCY</button>
         </div>
       </div>
 
-      {/* 6 KPI Cards - Optimized Layout */}
       <div className="kpi-strip" style={{marginBottom:14}}>
         {[
           {label:"Active Junctions",val:junctions.length,delta:"All operational",accent:"#1A7F4B",ico:"⬡"},
           {label:"Congested",val:congested,delta:"High density",accent:"#B03030",ico:"🔴"},
-          {label:"Critical Alerts",val:critAlerts,delta:"Require action",accent:"#B03030",ico:"⚠"},
+          {label:"Critical Alerts",val:critAlerts,delta:"Require action",accent:"#B03030",ico:"⚠️"},
           {label:"Avg Density",val:`${avgDensity}%`,delta:"Network avg",accent:"#0077CC",ico:"▦"},
-          {label:"System Health",val:`${systemHealth}%`,delta:"AI ready",accent:"#1A7F4B",ico:"♡"},
+          {label:"System Health",val:`${systemHealth}%`,delta:"AI ready",accent:"#1A7F4B",ico:"♥"},
           {label:"Avg Wait Time",val:`${avgDelay}m`,delta:"vs baseline",accent:"#C97D10",ico:"⏱"},
         ].map(k=>(
           <div key={k.label} className="kpi-card" style={{"--kpi-accent":k.accent}}>
-            <div className="kpi-ico" style={{fontSize:16}}>{k.ico}</div>
+            <div className="kpi-ico" style={{fontSize:18}}>{k.ico}</div>
             <div className="kpi-label">{k.label}</div>
             <div className="kpi-value" style={{color:k.accent,fontSize:22}}>{k.val}</div>
             <div className="kpi-delta">{k.delta}</div>
@@ -1315,10 +1471,9 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
         ))}
       </div>
 
-      {/* Active Alerts Banner */}
       {critAlerts>0&&(
         <div className="alert alert-e" style={{marginBottom:12}}>
-          ⚠ {critAlerts} CRITICAL ALERT{critAlerts>1?"S":""} ACTIVE — Immediate authority review required
+          CRITICAL: {critAlerts} ALERT{critAlerts>1?"S":""} ACTIVE — Immediate authority review required
         </div>
       )}
 
@@ -1335,11 +1490,11 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
           <div style={{padding:12,background:"linear-gradient(180deg,var(--bg1),var(--bg2))"}}>
             <div style={{border:"1px solid var(--border)",borderRadius:8,background:"linear-gradient(180deg,rgba(255,255,255,0.04),rgba(15,23,42,0.02))",padding:"16px 18px 12px",position:"relative",minHeight:430}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:8}}>
-                <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--amber)",letterSpacing:".18em",textTransform:"uppercase",fontWeight:700}}>. Chennai Traffic Spine</div>
+                <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--amber)",letterSpacing:".18em",textTransform:"uppercase",fontWeight:700}}>▸ Chennai Traffic Spine</div>
                 <div style={{display:"flex",gap:12,fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)"}}>
-                  <span style={{color:"#1A7F4B"}}>● Low</span>
-                  <span style={{color:"#C97D10"}}>● Med</span>
-                  <span style={{color:"#B03030"}}>● High</span>
+                  <span style={{color:"#1A7F4B"}}>&#9679; Low</span>
+                  <span style={{color:"#C97D10"}}>&#9679; Med</span>
+                  <span style={{color:"#B03030"}}>&#9679; High</span>
                 </div>
               </div>
               <svg viewBox="0 0 760 360" style={{width:"100%",height:"auto",display:"block"}}>
@@ -1359,11 +1514,11 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
                   return <line key={`${fromId}-${toId}`} x1={from.x} y1={from.y} x2={to.x} y2={to.y} stroke="#CDD5E1" strokeWidth="6" strokeLinecap="round"/>;
                 })}
                 {schematicNodes.map(node=>{
-                  const levelColor=dotColor[node.j.congestion]||"#1A7F4B";
+                  const levelColor=dotColor[getDensityCongestion(node.j.density)]||"#1A7F4B";
                   const isSelected=selectedSchematicNode?.id===node.id;
                   return(
                     <g key={node.id} onClick={()=>setSelJ(node.j)} style={{cursor:"pointer"}}>
-                      {(node.j.congestion==="Red"||isSelected)&&<circle cx={node.x} cy={node.y} r="22" fill={levelColor} opacity="0.16"/>}
+                      {(getDensityCongestion(node.j.density)==="Red"||isSelected)&&<circle cx={node.x} cy={node.y} r="22" fill={levelColor} opacity="0.16"/>}
                       <circle cx={node.x} cy={node.y} r="8.5" fill={levelColor}/>
                       <circle cx={node.x} cy={node.y} r="13" fill="none" stroke={isSelected?"var(--amber)":"transparent"} strokeWidth="2.5"/>
                       <text x={node.x} y={node.y+22} textAnchor="middle" fill="var(--text2)" fontSize="11" fontFamily="var(--mono)">{node.label}</text>
@@ -1387,19 +1542,18 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
           </div>
         </div>
 
-        {/* Junction Detail Panel */}
         <div className="panel">
           <div className="panel-head" style={{flexDirection:"column",gap:8,alignItems:"stretch"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div className="panel-title">{selJ?`Junction Detail — ${selJ.id}`:"All Junctions"}</div>
-              {selJ&&<button className="btn btn-ghost btn-sm" onClick={()=>{setSelJ(null);setDashboardSearch("");}}>✕ CLOSE</button>}
+              <div className="panel-title">{freshSelJ?`Junction Detail  ${freshSelJ.id}`:"All Junctions"}</div>
+              {freshSelJ&&<button className="btn btn-ghost btn-sm" onClick={()=>{setSelJ(null);setDashboardSearch("");}}>✕ CLOSE</button>}
             </div>
-            {!selJ&&(
+            {!freshSelJ&&(
               <div style={{position:"relative"}}>
-                <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:11,color:"var(--text3)",pointerEvents:"none"}}>⌕</span>
+                <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:11,color:"var(--text3)",pointerEvents:"none"}}>🔍</span>
                 <input
                   type="text"
-                  placeholder="Search by ID, Name, Zone, Region…"
+                  placeholder="Search by ID, Name, Zone, Region..."
                   value={dashboardSearch}
                   onChange={e=>setDashboardSearch(e.target.value)}
                   style={{width:"100%",padding:"7px 10px 7px 28px",background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:4,fontFamily:"var(--mono)",fontSize:10,color:"var(--text0)",outline:"none"}}
@@ -1410,7 +1564,7 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
             )}
           </div>
           <div style={{padding:10,maxHeight:420,overflowY:"auto"}}>
-            {!selJ?(
+            {!freshSelJ?(
               <>
                 {filteredJunctions.length===0&&(
                   <div style={{padding:"16px 8px",textAlign:"center",fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)"}}>
@@ -1418,32 +1572,32 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
                   </div>
                 )}
                 <div className="jlist">
-                {filteredJunctions.map(j=>(
-                  <div key={j.id} className={`jrow${selJ?.id===j.id?" active-j":""}`} onClick={()=>setSelJ(j)}>
-                    <SdotFor c={j.congestion}/>
-                    <span className="jrow-id">{j.id}</span>
-                    <span className="jrow-name">{j.name}</span>
-                    <DBar value={j.density}/>
-                  </div>
-                ))}
+                  {filteredJunctions.map(j=>(
+                    <div key={j.id} className={`jrow${freshSelJ?.id===j.id?" active-j":""}`} onClick={()=>setSelJ(j)}>
+                      <SdotFor c={getDensityCongestion(j.density)}/>
+                      <span className="jrow-id">{j.id}</span>
+                      <span className="jrow-name">{j.name}</span>
+                      <DBar value={j.density}/>
+                    </div>
+                  ))}
                 </div>
               </>
             ):(
               <div>
-
-                <div style={{fontFamily:"var(--mono)",fontSize:11,fontWeight:700,color:"var(--text0)",marginBottom:10}}>{selJ.name}</div>
+                <div style={{fontFamily:"var(--mono)",fontSize:11,fontWeight:700,color:"var(--text0)",marginBottom:10}}>{freshSelJ.name}</div>
                 <div style={{marginBottom:12}}>
                   {[
-                    ["Junction ID",selJ.id],
-                    ["Zone",selJ.zone],
-                    ["Region",selJ.region],
-                    ["Police Station",selJ.policeStation],
-                    ["Status",<span className={badgeClass(selJ.congestion)}>{selJ.congestion}</span>],
-                    ["Signal Phase",<span className={badgeClass(selJ.phase)}>{selJ.phase}</span>],
-                    ["Priority",<span className={badgeClass(selJ.priority)}>{selJ.priority}</span>],
-                    ["Vehicles",`${selJ.vehicles} now`],
-                    ["Avg Delay",`${selJ.delay} min`],
-                    ["Emergency Ready",selJ.emergencyReady?"YES":"NO"],
+                    ["Junction ID",freshSelJ.id],
+                    ["Zone",freshSelJ.zone],
+                    ["Region",freshSelJ.region],
+                    ["Police Station",freshSelJ.policeStation],
+                    ["Status",<span className={badgeClass(getDensityCongestion(freshSelJ.density))}>{getDensityCongestion(freshSelJ.density)}</span>],
+                    ["Signal Phase",<span className={badgeClass(freshSelJ.phase)}>{freshSelJ.phase}</span>],
+                    ["Priority",<span className={badgeClass(freshSelJ.priority)}>{freshSelJ.priority}</span>],
+                    ["Vehicles",`${freshSelJ.vehicles} now`],
+                    ["Avg Delay",`${freshSelJ.delay} min`],
+                    ["Density",`${freshSelJ.density}%`],
+                    ["Emergency Ready",freshSelJ.emergencyReady?"YES":"NO"],
                   ].map(([k,v],i)=>(
                     <div key={i} className="detail-row">
                       <span className="detail-key">{k}</span>
@@ -1452,19 +1606,19 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
                   ))}
                 </div>
                 <div style={{marginBottom:10}}>
-                  <div className="detail-key" style={{marginBottom:6}}>Density</div>
-                  <DBar value={selJ.density}/>
+                  <div className="detail-key" style={{marginBottom:6}}>Live Density</div>
+                  <DBar value={freshSelJ.density}/>
                 </div>
-                <div style={{marginBottom:10}}>
+                <div style={{marginBottom:12}}>
                   <div className="detail-key" style={{marginBottom:6}}>Sensor Status</div>
-                  {Object.entries(selJ.sensorStatus).map(([k,v])=>(
-                    <div key={k} style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                  {Object.entries(freshSelJ.sensorStatus).map(([k,v])=>(
+                    <div key={k} style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
                       <span style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",textTransform:"uppercase"}}>{k}</span>
                       <span className={badgeClass(v)}>{v}</span>
                     </div>
                   ))}
                 </div>
-                <button className="btn btn-amber" style={{width:"100%",justifyContent:"center",fontSize:9}} onClick={()=>onNav("junction")}>OPEN CONTROL PANEL →</button>
+                <button className="btn btn-amber" style={{width:"100%",justifyContent:"center",fontSize:9}} onClick={()=>onNav("junction")}>OPEN CONTROL PANEL &rarr;</button>
               </div>
             )}
           </div>
@@ -1475,7 +1629,7 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
       <div className="panel">
         <div className="panel-head">
           <div className="panel-title">Recent System Events</div>
-          <button className="btn btn-ghost btn-sm" onClick={()=>onNav("history")}>VIEW ALL →</button>
+          <button className="btn btn-ghost btn-sm" onClick={()=>onNav("history")}>VIEW ALL &rarr;</button>
         </div>
         <div style={{overflowX:"auto"}}>
           <table>
@@ -1498,15 +1652,15 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    LIVE MAP PAGE (Leaflet)
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 let leafletLoader;
 function MapPage({junctions=JUNCTIONS}){
   const mapRef=useRef(null);
   const leafletMap=useRef(null);
   const markerRefs=useRef({});          // { junctionId -> L.Marker }
-  const highlightRingRef=useRef(null);  // pulsing amber ring marker — persists across data refreshes
+  const highlightRingRef=useRef(null);  // pulsing amber ring marker  persists across data refreshes
   const highlightedIdRef=useRef(null);  // ref copy so data-refresh effects can read it without deps
   const sidebarListRef=useRef(null);
   const activeRowRef=useRef(null);
@@ -1519,12 +1673,12 @@ function MapPage({junctions=JUNCTIONS}){
   const [filter,setFilter]=useState("All");
   const [mapSearch,setMapSearch]=useState("");
 
-  /* ── Helper: colour from density ── */
+  /* -- Helper: colour from density -- */
   const getMapCongestion=useCallback((junction)=>getDensityCongestion(junction?.density??0),[]);
   const congColor={Red:"#B03030",Yellow:"#C97D10",Green:"#1A7F4B",Blue:"#1A56A8"};
 
-  /* ── Fly to a junction, open popup, draw highlight ring ── */
-  // Stable callback — no junction-array dependency so it never triggers map rebuild
+  /* -- Fly to a junction, open popup, draw highlight ring -- */
+  // Stable callback  no junction-array dependency so it never triggers map rebuild
   const flyToJunction=useCallback((j)=>{
     const map=leafletMap.current;
     const L=window._leafletLib;
@@ -1535,10 +1689,10 @@ function MapPage({junctions=JUNCTIONS}){
 
     const c=congColor[getDensityCongestion(j.density)]||"#1A7F4B";
 
-    // Smooth fly-to — stays at zoom 15 until user manually moves the map
+    // Smooth fly-to  stays at zoom 15 until user manually moves the map
     map.flyTo([j.lat,j.lng],15,{animate:true,duration:1.2,easeLinearity:0.3});
 
-    // Pulsing amber ring — placed on map as a non-interactive marker overlay
+    // Pulsing amber ring  placed on map as a non-interactive marker overlay
     const ringIcon=L.divIcon({
       className:"",
       html:`<div style="
@@ -1559,7 +1713,7 @@ function MapPage({junctions=JUNCTIONS}){
     });
     const ring=L.marker([j.lat,j.lng],{icon:ringIcon,interactive:false,zIndexOffset:500});
     ring.addTo(map);
-    highlightRingRef.current=ring;   // persists — only removed by clearHighlight()
+    highlightRingRef.current=ring;   // persists  only removed by clearHighlight()
 
     // Open popup 400 ms after flyTo starts
     setTimeout(()=>{ const m=markerRefs.current[j.id]; if(m) m.openPopup(); },400);
@@ -1569,9 +1723,9 @@ function MapPage({junctions=JUNCTIONS}){
     setSelJ(j);
     setHighlightedId(j.id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[]);  // ← EMPTY deps — never recreated, never triggers map teardown
+  },[]);  // ? EMPTY deps  never recreated, never triggers map teardown
 
-  /* ── Build map ONCE — use JUNCTIONS const for stable positions ── */
+  /* -- Build map ONCE  use JUNCTIONS const for stable positions -- */
   const initMap=useCallback((L)=>{
     if(mapInitialisedRef.current||!mapRef.current||!L) return;
     mapInitialisedRef.current=true;
@@ -1579,7 +1733,7 @@ function MapPage({junctions=JUNCTIONS}){
 
     const map=L.map(mapRef.current,{center:[13.02,80.21],zoom:11,zoomControl:true});
     leafletMap.current=map;
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OSM Contributors",maxZoom:19}).addTo(map);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:" OSM Contributors",maxZoom:19}).addTo(map);
 
     // Build markers from stable JUNCTIONS data (positions never change)
     JUNCTIONS.forEach(j=>{
@@ -1596,7 +1750,7 @@ function MapPage({junctions=JUNCTIONS}){
         .bindPopup(`
           <div style="font-family:'JetBrains Mono',monospace;font-size:11px;min-width:200px;padding:2px 0;">
             <div style="font-size:14px;font-weight:700;color:#0F172A;margin-bottom:4px;">${j.name}</div>
-            <div style="color:#64748B;margin-bottom:6px;">${j.id} · ${j.zone}</div>
+            <div style="color:#64748B;margin-bottom:6px;">${j.id}  ${j.zone}</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
               <span style="background:${c};color:#fff;border-radius:4px;padding:2px 8px;font-weight:700;font-size:10px;">${congestion}</span>
               <span style="background:#f1f5f9;color:#475569;border-radius:4px;padding:2px 8px;font-size:10px;">${j.priority}</span>
@@ -1614,7 +1768,7 @@ function MapPage({junctions=JUNCTIONS}){
     });
     setLoaded(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[]);  // ← EMPTY: map built once from JUNCTIONS const, never rebuilt on data change
+  },[]);  // ? EMPTY: map built once from JUNCTIONS const, never rebuilt on data change
 
   useEffect(()=>{
     let cancelled=false;
@@ -1634,9 +1788,9 @@ function MapPage({junctions=JUNCTIONS}){
       mapInitialisedRef.current=false;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[]);  // ← EMPTY: runs once on mount, cleanup on unmount only
+  },[]);  // ? EMPTY: runs once on mount, cleanup on unmount only
 
-  /* ── Update popups + marker colours with live data — highlight ring is untouched ── */
+  /* -- Update popups + marker colours with live data  highlight ring is untouched -- */
   useEffect(()=>{
     const L=window._leafletLib;
     junctions.forEach(j=>{
@@ -1648,7 +1802,7 @@ function MapPage({junctions=JUNCTIONS}){
       m.setPopupContent(`
         <div style="font-family:'JetBrains Mono',monospace;font-size:11px;min-width:200px;padding:2px 0;">
           <div style="font-size:14px;font-weight:700;color:#0F172A;margin-bottom:4px;">${j.name}</div>
-          <div style="color:#64748B;margin-bottom:6px;">${j.id} · ${j.zone}</div>
+          <div style="color:#64748B;margin-bottom:6px;">${j.id}  ${j.zone}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
             <span style="background:${c};color:#fff;border-radius:4px;padding:2px 8px;font-weight:700;font-size:10px;">${congestion}</span>
             <span style="background:#f1f5f9;color:#475569;border-radius:4px;padding:2px 8px;font-size:10px;">${j.priority}</span>
@@ -1677,9 +1831,9 @@ function MapPage({junctions=JUNCTIONS}){
       const fresh=junctions.find(j=>j.id===highlightedIdRef.current);
       if(fresh) setSelJ(fresh);  // updates numbers in sidebar panel only
     }
-  },[junctions]);  // ← safe: only touches popup content + icon, never the ring or map view
+  },[junctions]);  // ? safe: only touches popup content + icon, never the ring or map view
 
-  /* ── Scroll the active junction row into view in the sidebar ── */
+  /* -- Scroll the active junction row into view in the sidebar -- */
   useEffect(()=>{
     if(activeRowRef.current&&sidebarListRef.current){
       activeRowRef.current.scrollIntoView({block:"nearest",behavior:"smooth"});
@@ -1688,13 +1842,13 @@ function MapPage({junctions=JUNCTIONS}){
 
   const filtered=filter==="All"?junctions:junctions.filter(j=>getMapCongestion(j)===filter);
 
-  /* ── Handle sidebar junction click: flyTo + highlight ── */
+  /* -- Handle sidebar junction click: flyTo + highlight -- */
   const handleJunctionClick=useCallback((j)=>{
     flyToJunction(j);
   },[flyToJunction]);
 
 
-  /* ── Clear highlight ── */
+  /* -- Clear highlight -- */
   const clearHighlight=()=>{
     if(highlightRingRef.current){ highlightRingRef.current.remove(); highlightRingRef.current=null; }
     highlightedIdRef.current=null;
@@ -1710,13 +1864,13 @@ function MapPage({junctions=JUNCTIONS}){
         <div className="page-header">
           <h1>◈ Live City Map</h1>
           <div className="accent-rule"/>
-          <p>// INTERACTIVE GIS MAP · REAL-TIME JUNCTION STATUS · SEARCH TO FLY-TO ANY JUNCTION</p>
+          <p>// INTERACTIVE GIS MAP  REAL-TIME JUNCTION STATUS  SEARCH TO FLY-TO ANY JUNCTION</p>
         </div>
         <div className="page-actions" style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
           {["All","Green","Yellow","Red"].map(f=>(
             <button key={f} className={`btn ${filter===f?"btn-amber":"btn-ghost"}`} onClick={()=>setFilter(f)}>{f}</button>
           ))}
-          {/* Enhanced search bar — onSelect triggers flyTo + highlight */}
+          {/* Enhanced search bar  onSelect triggers flyTo + highlight */}
           <JunctionSearchBar
             junctions={junctions}
             searchTerm={mapSearch}
@@ -1735,21 +1889,21 @@ function MapPage({junctions=JUNCTIONS}){
       {highlightedId&&selJ&&(
         <div className="alert alert-ok" style={{marginBottom:10,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
           <span>
-            📍 <strong>{selJ.id}</strong> — {selJ.name} · Map zoomed to junction location ·&nbsp;
+            📍 <strong>{selJ.id}</strong>  {selJ.name}  Map zoomed to junction location &nbsp;
             <span style={{fontFamily:"var(--mono)",fontSize:10}}>
-              {selJ.lat.toFixed(4)}°N, {selJ.lng.toFixed(4)}°E
+              {selJ.lat.toFixed(4)}N, {selJ.lng.toFixed(4)}E
             </span>
           </span>
-          <button className="btn btn-ghost btn-sm" onClick={clearHighlight}>✕ Reset View</button>
+          <button className="btn btn-ghost btn-sm" onClick={clearHighlight}>↺ Reset View</button>
         </div>
       )}
 
       <div className="g13" style={{minHeight:"calc(100vh - 180px)"}}>
         <div className="panel" style={{display:"flex",flexDirection:"column"}}>
           <div className="panel-head">
-            <div className="panel-title">Chennai Network — Live GIS View</div>
+            <div className="panel-title">Chennai Network  Live GIS View</div>
             <div style={{display:"flex",gap:12,fontSize:9,fontFamily:"var(--mono)"}}>
-              {[["#1A7F4B","🟢 Normal"],["#C97D10","🟡 Moderate"],["#B03030","🔴 Congested"]].map(([c,l])=>(
+              {[["#1A7F4B","● Normal"],["#C97D10","● Moderate"],["#B03030","● Congested"]].map(([c,l])=>(
                 <span key={l} style={{color:c,display:"flex",alignItems:"center",gap:4,fontWeight:"700"}}>
                   <span style={{width:8,height:8,borderRadius:"50%",background:c,display:"inline-block",boxShadow:`0 0 4px ${c}`}}/>
                   {l}
@@ -1758,15 +1912,15 @@ function MapPage({junctions=JUNCTIONS}){
               {highlightedId&&(
                 <span style={{color:"#FFB830",display:"flex",alignItems:"center",gap:4,fontWeight:"700",animation:"blink 1.5s infinite"}}>
                   <span style={{width:8,height:8,borderRadius:"50%",background:"#FFB830",display:"inline-block"}}/>
-                  🔍 FOCUSED
+                  ◎ FOCUSED
                 </span>
               )}
             </div>
           </div>
           <div style={{padding:10,position:"relative",flex:1,minHeight:450}}>
             <div ref={mapRef} id="traffix-map" style={{height:"100%",minHeight:430,borderRadius:4}}/>
-            {!loaded&&!err&&<div style={{position:"absolute",inset:10,display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg2)",borderRadius:4,fontFamily:"var(--mono)",fontSize:11,color:"var(--text2)"}}>LOADING MAP…</div>}
-            {err&&<div style={{position:"absolute",inset:10,display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg2)",borderRadius:4,fontFamily:"var(--mono)",fontSize:11,color:"var(--red)"}}>⚠ MAP SERVICE UNAVAILABLE — Using static schematic</div>}
+            {!loaded&&!err&&<div style={{position:"absolute",inset:10,display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg2)",borderRadius:4,fontFamily:"var(--mono)",fontSize:11,color:"var(--text2)"}}>LOADING MAP</div>}
+            {err&&<div style={{position:"absolute",inset:10,display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg2)",borderRadius:4,fontFamily:"var(--mono)",fontSize:11,color:"var(--red)"}}>⚠ MAP SERVICE UNAVAILABLE  Using static schematic</div>}
           </div>
         </div>
 
@@ -1800,7 +1954,7 @@ function MapPage({junctions=JUNCTIONS}){
                       </div>
                       <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
                         <SdotFor c={getMapCongestion(j)}/>
-                        {isHighlighted&&<span style={{fontSize:8,fontFamily:"var(--mono)",color:"var(--amber)",fontWeight:700}}>📍 FOCUSED</span>}
+                        {isHighlighted&&<span style={{fontSize:8,fontFamily:"var(--mono)",color:"var(--amber)",fontWeight:700}}>◎ FOCUSED</span>}
                       </div>
                     </div>
                     <DBar value={j.density}/>
@@ -1813,13 +1967,13 @@ function MapPage({junctions=JUNCTIONS}){
           {selJ&&(
             <div className="panel">
               <div className="panel-head">
-                <div className="panel-title">{selJ.id} — Details</div>
+                <div className="panel-title">{selJ.id}  Details</div>
                 <button className="btn btn-ghost btn-sm" onClick={clearHighlight}>✕</button>
               </div>
               <div style={{padding:12}}>
                 <div style={{fontFamily:"var(--mono)",fontSize:11,fontWeight:700,color:"var(--text0)",marginBottom:6}}>{selJ.name}</div>
                 <div style={{fontSize:9,fontFamily:"var(--mono)",color:"var(--amber)",marginBottom:8}}>
-                  📍 {selJ.lat.toFixed(5)}°N, {selJ.lng.toFixed(5)}°E
+                  📍 {selJ.lat.toFixed(5)}N, {selJ.lng.toFixed(5)}E
                 </div>
                 {[["Zone",selJ.zone],["Region",selJ.region],["Vehicles",`${selJ.vehicles} now`],["Density",`${selJ.density}%`],["Delay",`${selJ.delay} min`],["Police Station",selJ.policeStation]].map(([k,v])=>(
                   <div key={k} className="detail-row"><span className="detail-key">{k}</span><span className="detail-val">{v}</span></div>
@@ -1834,7 +1988,7 @@ function MapPage({junctions=JUNCTIONS}){
                   style={{width:"100%",justifyContent:"center",fontSize:9,marginTop:10}}
                   onClick={()=>flyToJunction(selJ,window._leafletLib)}
                 >
-                  📍 RE-CENTRE MAP
+                  ↺ RE-CENTRE MAP
                 </button>
               </div>
             </div>
@@ -1845,9 +1999,9 @@ function MapPage({junctions=JUNCTIONS}){
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    JUNCTION CONTROL PANEL
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,alerts,role,userId,controlGrant}){
   const [sel,setSel]=useState(0);
   const [timings,setTimings]=useState(junctions.map(()=>({green:45,yellow:5,red:40})));
@@ -1866,7 +2020,7 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
       jj.zone.toLowerCase().includes(q)
     );
   },[junctions,jcSearch]);
-  const selectedCritical=Boolean(j&&(j.priority==="Critical"||j.density>=85||j.congestion==="Red"));
+  const selectedCritical=Boolean(j&&(j.priority==="Critical"||j.density>=85||getDensityCongestion(j.density)==="Red"));
   const canEditTiming=role==="Super Administrator"&&(emergencyActive||selectedCritical);
   const canCycleSignal=canEditTiming||(Boolean(controlGrant)&&emergencyActive);
 
@@ -1893,13 +2047,13 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
   return(
     <div className="content fade-up">
       <div className="header-row">
-        <div className="page-header"><h1>◉ Junction Control</h1><div className="accent-rule"/><p>// AI ADAPTIVE SIGNAL MANAGEMENT · MANUAL OVERRIDES PERMANENTLY LOGGED</p></div>
+        <div className="page-header"><h1>◉ Junction Control</h1><div className="accent-rule"/><p>// AI ADAPTIVE SIGNAL MANAGEMENT  MANUAL OVERRIDES PERMANENTLY LOGGED</p></div>
         <div className="page-actions" style={{alignItems:"center",gap:8}}>
           <div style={{position:"relative"}}>
-            <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"var(--text3)",pointerEvents:"none"}}>⌕</span>
+            <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"var(--text3)",pointerEvents:"none"}}>🔍</span>
             <input
               type="text"
-              placeholder="Search junction ID, name…"
+              placeholder="Search junction ID, name"
               value={jcSearch}
               onChange={e=>setJcSearch(e.target.value)}
               style={{padding:"7px 10px 7px 28px",background:"var(--bg1)",border:"1px solid var(--border)",borderRadius:4,fontFamily:"var(--mono)",fontSize:10,color:"var(--text0)",outline:"none",width:220}}
@@ -1911,17 +2065,17 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
           {jcSearch&&<button className="btn btn-ghost btn-sm" onClick={()=>setJcSearch("")}>✕ CLEAR</button>}
         </div>
       </div>
-      <div className="alert alert-i">ℹ Signals run in automatic mode by default. Manual timing changes are reserved for Super Administrator during critical or emergency situations. Delegated lower-role users can only cycle a signal while an active emergency is in progress.</div>
+      <div className="alert alert-i">ℹ️ Signals run in automatic mode by default. Manual timing changes are reserved for Super Administrator during critical or emergency situations. Delegated lower-role users can only cycle a signal while an active emergency is in progress.</div>
       {emergencyState.activeCorridor&&<div className="alert alert-e">⚠ EMERGENCY OVERRIDE ACTIVE: Corridor {emergencyState.activeCorridor}</div>}
-      {emergencyState.disasterMode==="all-red"&&<div className="alert alert-e">⚠ DISASTER: ALL JUNCTIONS FORCED RED</div>}
-      {emergencyState.disasterMode==="arterial-flush"&&<div className="alert alert-w">⚠ ARTERIAL FLUSH: ALL JUNCTIONS FORCED GREEN</div>}
+      {emergencyState.disasterMode==="all-red"&&<div className="alert alert-e">🔴 DISASTER: ALL JUNCTIONS FORCED RED</div>}
+      {emergencyState.disasterMode==="arterial-flush"&&<div className="alert alert-w">🟡 ARTERIAL FLUSH: ALL JUNCTIONS FORCED GREEN</div>}
       {!canCycleSignal&&<div className="alert alert-w">Manual control locked for {userId||"current user"}. The AI controller remains active until a Super Administrator authorizes emergency intervention.</div>}
       {alerts.slice(0,2).map(a=>(
         <div key={a.id} className={`alert ${a.severity==="CRITICAL"?"alert-e":"alert-w"}`}>{a.message}</div>
       ))}
       {filteredJc.length===0&&(
         <div style={{padding:"20px",textAlign:"center",fontFamily:"var(--mono)",fontSize:11,color:"var(--text3)",background:"var(--bg2)",borderRadius:6,marginBottom:12}}>
-          No junctions match "{jcSearch}" — <button className="btn btn-ghost btn-sm" onClick={()=>setJcSearch("")}>Clear search</button>
+          No junctions match "{jcSearch}"  <button className="btn btn-ghost btn-sm" onClick={()=>setJcSearch("")}>Clear search</button>
         </div>
       )}
       <div className="signal-grid">
@@ -1937,10 +2091,10 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
                 <div className={`tb tb-r${p==="Red"?" on":""}`}/><div className={`tb tb-y${p==="Yellow"?" on":""}`}/><div className={`tb tb-g${p==="Green"?" on":""}`}/>
               </div>
               <div className="sig-id">{jj.id}</div>
-              <div className="sig-label">{jj.name.split("–")[0].trim()}</div>
+              <div className="sig-label">{jj.name.split("")[0].trim()}</div>
               <div style={{marginTop:6,display:"flex",flexDirection:"column",gap:4,alignItems:"center"}}>
                 <span className={badgeClass(p)}>{p}</span>
-                <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}>{jj.density}% · {jj.vehicles}v</span>
+                <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}>{jj.density}%  {jj.vehicles}v</span>
                 {(emergencyState.affectedNodes.includes(jj.id)||emergencyState.disasterMode)&&<span style={{fontSize:8,color:"var(--red)",fontFamily:"var(--mono)",fontWeight:700}}>FORCED</span>}
                 <button className="btn btn-ghost btn-sm" style={{fontSize:8}} onClick={e=>cycle(i,e)} disabled={!canCycleSignal||Boolean(emergencyState.disasterMode)||emergencyState.affectedNodes.includes(jj.id)}>↻ CYCLE</button>
               </div>
@@ -1952,11 +2106,11 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
         <div className="g2">
           <div className="panel">
             <div className="panel-head">
-              <div className="panel-title">Timing Editor — {j.name}</div>
+              <div className="panel-title">Timing Editor  {j.name}</div>
               <div style={{display:"flex",gap:6,alignItems:"center"}}>
                 {saved&&<span className="badge badge-g">✓ SAVED</span>}
                 <button className="btn btn-amber" onClick={()=>{if(!canEditTiming) return;setSaved(true);setTimeout(()=>setSaved(false),2500);}} disabled={!canEditTiming}>SAVE</button>
-                <button className="btn btn-ghost" onClick={()=>setTimings(prev=>prev.map((item,idx)=>idx===sel?{green:45,yellow:5,red:40}:item))} disabled={!canEditTiming}>↺ AI DEFAULT</button>
+                <button className="btn btn-ghost" onClick={()=>setTimings(prev=>prev.map((item,idx)=>idx===sel?{green:45,yellow:5,red:40}:item))} disabled={!canEditTiming}>? AI DEFAULT</button>
               </div>
             </div>
             <div className="panel-body">
@@ -1975,13 +2129,13 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
               </div>
               <div className="alert alert-ok" style={{marginTop:8,marginBottom:0}}>
                 {canEditTiming
-                  ? `✓ Emergency timing editor unlocked. TOTAL CYCLE: ${((timings[sel])?.green??0)+((timings[sel])?.yellow??0)+((timings[sel])?.red??0)}s · GREEN RATIO: ${Math.round((((timings[sel])?.green??0)/Math.max(1,((timings[sel])?.green??0)+((timings[sel])?.yellow??0)+((timings[sel])?.red??0)))*100)}%`
-                  : "✓ Adaptive cycle guardrails active. AI resumes and maintains default signal timing outside critical or emergency conditions."}
+                  ? `\u26a0 Emergency timing editor unlocked. TOTAL CYCLE: ${((timings[sel])?.green??0)+((timings[sel])?.yellow??0)+((timings[sel])?.red??0)}s \u2014 GREEN RATIO: ${Math.round((((timings[sel])?.green??0)/Math.max(1,((timings[sel])?.green??0)+((timings[sel])?.yellow??0)+((timings[sel])?.red??0)))*100)}%`
+                  : "\u2139\ufe0f Adaptive cycle guardrails active. AI resumes and maintains default signal timing outside critical or emergency conditions."}
               </div>
             </div>
           </div>
           <div className="panel">
-            <div className="panel-head"><div className="panel-title">{j.id} — Lane Status</div></div>
+            <div className="panel-head"><div className="panel-title">{j.id}  Lane Status</div></div>
             <div className="panel-body">
               {["North","East","South","West"].map((dir,i)=>{
                 const lDensity=j.density+Math.round((Math.random()-0.5)*15);
@@ -2008,9 +2162,9 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    LSTM AI PREDICTION ENGINE
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 const LSTM_HORIZONS=[
   {label:"5 MIN",key:"5m",color:"#1A7F4B",minutes:5},
   {label:"15 MIN",key:"15m",color:"#0077CC",minutes:15},
@@ -2116,7 +2270,6 @@ function LSTMPredictions({junctions=JUNCTIONS}){
   const [lstmSearch,setLstmSearch]=useState("");
   const [currentTime,setCurrentTime]=useState(()=>new Date());
 
-  // Filter junctions by search term
   const filteredLstm=useMemo(()=>{
     const q=lstmSearch.trim().toLowerCase();
     if(!q) return junctions;
@@ -2165,9 +2318,9 @@ function LSTMPredictions({junctions=JUNCTIONS}){
   return(
     <div className="content fade-up">
       <div className="header-row">
-        <div className="page-header"><h1>⬠ LSTM AI Prediction Engine</h1><div className="accent-rule"/><p>// LONG SHORT-TERM MEMORY NETWORK · MULTI-HORIZON TRAFFIC FORECASTING · CONFIDENCE SCORES</p></div>
+        <div className="page-header"><h1>LSTM AI Prediction Engine</h1><div className="accent-rule"/><p>// LONG SHORT-TERM MEMORY NETWORK · MULTI-HORIZON TRAFFIC FORECASTING · CONFIDENCE SCORES</p></div>
         <div className="page-actions">
-          <button className="btn btn-amber" onClick={()=>{const now=new Date();setCurrentTime(now);generatePrediction(selJ,now);}} disabled={loading||!selJ}>{loading?"COMPUTING…":"↻ REFRESH PREDICTION"}</button>
+          <button className="btn btn-amber" onClick={()=>{const now=new Date();setCurrentTime(now);generatePrediction(selJ,now);}} disabled={loading||!selJ}>{loading?"COMPUTING...":"REFRESH PREDICTION"}</button>
         </div>
       </div>
 
@@ -2181,10 +2334,10 @@ function LSTMPredictions({junctions=JUNCTIONS}){
               </span>
             </div>
             <div style={{position:"relative"}}>
-              <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",fontSize:11,color:"var(--text3)",pointerEvents:"none"}}>⌕</span>
+              <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",fontSize:11,color:"var(--text3)",pointerEvents:"none"}}>🔍</span>
               <input
                 type="text"
-                placeholder="Search by ID, Name or Zone…"
+                placeholder="Search by ID, Name or Zone..."
                 value={lstmSearch}
                 onChange={e=>setLstmSearch(e.target.value)}
                 style={{width:"100%",padding:"6px 10px 6px 26px",border:"1px solid var(--border)",borderRadius:4,background:"var(--bg1)",color:"var(--text0)",fontSize:10,fontFamily:"var(--mono)",outline:"none"}}
@@ -2201,7 +2354,7 @@ function LSTMPredictions({junctions=JUNCTIONS}){
             )}
             {filteredLstm.map(j=>(
               <div key={j.id} className={`jrow${selJ?.id===j.id?" active-j":""}`} onClick={()=>setSelectedJunctionId(j.id)}>
-                <SdotFor c={j.congestion}/>
+                <SdotFor c={getDensityCongestion(j.density)}/>
                 <span className="jrow-id">{j.id}</span>
                 <span className="jrow-name">{j.name}</span>
                 <DBar value={j.density}/>
@@ -2210,7 +2363,7 @@ function LSTMPredictions({junctions=JUNCTIONS}){
           </div>
         </div>
         <div className="panel">
-          <div className="panel-head"><div className="panel-title">Model Inputs — {selJ?.id}</div></div>
+          <div className="panel-head"><div className="panel-title">Model Inputs - {selJ?.id}</div></div>
           <div className="panel-body">
             <div className="g2">
               {[
@@ -2233,7 +2386,6 @@ function LSTMPredictions({junctions=JUNCTIONS}){
         </div>
       </div>
 
-      {/* Prediction Horizons */}
       {pred&&(
         <>
           <div className="g4" style={{marginBottom:12}}>
@@ -2263,10 +2415,9 @@ function LSTMPredictions({junctions=JUNCTIONS}){
             ))}
           </div>
 
-          {/* Charts */}
           <div className="g2">
             <div className="panel">
-              <div className="panel-head"><div className="panel-title">Predicted Density (0–60 min)</div></div>
+              <div className="panel-head"><div className="panel-title">Predicted Density (0-60 min)</div></div>
               <div className="panel-body">
                 <ResponsiveContainer width="100%" height={180}>
                   <AreaChart data={chartData} margin={{top:5,right:5,bottom:0,left:-20}}>
@@ -2286,7 +2437,7 @@ function LSTMPredictions({junctions=JUNCTIONS}){
               </div>
             </div>
             <div className="panel">
-              <div className="panel-head"><div className="panel-title">Congestion Probability (0–60 min)</div></div>
+              <div className="panel-head"><div className="panel-title">Congestion Probability (0-60 min)</div></div>
               <div className="panel-body">
                 <ResponsiveContainer width="100%" height={180}>
                   <LineChart data={chartData} margin={{top:5,right:5,bottom:0,left:-20}}>
@@ -2305,16 +2456,16 @@ function LSTMPredictions({junctions=JUNCTIONS}){
       )}
       {loading&&(
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:200,fontFamily:"var(--mono)",fontSize:12,color:"var(--text3)"}}>
-          <span className="spin" style={{marginRight:10}}>◌</span>RUNNING LSTM INFERENCE…
+          <span className="spin" style={{marginRight:10}}>o</span>RUNNING LSTM INFERENCE...
         </div>
       )}
     </div>
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    WEATHER INTELLIGENCE
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 function WeatherIntel({junctions=JUNCTIONS}){
   const weatherByJunction=useMemo(()=>junctions.map(buildJunctionWeather).sort((a,b)=>b.impact-a.impact),[junctions]);
   const [selectedJunctionId,setSelectedJunctionId]=useState(weatherByJunction[0]?.junctionId||junctions[0]?.id);
@@ -2328,19 +2479,19 @@ function WeatherIntel({junctions=JUNCTIONS}){
   return(
     <div className="content fade-up">
       <div className="header-row">
-        <div className="page-header"><h1>☁ Weather Intelligence</h1><div className="accent-rule"/><p>// JUNCTION-SPECIFIC WEATHER · MICRO-IMPACT ANALYSIS · AI-POWERED REROUTING</p></div>
+        <div className="page-header"><h1>☁ Weather Intelligence</h1><div className="accent-rule"/><p>// JUNCTION-SPECIFIC WEATHER  MICRO-IMPACT ANALYSIS  AI-POWERED REROUTING</p></div>
       </div>
       <div className="g31" style={{marginBottom:12}}>
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           <div className="weather-card">
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
               <div>
-                <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",textTransform:"uppercase",letterSpacing:".1em",marginBottom:4}}>Current Conditions · {weather.junctionId}</div>
-                <div className="weather-temp">{weather.temp}°C</div>
+                <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",textTransform:"uppercase",letterSpacing:".1em",marginBottom:4}}>Current Conditions  {weather.junctionId}</div>
+                <div className="weather-temp">{weather.temp}C</div>
                 <div className="weather-cond">{weather.condition}</div>
                 <div style={{fontSize:11,color:"var(--text2)",marginTop:4}}>{weather.junctionName}</div>
               </div>
-              <div style={{fontSize:48}}>🌤</div>
+              <div style={{fontSize:48}}>🌤️</div>
             </div>
             <div className="g2">
               {[["Humidity",`${weather.humidity}%`],["Visibility",`${weather.visibility} km`],["Wind Speed",`${weather.windSpeed} km/h`],["Rainfall",`${weather.rainfall} mm/hr`]].map(([k,v])=>(
@@ -2351,7 +2502,7 @@ function WeatherIntel({junctions=JUNCTIONS}){
               ))}
             </div>
             <div className="weather-impact">
-              ⚠ TRAFFIC IMPACT SCORE: <strong>{weather.impact}%</strong> — {weather.impact>70?"HIGH — Significant delays expected":weather.impact>40?"MODERATE — Minor signal adjustments needed":"LOW — Normal operations"}
+              ⚠ TRAFFIC IMPACT SCORE: <strong>{weather.impact}%</strong>  {weather.impact>70?"HIGH  Significant delays expected":weather.impact>40?"MODERATE  Minor signal adjustments needed":"LOW  Normal operations"}
             </div>
           </div>
           <div className="panel">
@@ -2391,15 +2542,15 @@ function WeatherIntel({junctions=JUNCTIONS}){
                 </AreaChart>
               </ResponsiveContainer>
               <div style={{display:"flex",gap:14,marginTop:6,fontFamily:"var(--mono)",fontSize:9}}>
-                <span style={{color:"#1A56A8"}}>── Rain Probability</span>
-                <span style={{color:"#B03030"}}>── Traffic Impact</span>
+                <span style={{color:"#1A56A8"}}>-- Rain Probability</span>
+                <span style={{color:"#B03030"}}>-- Traffic Impact</span>
               </div>
             </div>
           </div>
           <div className="panel">
             <div className="panel-head"><div className="panel-title">Weather Alerts</div></div>
             <div className="panel-body">
-              {weather.alerts.length===0&&<div className="alert alert-ok">✓ No active weather hazards for this junction. AI remains in normal adaptive mode.</div>}
+              {weather.alerts.length===0&&<div className="alert alert-ok">✅ No active weather hazards for this junction. AI remains in normal adaptive mode.</div>}
               {weather.alerts.map(a=>(
                 <div key={a.id} className={`alert ${a.severity==="HIGH"?"alert-e":"alert-w"}`} style={{marginBottom:8}}>
                   <div>
@@ -2432,9 +2583,9 @@ function WeatherIntel({junctions=JUNCTIONS}){
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    EMERGENCY OPERATIONS
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 function EmergencyOps({role,junctions=JUNCTIONS,emergencyState,setEmergencyState,alerts,controlGrant}){
   const can=role==="Emergency Operations Controller"||role==="Super Administrator";
   const [activeVehicles]=useState([
@@ -2463,26 +2614,40 @@ function EmergencyOps({role,junctions=JUNCTIONS,emergencyState,setEmergencyState
     });
   },[autoCorridor,emergencyState.disasterMode,junctions,setEmergencyState]);
   const disaster=(mode)=>setEmergencyState({activeCorridor:null,affectedNodes:junctions.map(j=>j.id),disasterMode:mode});
+  const resumeAIDefault=()=>setEmergencyState({
+    activeCorridor:autoCorridor?.id||null,
+    affectedNodes:autoCorridor?(autoCorridor.route.includes("All Network")?junctions.map(j=>j.id):autoCorridor.route):[],
+    disasterMode:null,
+  });
 
   return(
     <div className="content fade-up">
       <div className="header-row">
         <div className="page-header">
-          <h1 style={{color:"var(--red)"}}>⚠ Emergency Operations</h1>
+          <h1 style={{color:"var(--red)"}}>⚠️ Emergency Operations</h1>
           <div className="accent-rule" style={{background:"linear-gradient(90deg,var(--red),transparent)"}}/>
-          <p>// AUTO-RUN EMERGENCY ORCHESTRATION · VEHICLE DETECTION · GREEN CORRIDOR COORDINATION</p>
+          <p>// AUTO-RUN EMERGENCY ORCHESTRATION  VEHICLE DETECTION  GREEN CORRIDOR COORDINATION</p>
         </div>
       </div>
-      {!can&&<div className="alert alert-e">🔒 RESTRICTED — EMERGENCY OPERATIONS CONTROLLER OR SUPER ADMINISTRATOR CLEARANCE REQUIRED</div>}
-      <div className="alert alert-i">ℹ Green corridors now run automatically from live vehicle status. Super Administrator keeps the only disaster override and may grant temporary signal-cycle access to lower roles only during active emergencies.</div>
-      {controlGrant&&role!=="Super Administrator"&&<div className="alert alert-ok">✓ Your emergency signal delegation is active for the current incident window.</div>}
-      {emergencyState.activeCorridor&&<div className="alert alert-e">● ACTIVE: Emergency Corridor {emergencyState.activeCorridor} — Signal sync active on {emergencyState.affectedNodes.join(", ")}</div>}
+      {!can&&<div className="alert alert-e">⛔ RESTRICTED  EMERGENCY OPERATIONS CONTROLLER OR SUPER ADMINISTRATOR CLEARANCE REQUIRED</div>}
+      <div className="alert alert-i">ℹ️ Green corridors now run automatically from live vehicle status. Super Administrator keeps the only disaster override and may grant temporary signal-cycle access to lower roles only during active emergencies.</div>
+      {controlGrant&&role!=="Super Administrator"&&<div className="alert alert-ok">✅ Your emergency signal delegation is active for the current incident window.</div>}
+      {emergencyState.activeCorridor&&<div className="alert alert-e">⚠ ACTIVE: Emergency Corridor {emergencyState.activeCorridor}  Signal sync active on {emergencyState.affectedNodes.join(", ")}</div>}
+
+      {emergencyState.disasterMode&&(
+        <div className="alert alert-w" style={{justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+          <span>Disaster override is active. Resume AI default mode to hand full network control back to live automatic orchestration.</span>
+          <button className="btn btn-green btn-sm" onClick={resumeAIDefault} disabled={role!=="Super Administrator"}>
+            {role==="Super Administrator"?"RESUME AI DEFAULT":"SUPER ADMIN ONLY"}
+          </button>
+        </div>
+      )}
 
       {/* Active Emergency Vehicles */}
       <div className="panel" style={{marginBottom:12}}>
         <div className="panel-head">
           <div className="panel-title" style={{color:"var(--red)"}}>Active Emergency Vehicles</div>
-          <span className="badge badge-r">● {activeVehicles.filter(v=>v.status==="ACTIVE").length} ACTIVE</span>
+          <span className="badge badge-r">🚨 {activeVehicles.filter(v=>v.status==="ACTIVE").length} ACTIVE</span>
         </div>
         <div style={{overflowX:"auto"}}>
           <table>
@@ -2511,7 +2676,7 @@ function EmergencyOps({role,junctions=JUNCTIONS,emergencyState,setEmergencyState
         <div className="panel" style={{borderTop:"2px solid var(--red)"}}>
           <div className="panel-head">
             <div className="panel-title" style={{color:"var(--red)"}}>Green Corridor Preemption</div>
-            {emergencyState.activeCorridor&&<span className="badge badge-r">● LIVE</span>}
+            {emergencyState.activeCorridor&&<span className="badge badge-r">🟢 LIVE</span>}
           </div>
           <div className="panel-body" style={{display:"flex",flexDirection:"column",gap:8}}>
             {corridors.map(c=>{
@@ -2555,14 +2720,14 @@ function EmergencyOps({role,junctions=JUNCTIONS,emergencyState,setEmergencyState
             <div className="panel-body">
               <p style={{fontFamily:"var(--mono)",fontSize:9.5,color:"var(--text2)",marginBottom:12,lineHeight:1.7}}>Disaster protocols suspend AI network-wide and require Super Administrator dual-authorisation. All activations are logged under IT Act 2000.</p>
               {[
-                {t:"TOTAL SYSTEM FLASH",d:"Force all junctions to blink RED. Use only during catastrophic multi-junction failures.",c:"var(--red)",mode:"all-red",ico:"🔴"},
-                {t:"ARTERIAL FLUSH",d:"Force all junctions to GREEN for mass evacuation or major emergency access.",c:"var(--amber)",mode:"arterial-flush",ico:"🟡"},
+                {t:"TOTAL SYSTEM FLASH",d:"Force all junctions to blink RED. Use only during catastrophic multi-junction failures.",c:"var(--red)",mode:"all-red",ico:"🚨"},
+                {t:"ARTERIAL FLUSH",d:"Force all junctions to GREEN for mass evacuation or major emergency access.",c:"var(--amber)",mode:"arterial-flush",ico:"🛣️"},
               ].map(it=>(
                 <div key={it.t} style={{border:"1px solid var(--border)",borderRadius:5,padding:12,marginBottom:8,background:"var(--bg2)",borderLeft:`3px solid ${it.c}`}}>
                   <div style={{fontFamily:"var(--mono)",fontWeight:700,marginBottom:3,fontSize:11,color:it.c}}>{it.ico} {it.t}</div>
                   <p style={{fontFamily:"var(--mono)",fontSize:9.5,marginBottom:10,color:"var(--text2)",lineHeight:1.6}}>{it.d}</p>
-                  <button className="btn btn-ghost" style={{width:"100%",justifyContent:"center",color:it.c,borderColor:it.c,fontSize:9}} onClick={()=>disaster(it.mode)} disabled={role!=="Super Administrator"}>
-                    {role==="Super Administrator"?`ACTIVATE ${it.t}`:"SUPER ADMIN ONLY — DUAL AUTH REQUIRED"}
+                  <button className="btn btn-ghost" style={{width:"100%",justifyContent:"center",color:it.c,borderColor:it.c,fontSize:9}} onClick={()=>emergencyState.disasterMode===it.mode?resumeAIDefault():disaster(it.mode)} disabled={role!=="Super Administrator"}>
+                    {role==="Super Administrator"?`ACTIVATE ${it.t}`:"SUPER ADMIN ONLY  DUAL AUTH REQUIRED"}
                   </button>
                 </div>
               ))}
@@ -2571,7 +2736,7 @@ function EmergencyOps({role,junctions=JUNCTIONS,emergencyState,setEmergencyState
           <div className="panel">
             <div className="panel-head"><div className="panel-title">Cross-Junction Coordination</div></div>
             <div className="panel-body">
-              <div className="alert alert-ok">✓ 3 downstream junctions synchronized. Next vehicle arrival predictions active.</div>
+              <div className="alert alert-ok">✅ 3 downstream junctions synchronized. Next vehicle arrival predictions active.</div>
               {[
                 {from:"J-001",to:"J-007",eta:4,density:"Moderate",synced:true},
                 {from:"J-005",to:"J-004",eta:6,density:"Low",synced:true},
@@ -2580,7 +2745,7 @@ function EmergencyOps({role,junctions=JUNCTIONS,emergencyState,setEmergencyState
                 <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:"1px solid var(--borderFaint)"}}>
                   <div>
                     <span style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text0)",fontWeight:700}}>{c.from} → {c.to}</span>
-                    <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",marginTop:2}}>ETA {c.eta}min · {c.density}</div>
+                    <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",marginTop:2}}>ETA {c.eta}min  {c.density}</div>
                   </div>
                   <span className={`badge ${c.synced?"badge-g":"badge-y"}`}>{c.synced?"SYNCED":"PENDING"}</span>
                 </div>
@@ -2593,11 +2758,12 @@ function EmergencyOps({role,junctions=JUNCTIONS,emergencyState,setEmergencyState
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    SENSOR HEALTH
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 function SensorHealth({junctions=JUNCTIONS}){
   const [tick,setTick]=useState(0);
+  const [selectedJunctionId,setSelectedJunctionId]=useState(junctions[0]?.id);
   useEffect(()=>{const i=setInterval(()=>setTick(t=>t+1),8000);return()=>clearInterval(i);},[]);
 
   const totalSensors=junctions.length*5;
@@ -2613,27 +2779,67 @@ function SensorHealth({junctions=JUNCTIONS}){
   }));
 
   const sensorTypes=[
-    {name:"mmWave Radar",icon:"📡",desc:"Vehicle count, speed, lane occupancy"},
-    {name:"Camera (CV)",icon:"📷",desc:"YOLOv8 detection, classification"},
-    {name:"Temperature",icon:"🌡",desc:"Ambient temperature monitoring"},
-    {name:"Humidity",icon:"💧",desc:"Relative humidity monitoring"},
-    {name:"GPS/RF Receiver",icon:"📻",desc:"Emergency vehicle detection"},
+    {name:"mmWave Radar",icon:"R",desc:"Vehicle count, speed, lane occupancy"},
+    {name:"Camera (CV)",icon:"C",desc:"YOLOv8 detection, classification"},
+    {name:"Temperature",icon:"T",desc:"Ambient temperature monitoring"},
+    {name:"Humidity",icon:"H",desc:"Relative humidity monitoring"},
+    {name:"GPS/RF Receiver",icon:"G",desc:"Emergency vehicle detection"},
   ];
+
+  const selectedJunction=useMemo(
+    ()=>junctions.find(j=>j.id===selectedJunctionId)||junctions[0]||null,
+    [junctions,selectedJunctionId]
+  );
+
+  useEffect(()=>{
+    if(!selectedJunction&&junctions[0]) setSelectedJunctionId(junctions[0].id);
+  },[junctions,selectedJunction]);
+
+  const liveSensorReadings=useMemo(()=>{
+    if(!selectedJunction) return [];
+    const vehicleCount=selectedJunction.vehicles+tick*2;
+    const avgSpeed=Math.max(12,Math.round(52-(selectedJunction.density*0.28)-(selectedJunction.delay*1.7)));
+    const laneOccupancy=Math.min(98,Math.max(18,Math.round(selectedJunction.density*0.9)));
+    const temperature=30+((selectedJunction.id.charCodeAt(selectedJunction.id.length-1)+tick)%5);
+    const humidity=58+((selectedJunction.id.charCodeAt(2)+tick)%18);
+    const emergencyVehicle=selectedJunction.emergencyReady&&selectedJunction.density>70?"Priority corridor watch":"None";
+    return[
+      {name:"Vehicle Count",val:String(vehicleCount),unit:"vehicles/hr",color:"#0077CC",status:"Healthy"},
+      {name:"Avg Speed",val:String(avgSpeed),unit:"km/h",color:"#C97D10",status:selectedJunction.sensorStatus.radar},
+      {name:"Lane Occ.",val:`${laneOccupancy}%`,unit:"dominant lane",color:"#B03030",status:selectedJunction.sensorStatus.camera},
+      {name:"Temperature",val:String(temperature),unit:"deg C",color:"#B03030",status:selectedJunction.sensorStatus.temp},
+      {name:"Humidity",val:String(humidity),unit:"%",color:"#1A7F4B",status:selectedJunction.sensorStatus.humidity},
+      {name:"EMG Vehicle",val:emergencyVehicle,unit:"detected",color:"#1A7F4B",status:selectedJunction.sensorStatus.gpsRf},
+    ];
+  },[selectedJunction,tick]);
+
+  const exportHealthReport=()=>{
+    const rows=[
+      ["Junction ID","Name","Zone","Radar","Camera","Temperature","Humidity","GPS/RF","Overall"],
+      ...junctions.map(j=>{
+        const vals=Object.values(j.sensorStatus);
+        const overall=vals.every(v=>v==="Healthy")?"Healthy":vals.some(v=>v==="Failed")?"Failed":"Degraded";
+        return [j.id,j.name,j.zone,j.sensorStatus.radar,j.sensorStatus.camera,j.sensorStatus.temp,j.sensorStatus.humidity,j.sensorStatus.gpsRf,overall];
+      }),
+    ];
+    const csv="\uFEFF"+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+    downloadBlob(`traffix_sensor_health_${new Date().toISOString().split('T')[0]}.csv`,new Blob([csv],{type:"text/csv;charset=utf-8;"}));
+  };
 
   return(
     <div className="content fade-up">
       <div className="header-row">
-        <div className="page-header"><h1>◎ Sensor Health</h1><div className="accent-rule"/><p>// mmWAVE RADAR · CAMERA CV · TEMPERATURE · HUMIDITY · GPS/RF RECEIVER</p></div>
+        <div className="page-header"><h1>Sensor Health</h1><div className="accent-rule"/><p>// mmWAVE RADAR · CAMERA CV · TEMPERATURE · HUMIDITY · GPS/RF RECEIVER</p></div>
         <div className="page-actions">
-          <button className="btn btn-amber">↗ EXPORT HEALTH REPORT</button>
+          <button className="btn btn-amber" onClick={exportHealthReport}>EXPORT HEALTH REPORT</button>
         </div>
       </div>
       <div className="g4" style={{marginBottom:14}}>
         {[
-          {label:"Total Sensors",val:totalSensors,accent:"#0077CC",ico:"◎"},
-          {label:"Healthy",val:healthy,accent:"#1A7F4B",ico:"✓"},
-          {label:"Degraded",val:degraded,accent:"#C97D10",ico:"⚠"},
-          {label:"Failed",val:failedSensors,accent:"#B03030",ico:"✕"},
+          {label:"Total Sensors",val:totalSensors,accent:"#0077CC",ico:"S"},
+          {label:"Healthy",val:healthy,accent:"#1A7F4B",ico:"H"},
+          {label:"Degraded",val:degraded,accent:"#C97D10",ico:"D"},
+          {label:"Failed",val:failedSensors,accent:"#B03030",ico:"F"},
         ].map(k=>(
           <div key={k.label} className="kpi-card" style={{"--kpi-accent":k.accent}}>
             <div className="kpi-ico">{k.ico}</div>
@@ -2648,7 +2854,7 @@ function SensorHealth({junctions=JUNCTIONS}){
           <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",textTransform:"uppercase",letterSpacing:".12em",marginBottom:8}}>Maintenance Alerts</div>
           {maintenanceAlerts.map((a,i)=>(
             <div key={i} className="maint-card">
-              <div className="maint-card-title">[{a.priority}] {a.junction} — {a.name}</div>
+              <div className="maint-card-title">[{a.priority}] {a.junction} - {a.name}</div>
               <div className="maint-card-detail">{a.sensors.join(" · ")}</div>
             </div>
           ))}
@@ -2656,7 +2862,7 @@ function SensorHealth({junctions=JUNCTIONS}){
       )}
 
       <div className="panel">
-        <div className="panel-head"><div className="panel-title">Sensor Status Matrix — All Junctions</div></div>
+        <div className="panel-head"><div className="panel-title">Sensor Status Matrix - All Junctions</div></div>
         <div style={{overflowX:"auto"}}>
           <table>
             <thead>
@@ -2676,10 +2882,10 @@ function SensorHealth({junctions=JUNCTIONS}){
                 const vals=Object.values(j.sensorStatus);
                 const overall=vals.every(v=>v==="Healthy")?"Healthy":vals.some(v=>v==="Failed")?"Failed":"Degraded";
                 return(
-                  <tr key={j.id}>
+                  <tr key={j.id} style={{cursor:"pointer",background:selectedJunctionId===j.id?"var(--amberBg)":"transparent"}} onClick={()=>setSelectedJunctionId(j.id)}>
                     <td>
                       <div style={{fontWeight:600,color:"var(--text0)",fontSize:12}}>{j.id}</div>
-                      <div style={{fontSize:10,color:"var(--text3)"}}>{j.name.split("–")[0].trim()}</div>
+                      <div style={{fontSize:10,color:"var(--text3)"}}>{j.name}</div>
                     </td>
                     <td style={{fontSize:11}}>{j.zone}</td>
                     {Object.entries(j.sensorStatus).map(([k,v])=>(
@@ -2710,22 +2916,16 @@ function SensorHealth({junctions=JUNCTIONS}){
           </div>
         </div>
         <div className="panel">
-          <div className="panel-head"><div className="panel-title">Live Sensor Readings — J-001</div></div>
+          <div className="panel-head"><div className="panel-title">Live Sensor Readings - {selectedJunction?.id||"--"}</div></div>
           <div className="panel-body">
+            <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",marginBottom:10}}>Selected Junction: {selectedJunction?.id||"--"} · {selectedJunction?.name||"Unavailable"}</div>
             <div className="g2">
-              {[
-                {name:"Vehicle Count",val:"342",unit:"vehicles/hr",color:"#0077CC"},
-                {name:"Avg Speed",val:"22",unit:"km/h",color:"#C97D10"},
-                {name:"Lane Occ.",val:"78%",unit:"N lane",color:"#B03030"},
-                {name:"Temperature",val:"33",unit:"°C",color:"#B03030"},
-                {name:"Humidity",val:"72",unit:"%",color:"#1A7F4B"},
-                {name:"EMG Vehicle",val:"None",unit:"detected",color:"#1A7F4B"},
-              ].map(s=>(
+              {liveSensorReadings.map(s=>(
                 <div key={s.name} className="sensor-card">
                   <div className="sensor-name">{s.name}</div>
                   <div className="sensor-val" style={{color:s.color}}>{s.val}</div>
                   <div className="sensor-unit">{s.unit}</div>
-                  <div className="sensor-status"><span className="sdot sdot-g"/>Operational</div>
+                  <div className="sensor-status"><span className={`sdot ${s.status==="Healthy"?"sdot-g":s.status==="Failed"?"sdot-r":"sdot-y"}`}/>{s.status}</div>
                 </div>
               ))}
             </div>
@@ -2736,9 +2936,9 @@ function SensorHealth({junctions=JUNCTIONS}){
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    ANALYTICS & REPORTING
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 function Analytics({junctions=JUNCTIONS}){
   const [range,setRange]=useState("24h");
   const [report,setReport]=useState("daily");
@@ -2747,7 +2947,7 @@ function Analytics({junctions=JUNCTIONS}){
   
   const exportCSV=()=>{
     const rows=[["Junction ID","Name","Density %","Vehicles","Congestion","Delay (min)","Region","Priority"]];
-    junctions.forEach(j=>rows.push([j.id,j.name,j.density.toFixed(1),j.vehicles,j.congestion,j.delay.toFixed(1),j.region,j.priority]));
+    junctions.forEach(j=>rows.push([j.id,j.name,j.density.toFixed(1),j.vehicles,getDensityCongestion(j.density),j.delay.toFixed(1),j.region,j.priority]));
     const csv="\uFEFF"+rows.map(r=>r.map(c=>`"${c}"`).join(",")).join("\n");
     downloadBlob(`traffix_report_${new Date().toISOString().split('T')[0]}.csv`,new Blob([csv],{type:"text/csv;charset=utf-8;"}));
   };
@@ -2780,7 +2980,7 @@ function Analytics({junctions=JUNCTIONS}){
         ["Traffix Traffic Analytics Report","","","","","","",""],
         ["Generated",new Date().toLocaleString("en-IN"),"Window",range.toUpperCase(),"Efficiency",analytics.kpis.efficiency,"Avg Delay",analytics.kpis.avgDelay],
         ["Junction ID","Name","Density %","Vehicles","Congestion","Delay (min)","Region","Priority"],
-        ...junctions.map(j=>[j.id,j.name,Number(j.density.toFixed(1)),j.vehicles,j.congestion,Number(j.delay.toFixed(1)),j.region,j.priority]),
+        ...junctions.map(j=>[j.id,j.name,Number(j.density.toFixed(1)),j.vehicles,getDensityCongestion(j.density),Number(j.delay.toFixed(1)),j.region,j.priority]),
       ];
       downloadBlob(`traffix_report_${new Date().toISOString().split('T')[0]}.xls`,buildExcelSpreadsheet(rows,"Analytics Report"));
     }catch(e){
@@ -2791,21 +2991,21 @@ function Analytics({junctions=JUNCTIONS}){
   return(
     <div className="content fade-up">
       <div className="header-row">
-        <div className="page-header"><h1>▦ Analytics & Reporting</h1><div className="accent-rule"/><p>// TRAFFIC INTELLIGENCE · PEAK ANALYSIS · FUEL SAVINGS · EMISSION REDUCTION</p></div>
+        <div className="page-header"><h1>▦ Analytics & Reporting</h1><div className="accent-rule"/><p>// TRAFFIC INTELLIGENCE  PEAK ANALYSIS  FUEL SAVINGS  EMISSION REDUCTION</p></div>
         <div className="page-actions">
           {["1h","24h","7d","30d"].map(r=>(
             <button key={r} className={`btn ${range===r?"btn-amber":"btn-ghost"}`} onClick={()=>{setRange(r);setReport(r);}}>{r.toUpperCase()}</button>
           ))}
           <div className="export-btn-group">
-            <button className="btn btn-ghost" onClick={exportCSV} title="Export as CSV">↗ CSV</button>
-            <button className="btn btn-ghost" onClick={exportPDF} title="Export as PDF">↗ PDF</button>
-            <button className="btn btn-ghost" onClick={exportExcel} title="Export as Excel">↗ EXCEL</button>
+            <button className="btn btn-ghost" onClick={exportCSV} title="Export as CSV">↓ CSV</button>
+            <button className="btn btn-ghost" onClick={exportPDF} title="Export as PDF">↓ PDF</button>
+            <button className="btn btn-ghost" onClick={exportExcel} title="Export as Excel">↓ EXCEL</button>
           </div>
         </div>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
         {[
-          {label:"Network Efficiency",val:analytics.kpis.efficiency,delta:`Window: ${analytics.kpis.delta}`,accent:"#1A7F4B",ico:"♡"},
+          {label:"Network Efficiency",val:analytics.kpis.efficiency,delta:`Window: ${analytics.kpis.delta}`,accent:"#1A7F4B",ico:"♥"},
           {label:"AI Actions",val:analytics.kpis.actions,delta:"Automated interventions",accent:"#0077CC",ico:"⬠"},
           {label:"Avg Delay",val:analytics.kpis.avgDelay,delta:"Range-adjusted network delay",accent:"#C97D10",ico:"⏱"},
           {label:"Fuel Saved",val:analytics.kpis.fuel,delta:"CO₂ reduction estimate",accent:"#1A7F4B",ico:"🌿"},
@@ -2910,7 +3110,7 @@ function Analytics({junctions=JUNCTIONS}){
                     <td style={{color:"var(--text0)",fontWeight:500,fontSize:12}}>{j.name}</td>
                     <td style={{fontSize:11,color:"var(--text2)"}}>{j.region}</td>
                     <td><DBar value={j.density}/></td>
-                    <td><span className={badgeClass(j.congestion)}>{j.congestion}</span></td>
+                    <td><span className={badgeClass(getDensityCongestion(j.density))}>{getDensityCongestion(j.density)}</span></td>
                     <td className="mono-cell hide-mob">{j.vehicles}</td>
                     <td className="mono-cell hide-mob">{j.delay}m</td>
                     <td><span className={badgeClass(j.priority)}>{j.priority}</span></td>
@@ -2926,9 +3126,9 @@ function Analytics({junctions=JUNCTIONS}){
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    AUDIT LOG / HISTORY
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 function History({events=LOGS}){
   const [q,setQ]=useState("");const [tf,setTf]=useState("All");const [page,setPage]=useState(1);
   const types=["All","AI Optimisation","Manual Override","System Event","Sensor Alert","Emergency Override","Peak Transition","Weather Alert"];
@@ -2945,16 +3145,16 @@ function History({events=LOGS}){
   return(
     <div className="content fade-up">
       <div className="header-row">
-        <div className="page-header"><h1>≡ Audit Log</h1><div className="accent-rule"/><p>// IMMUTABLE CHRONOLOGICAL RECORD · ALL AI DECISIONS & OPERATOR ACTIONS · IT ACT 2000 COMPLIANT</p></div>
+        <div className="page-header"><h1>≡ Audit Log</h1><div className="accent-rule"/><p>// IMMUTABLE CHRONOLOGICAL RECORD  ALL AI DECISIONS & OPERATOR ACTIONS  IT ACT 2000 COMPLIANT</p></div>
         <div className="page-actions">
-          <button className="btn btn-ghost hide-mob" onClick={exportCSV}>↗ EXPORT CSV</button>
+          <button className="btn btn-ghost hide-mob" onClick={exportCSV}>↓ EXPORT CSV</button>
           <button className="btn btn-amber">PRINT</button>
         </div>
       </div>
       <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap"}}>
         <div style={{position:"relative",flex:"1 1 200px",minWidth:160}}>
-          <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",color:"var(--text3)",fontSize:12,pointerEvents:"none"}}>⌕</span>
-          <input className="inp" style={{paddingLeft:30}} type="text" placeholder="Search events, junctions, IDs…" value={q} onChange={e=>{setQ(e.target.value);setPage(1);}}/>
+          <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",color:"var(--text3)",fontSize:12,pointerEvents:"none"}}>🔍</span>
+          <input className="inp" style={{paddingLeft:30}} type="text" placeholder="Search events, junctions, IDs" value={q} onChange={e=>{setQ(e.target.value);setPage(1);}}/>
         </div>
         <select className="sel" style={{flex:"0 0 auto",minWidth:180}} value={tf} onChange={e=>{setTf(e.target.value);setPage(1);}}>
           {types.map(t=><option key={t}>{t}</option>)}
@@ -2993,9 +3193,9 @@ function History({events=LOGS}){
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    USER MANAGEMENT
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 function UserManagement({currentUser,controlGrants,onToggleGrant}){
   const [users,setUsers]=useState(USERS);
   const [q,setQ]=useState("");const [rf,setRf]=useState("All");const [showModal,setShowModal]=useState(false);
@@ -3014,10 +3214,10 @@ function UserManagement({currentUser,controlGrants,onToggleGrant}){
   return(
     <div className="content fade-up">
       <div className="header-row">
-        <div className="page-header"><h1>◌ User Management</h1><div className="accent-rule"/><p>// ROLE-BASED ACCESS CONTROL · AUTHORITY ACCOUNTS · ZONE ASSIGNMENTS · MFA STATUS</p></div>
+        <div className="page-header"><h1>◌ User Management</h1><div className="accent-rule"/><p>// ROLE-BASED ACCESS CONTROL  AUTHORITY ACCOUNTS  ZONE ASSIGNMENTS  MFA STATUS</p></div>
         <div className="page-actions"><button className="btn btn-amber" onClick={()=>setShowModal(true)}>+ ADD USER</button></div>
       </div>
-      <div className="alert alert-i">ℹ Traffic-light control is owned by Super Administrator. Lower roles can receive only temporary emergency signal delegation, and only from Super Administrator.</div>
+      <div className="alert alert-i">ℹ️ Traffic-light control is owned by Super Administrator. Lower roles can receive only temporary emergency signal delegation, and only from Super Administrator.</div>
       <div className="g4" style={{marginBottom:14}}>
         {[
           {label:"Total Accounts",val:users.length,accent:"#0077CC"},
@@ -3033,8 +3233,8 @@ function UserManagement({currentUser,controlGrants,onToggleGrant}){
       </div>
       <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap"}}>
         <div style={{position:"relative",flex:"1 1 200px",minWidth:160}}>
-          <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",color:"var(--text3)",fontSize:12,pointerEvents:"none"}}>⌕</span>
-          <input className="inp" style={{paddingLeft:30}} type="text" placeholder="Search users…" value={q} onChange={e=>setQ(e.target.value)}/>
+          <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",color:"var(--text3)",fontSize:12,pointerEvents:"none"}}>🔍</span>
+          <input className="inp" style={{paddingLeft:30}} type="text" placeholder="Search users" value={q} onChange={e=>setQ(e.target.value)}/>
         </div>
         <select className="sel" style={{flex:"0 0 auto",minWidth:220}} value={rf} onChange={e=>setRf(e.target.value)}>
           {roles.map(r=><option key={r}>{r}</option>)}
@@ -3107,9 +3307,9 @@ function UserManagement({currentUser,controlGrants,onToggleGrant}){
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    SYSTEM SETTINGS
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 function SystemSettings({settings,onSave}){
   const [ai,setAi]=useState(settings.autoOptimise);
   const [emg,setEmg]=useState(settings.emergencyBroadcast);
@@ -3140,10 +3340,10 @@ function SystemSettings({settings,onSave}){
   return(
     <div className="content fade-up">
       <div className="header-row">
-        <div className="page-header"><h1>⚙ System Settings</h1><div className="accent-rule"/><p>// AI ENGINE · SECURITY · OPERATIONAL CONFIGURATION · SYSTEM ADMINISTRATION</p></div>
+        <div className="page-header"><h1>⚙️ System Settings</h1><div className="accent-rule"/><p>// AI ENGINE  SECURITY  OPERATIONAL CONFIGURATION  SYSTEM ADMINISTRATION</p></div>
         <div className="page-actions">
           {saved&&<span className="badge badge-g">✓ SAVED</span>}
-          <button className="btn btn-amber" onClick={handleSave} disabled={saving}>{saving?"SAVING…":"SAVE CHANGES"}</button>
+          <button className="btn btn-amber" onClick={handleSave} disabled={saving}>{saving?"SAVING":"SAVE CHANGES"}</button>
         </div>
       </div>
       <div className="g2">
@@ -3172,7 +3372,7 @@ function SystemSettings({settings,onSave}){
               <TogRow label="Immutable Audit Logging" sub="Full signal-control trace for IT Act 2000 compliance" v={log} onChg={setLog}/>
               <div style={{paddingTop:10}}>
                 <div style={{fontSize:12,color:"var(--text0)",fontWeight:600,marginBottom:3}}>JWT Authentication</div>
-                <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",marginBottom:8}}>Algorithm: HS256 · Token TTL: 60 min · Refresh: 7 days</div>
+                <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",marginBottom:8}}>Algorithm: HS256  Token TTL: 60 min  Refresh: 7 days</div>
                 <div style={{display:"flex",gap:8}}>
                   <button className="btn btn-red btn-sm">ROTATE SECRET KEY</button>
                   <button className="btn btn-ghost btn-sm">VIEW SESSIONS</button>
@@ -3187,9 +3387,9 @@ function SystemSettings({settings,onSave}){
                 {l:"MongoDB Database",v:"Connected ✓",s:"cluster0.traffix.net",c:"var(--green)"},
                 {l:"FastAPI Backend",v:"Healthy ✓",s:"traffix-api.onrender.com:8000",c:"var(--green)"},
                 {l:"MQTT Broker",v:"Active ✓",s:"mqtt.traffix.internal:1883",c:"var(--green)"},
-                {l:"AI/LSTM Engine",v:"Online ✓",s:"v2.4 · Accuracy 94.2%",c:"var(--green)"},
+                {l:"AI/LSTM Engine",v:"Online ✓",s:"v2.4  Accuracy 94.2%",c:"var(--green)"},
                 {l:"WebSocket",v:"Active ✓",s:"12 active connections",c:"var(--cyan)"},
-                {l:"Build",v:"v4.0.1",s:"2026.06 · Stable Release",c:"var(--text3)"},
+                {l:"Build",v:"v4.0.1",s:"2026.06  Stable Release",c:"var(--text3)"},
               ].map(it=>(
                 <div key={it.l} className="health-item">
                   <div className="health-item-head">
@@ -3239,9 +3439,9 @@ function SystemSettings({settings,onSave}){
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* --------------------------------------------------------------
    ROOT APPLICATION
-══════════════════════════════════════════════════════════════ */
+-------------------------------------------------------------- */
 export default function App(){
   const [user,setUser]=useState(null);
   const [tab,setTab]=useState("dashboard");
@@ -3285,7 +3485,7 @@ export default function App(){
     if(emergencyState.disasterMode==="all-red") a.push({id:"dis-red",severity:"CRITICAL",scope:"emergency",message:"ALL-RED DISASTER PROTOCOL ACTIVE",junction:"All"});
     if(emergencyState.disasterMode==="arterial-flush") a.push({id:"dis-flush",severity:"HIGH",scope:"emergency",message:"ARTERIAL FLUSH PROTOCOL ACTIVE",junction:"All"});
     const failJunctions=junctions.filter(j=>Object.values(j.sensorStatus).some(s=>s==="Failed"));
-    failJunctions.slice(0,2).forEach(j=>a.push({id:`sf-${j.id}`,severity:"HIGH",scope:"sensors",message:`Sensor failure at ${j.id} — ${j.name}`,junction:j.id}));
+    failJunctions.slice(0,2).forEach(j=>a.push({id:`sf-${j.id}`,severity:"HIGH",scope:"sensors",message:`Sensor failure at ${j.id}  ${j.name}`,junction:j.id}));
     return a;
   },[junctions,settings.congestionThreshold,emergencyState]);
 
@@ -3323,12 +3523,40 @@ export default function App(){
             <Topbar tab={tab} onMenuToggle={()=>setDrawerOpen(o=>!o)} alerts={alerts} user={user} onNav={setTab}/>
             <main style={{flex:1}}>{renderPage()}</main>
             <footer className="app-footer">
-              <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}>© 2026 GOVT OF TAMIL NADU · DEPT. OF HIGHWAYS & TRAFFIC ENGINEERING · TRAFFIX PORTAL v4.0.1</span>
-              <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}>SECURED · IT ACT 2000 · <a href="#" style={{color:"var(--amber)"}}>DISCLAIMER</a> · <a href="#" style={{color:"var(--amber)"}}>PRIVACY POLICY</a></span>
+              <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}> 2026 GOVT OF TAMIL NADU  DEPT. OF HIGHWAYS & TRAFFIC ENGINEERING  TRAFFIX PORTAL v4.0.1</span>
+              <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}>SECURED  IT ACT 2000  <a href="#" style={{color:"var(--amber)"}}>DISCLAIMER</a>  <a href="#" style={{color:"var(--amber)"}}>PRIVACY POLICY</a></span>
             </footer>
+            {/* Mobile bottom nav  pinned at screen bottom on phones/tablets */}
+            <nav className="mob-bottom-nav" aria-label="Quick navigation">
+              <div className="mob-bottom-nav-inner">
+                {[
+                  {id:"dashboard",ico:"⬡",label:"Dashboard"},
+                  {id:"map",      ico:"◈",label:"Map"},
+                  {id:"junction", ico:"◉",label:"Signals"},
+                  {id:"emergency",ico:"⚠️",label:"Emergency"},
+                  {id:"sensors",  ico:"◎",label:"Sensors"},
+                  {id:"lstm",     ico:"⬠",label:"AI Pred"},
+                ].filter(item=>{
+                  const t=ALL_TABS.find(x=>x.id===item.id);
+                  return t&&t.roles.includes(user?.role);
+                }).map(item=>(
+                  <button
+                    key={item.id}
+                    className={`mob-nav-item${tab===item.id?" mob-active":""}`}
+                    onClick={()=>{setTab(item.id);setDrawerOpen(false);}}
+                    aria-label={item.label}
+                    aria-current={tab===item.id?"page":undefined}
+                  >
+                    <span className="mob-nav-ico">{item.ico}</span>
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </nav>
           </div>
         </div>
       )}
     </>
   );
 }
+
