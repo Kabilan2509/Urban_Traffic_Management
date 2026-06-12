@@ -181,6 +181,42 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .user-mgmt-search{position:relative;flex:1 1 240px;min-width:220px;}
 .user-mgmt-role{flex:0 1 240px;min-width:220px;}
 .user-mgmt-row-actions{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
+.analytics-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10;margin-bottom:14px;}
+.analytics-legend{display:flex;gap:10px;font-size:9px;font-family:var(--mono);flex-wrap:wrap;}
+.history-filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.history-search{position:relative;flex:1 1 220px;min-width:0;}
+.history-type{flex:0 1 180px;min-width:180px;}
+.history-pagination{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-top:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--text3);gap:10px;flex-wrap:wrap;}
+.history-pagination-controls{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.map-page-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.map-highlight-banner{margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.map-highlight-copy{min-width:0;line-height:1.5;}
+.map-legend{display:flex;gap:12px;font-size:9px;font-family:var(--mono);flex-wrap:wrap;}
+.map-panel-wrap{min-height:calc(100vh - 180px);}
+.map-canvas-panel{display:flex;flex-direction:column;}
+.map-canvas-body{padding:10px;position:relative;flex:1;min-height:450px;}
+.map-sidebar-stack{display:flex;flex-direction:column;gap:10px;}
+.map-junction-list{padding:8px;max-height:320px;overflow-y:auto;}
+.map-row-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:8px;}
+.map-row-title{min-width:0;}
+.map-row-name{font-size:11.5px;font-weight:500;color:var(--text0);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.junction-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.junction-searchbox{position:relative;}
+.junction-search-input{padding:7px 10px 7px 28px;background:var(--bg1);border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:10px;color:var(--text0);outline:none;width:220px;}
+.junction-search-meta{font-family:var(--mono);font-size:9px;color:var(--text3);}
+.junction-editor-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.junction-range-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.junction-range-row{display:flex;align-items:center;gap:10px;}
+.junction-range-row input[type=range]{flex:1;}
+.junction-range-value{font-family:var(--mono);font-size:14px;font-weight:700;min-width:36px;text-align:right;}
+.junction-lane-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--borderFaint);gap:8px;}
+.junction-lane-name{font-family:var(--mono);font-size:10px;color:var(--text2);min-width:60px;}
+.weather-summary-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px;align-items:flex-start;}
+.weather-legend{display:flex;gap:14px;margin-top:6px;font-family:var(--mono);font-size:9px;flex-wrap:wrap;}
+.emergency-disaster-alert{justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+.emergency-corridor-stats{display:flex;gap:16px;margin-bottom:8px;font-family:var(--mono);font-size:9px;color:var(--text3);flex-wrap:wrap;}
+.emergency-cross-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--borderFaint);gap:10px;}
+.mobile-stack-table td[data-full]{display:block;}
 
 
 .content{padding:20px 24px;flex:1;}
@@ -632,6 +668,25 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   .user-mgmt-search,.user-mgmt-role{min-width:0;flex:1 1 auto;width:100%;}
   .user-mgmt-row-actions{gap:6px;}
   .user-mgmt-row-actions .btn{flex:1 1 120px;justify-content:center;}
+  .analytics-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .history-filters{flex-direction:column;}
+  .history-search,.history-type{width:100%;min-width:0;flex:1 1 auto;}
+  .history-pagination{align-items:flex-start;}
+  .map-page-actions{flex-direction:column;align-items:stretch;}
+  .map-page-actions .btn,.map-page-actions > div{width:100%;max-width:none;}
+  .map-highlight-banner{flex-direction:column;align-items:flex-start;}
+  .map-panel-wrap{min-height:auto;}
+  .map-canvas-body{min-height:auto;}
+  .map-sidebar-stack{gap:8px;}
+  .junction-toolbar{flex-direction:column;align-items:stretch;}
+  .junction-searchbox,.junction-search-input{width:100%;}
+  .junction-range-grid{grid-template-columns:1fr;}
+  .junction-editor-actions{width:100%;}
+  .junction-editor-actions .btn,.junction-editor-actions .badge{width:100%;justify-content:center;text-align:center;}
+  .weather-summary-head{flex-direction:column;}
+  .weather-legend{gap:8px;}
+  .emergency-corridor-stats{gap:8px;}
+  .emergency-cross-row{align-items:flex-start;}
 
   /* Grids */
   .kpi-strip,.g4{grid-template-columns:repeat(2,1fr);}
@@ -667,6 +722,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     grid-template-columns:1fr;
   }
   .user-mgmt-kpis{grid-template-columns:1fr;}
+  .analytics-kpi-grid{grid-template-columns:1fr;}
 
   /* ---- KPI cards: horizontal compact ---- */
   .kpi-card{padding:12px 14px;}
@@ -687,7 +743,62 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
   }
-  table{min-width:480px;}
+  table{min-width:0;width:100%;}
+  thead th,tbody td{padding:7px 8px;}
+  .analytics-legend{gap:6px;font-size:8px;}
+  .history-pagination,.history-pagination-controls{width:100%;}
+  .history-pagination-controls .btn{flex:1 1 110px;justify-content:center;}
+  .map-legend{gap:6px;font-size:8px;}
+  .map-canvas-body{padding:8px;min-height:320px;}
+  .map-junction-list{max-height:none;padding:6px;}
+  .map-row-head{align-items:flex-start;}
+  .map-row-name{white-space:normal;}
+  .junction-range-row{align-items:center;}
+  .junction-range-value{min-width:30px;font-size:12px;}
+  .junction-lane-row{flex-wrap:wrap;}
+  .junction-lane-name{min-width:0;flex:1 1 100%;}
+  .weather-legend span{display:block;}
+  .emergency-disaster-alert .btn{width:100%;}
+  .emergency-cross-row{flex-direction:column;align-items:flex-start;}
+  .mobile-stack-table thead{display:none;}
+  .mobile-stack-table,
+  .mobile-stack-table tbody,
+  .mobile-stack-table tr,
+  .mobile-stack-table td{display:block;width:100%;}
+  .mobile-stack-table tbody tr{padding:10px 0;border-bottom:1px solid var(--borderFaint);}
+  .mobile-stack-table tbody tr:last-child{border-bottom:none;}
+  .mobile-stack-table tbody td{
+    display:grid;
+    grid-template-columns:minmax(90px,108px) minmax(0,1fr);
+    gap:10px;
+    align-items:start;
+    padding:6px 0;
+    border:none;
+    text-align:left;
+  }
+  .mobile-stack-table tbody td::before{
+    content:attr(data-label);
+    font-family:var(--mono);
+    font-size:8px;
+    color:var(--text3);
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  .mobile-stack-table tbody td[data-full]{
+    grid-template-columns:1fr;
+    padding-top:8px;
+  }
+  .mobile-stack-table tbody td[data-full]::before{
+    display:block;
+    margin-bottom:4px;
+  }
+  .mobile-stack-table tbody td .badge,
+  .mobile-stack-table tbody td .mono-cell{justify-self:start;}
+  .mobile-stack-table tbody td[colspan]{
+    display:block;
+    text-align:center;
+  }
+  .mobile-stack-table tbody td[colspan]::before{content:none;}
 
   /* ---- Signal grid single ---- */
   .signal-grid{grid-template-columns:1fr;}
@@ -1826,16 +1937,16 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
           <button className="btn btn-ghost btn-sm" onClick={()=>onNav("history")}>VIEW ALL &rarr;</button>
         </div>
         <div style={{overflowX:"auto"}}>
-          <table>
+          <table className="mobile-stack-table">
             <thead><tr><th>Time</th><th>Type</th><th>Junction</th><th className="hide-mob">Details</th><th>Status</th></tr></thead>
             <tbody>
               {events.slice(0,5).map(l=>(
                 <tr key={l.id}>
-                  <td className="mono-cell">{l.time}</td>
-                  <td><span className="badge badge-b">{l.type}</span></td>
-                  <td style={{fontSize:12,color:"var(--text0)"}}>{l.junction}</td>
-                  <td className="mono-cell hide-mob">{l.details}</td>
-                  <td><span className={badgeClass(l.status)}>{l.status}</span></td>
+                  <td className="mono-cell" data-label="Time">{l.time}</td>
+                  <td data-label="Type"><span className="badge badge-b">{l.type}</span></td>
+                  <td data-label="Junction" style={{fontSize:12,color:"var(--text0)"}}>{l.junction}</td>
+                  <td className="mono-cell hide-mob" data-label="Details">{l.details}</td>
+                  <td data-label="Status"><span className={badgeClass(l.status)}>{l.status}</span></td>
                 </tr>
               ))}
             </tbody>
@@ -2038,7 +2149,7 @@ function MapPage({junctions=JUNCTIONS}){
           <div className="accent-rule"/>
           <p>// INTERACTIVE GIS MAP  REAL-TIME JUNCTION STATUS  SEARCH TO FLY-TO ANY JUNCTION</p>
         </div>
-        <div className="page-actions" style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+        <div className="page-actions map-page-actions">
           {["All","Green","Yellow","Red"].map(f=>(
             <button key={f} className={`btn ${filter===f?"btn-amber":"btn-ghost"}`} onClick={()=>setFilter(f)}>{f}</button>
           ))}
@@ -2059,8 +2170,8 @@ function MapPage({junctions=JUNCTIONS}){
 
       {/* Highlight notification banner */}
       {highlightedId&&selJ&&(
-        <div className="alert alert-ok" style={{marginBottom:10,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
-          <span>
+        <div className="alert alert-ok map-highlight-banner">
+          <span className="map-highlight-copy">
             📍 <strong>{selJ.id}</strong>  {selJ.name}  Map zoomed to junction location &nbsp;
             <span style={{fontFamily:"var(--mono)",fontSize:10}}>
               {selJ.lat.toFixed(4)}N, {selJ.lng.toFixed(4)}E
@@ -2070,11 +2181,11 @@ function MapPage({junctions=JUNCTIONS}){
         </div>
       )}
 
-      <div className="g13" style={{minHeight:"calc(100vh - 180px)"}}>
-        <div className="panel" style={{display:"flex",flexDirection:"column"}}>
+      <div className="g13 map-panel-wrap">
+        <div className="panel map-canvas-panel">
           <div className="panel-head">
             <div className="panel-title">Chennai Network  Live GIS View</div>
-            <div style={{display:"flex",gap:12,fontSize:9,fontFamily:"var(--mono)"}}>
+            <div className="map-legend">
               {[["#1A7F4B","● Normal"],["#C97D10","● Moderate"],["#B03030","● Congested"]].map(([c,l])=>(
                 <span key={l} style={{color:c,display:"flex",alignItems:"center",gap:4,fontWeight:"700"}}>
                   <span style={{width:8,height:8,borderRadius:"50%",background:c,display:"inline-block",boxShadow:`0 0 4px ${c}`}}/>
@@ -2089,20 +2200,20 @@ function MapPage({junctions=JUNCTIONS}){
               )}
             </div>
           </div>
-          <div style={{padding:10,position:"relative",flex:1,minHeight:450}}>
+          <div className="map-canvas-body">
             {!err&&<div ref={mapRef} id="traffix-map" style={{height:"100%",minHeight:430,borderRadius:4}}/>}
             {!loaded&&!err&&<div style={{position:"absolute",inset:10,display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg2)",borderRadius:4,fontFamily:"var(--mono)",fontSize:11,color:"var(--text2)"}}>LOADING MAP</div>}
             {err&&<StaticMapFallback junctions={filtered.length?filtered:junctions} onSelect={handleJunctionClick} getCongestion={getMapCongestion}/>}
           </div>
         </div>
 
-        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+        <div className="map-sidebar-stack">
           <div className="panel" style={{flex:1}}>
             <div className="panel-head">
               <div className="panel-title">Junction Status ({filter})</div>
               {highlightedId&&<span className="badge badge-a" style={{animation:"blink 1.5s infinite",fontSize:9}}>FOCUSED: {highlightedId}</span>}
             </div>
-            <div ref={sidebarListRef} style={{padding:8,maxHeight:320,overflowY:"auto"}}>
+            <div ref={sidebarListRef} className="map-junction-list">
               {filtered.map(j=>{
                 const isHighlighted=j.id===highlightedId;
                 return(
@@ -2119,10 +2230,10 @@ function MapPage({junctions=JUNCTIONS}){
                     }}
                     onClick={()=>handleJunctionClick(j)}
                   >
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                      <div>
+                    <div className="map-row-head">
+                      <div className="map-row-title">
                         <span className="mono-cell" style={{fontSize:8,background:isHighlighted?"var(--amber)":"",color:isHighlighted?"#fff":""}}>{j.id}</span>
-                        <div style={{fontSize:11.5,fontWeight:isHighlighted?700:500,color:"var(--text0)",marginTop:1,maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{j.name}</div>
+                        <div className="map-row-name" style={{fontWeight:isHighlighted?700:500}}>{j.name}</div>
                       </div>
                       <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
                         <SdotFor c={getMapCongestion(j)}/>
@@ -2220,20 +2331,20 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
     <div className="content fade-up">
       <div className="header-row">
         <div className="page-header"><h1>◉ Junction Control</h1><div className="accent-rule"/><p>// AI ADAPTIVE SIGNAL MANAGEMENT  MANUAL OVERRIDES PERMANENTLY LOGGED</p></div>
-        <div className="page-actions" style={{alignItems:"center",gap:8}}>
-          <div style={{position:"relative"}}>
+        <div className="page-actions junction-toolbar">
+          <div className="junction-searchbox">
             <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"var(--text3)",pointerEvents:"none"}}>🔍</span>
             <input
               type="text"
               placeholder="Search junction ID, name"
               value={jcSearch}
               onChange={e=>setJcSearch(e.target.value)}
-              style={{padding:"7px 10px 7px 28px",background:"var(--bg1)",border:"1px solid var(--border)",borderRadius:4,fontFamily:"var(--mono)",fontSize:10,color:"var(--text0)",outline:"none",width:220}}
+              className="junction-search-input"
               onFocus={e=>e.target.style.borderColor="var(--amber)"}
               onBlur={e=>e.target.style.borderColor="var(--border)"}
             />
           </div>
-          {jcSearch&&<span style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)"}}>{filteredJc.length}/{junctions.length} junctions</span>}
+          {jcSearch&&<span className="junction-search-meta">{filteredJc.length}/{junctions.length} junctions</span>}
           {jcSearch&&<button className="btn btn-ghost btn-sm" onClick={()=>setJcSearch("")}>✕ CLEAR</button>}
         </div>
       </div>
@@ -2279,21 +2390,21 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
           <div className="panel">
             <div className="panel-head">
               <div className="panel-title">Timing Editor  {j.name}</div>
-              <div style={{display:"flex",gap:6,alignItems:"center"}}>
+              <div className="junction-editor-actions">
                 {saved&&<span className="badge badge-g">✓ SAVED</span>}
                 <button className="btn btn-amber" onClick={()=>{if(!canEditTiming) return;setSaved(true);setTimeout(()=>setSaved(false),2500);}} disabled={!canEditTiming}>SAVE</button>
                 <button className="btn btn-ghost" onClick={()=>setTimings(prev=>prev.map((item,idx)=>idx===sel?{green:45,yellow:5,red:40}:item))} disabled={!canEditTiming}>↺ AI DEFAULT</button>
               </div>
             </div>
             <div className="panel-body">
-              <div className="g3">
+              <div className="junction-range-grid">
                 {[["green","#1A7F4B"],["yellow","#C97D10"],["red","#B03030"]].map(([k,c])=>(
                   <div key={k}>
                     <div className="field" style={{marginBottom:6}}>
                       <label style={{color:c}}>{k.toUpperCase()} PHASE</label>
-                      <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      <div className="junction-range-row">
                         <input type="range" min={5} max={90} value={(timings[sel])?.[k]??30} disabled={!canEditTiming||Boolean(emergencyState.disasterMode)||emergencyState.affectedNodes.includes(j?.id)} onChange={e=>{const n=[...timings];(n[sel])[k]=+e.target.value;setTimings(n);}}/>
-                        <span style={{fontFamily:"var(--mono)",fontSize:14,fontWeight:700,color:c,minWidth:36,textAlign:"right"}}>{(timings[sel])?.[k]??30}s</span>
+                        <span className="junction-range-value" style={{color:c}}>{(timings[sel])?.[k]??30}s</span>
                       </div>
                     </div>
                   </div>
@@ -2313,8 +2424,8 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
                 const lDensity=j.density+Math.round((Math.random()-0.5)*15);
                 const lPhase=i%2===0?(ph==="Green"?"Green":"Red"):ph;
                 return(
-                  <div key={dir} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:"1px solid var(--borderFaint)"}}>
-                    <span style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text2)",minWidth:60}}>{dir}</span>
+                  <div key={dir} className="junction-lane-row">
+                    <span className="junction-lane-name">{dir}</span>
                     <DBar value={Math.max(10,Math.min(99,lDensity))}/>
                     <span className={badgeClass(lPhase)} style={{marginLeft:8}}>{lPhase}</span>
                   </div>
@@ -2656,7 +2767,7 @@ function WeatherIntel({junctions=JUNCTIONS}){
       <div className="g31" style={{marginBottom:12}}>
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           <div className="weather-card">
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
+            <div className="weather-summary-head">
               <div>
                 <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",textTransform:"uppercase",letterSpacing:".1em",marginBottom:4}}>Current Conditions  {weather.junctionId}</div>
                 <div className="weather-temp">{weather.temp}C</div>
@@ -2713,7 +2824,7 @@ function WeatherIntel({junctions=JUNCTIONS}){
                   <Area type="monotone" dataKey="impact" name="Impact%" stroke="#B03030" strokeWidth={1.5} fill="url(#impactGrad)"/>
                 </AreaChart>
               </ResponsiveContainer>
-              <div style={{display:"flex",gap:14,marginTop:6,fontFamily:"var(--mono)",fontSize:9}}>
+              <div className="weather-legend">
                 <span style={{color:"#1A56A8"}}>-- Rain Probability</span>
                 <span style={{color:"#B03030"}}>-- Traffic Impact</span>
               </div>
@@ -2807,7 +2918,7 @@ function EmergencyOps({role,junctions=JUNCTIONS,emergencyState,setEmergencyState
       {emergencyState.activeCorridor&&<div className="alert alert-e">⚠ ACTIVE: Emergency Corridor {emergencyState.activeCorridor}  Signal sync active on {emergencyState.affectedNodes.join(", ")}</div>}
 
       {emergencyState.disasterMode&&(
-        <div className="alert alert-w" style={{justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+        <div className="alert alert-w emergency-disaster-alert">
           <span>Disaster override is active. Resume AI default mode to hand full network control back to live automatic orchestration.</span>
           <button className="btn btn-green btn-sm" onClick={resumeAIDefault} disabled={role!=="Super Administrator"}>
             {role==="Super Administrator"?"RESUME AI DEFAULT":"SUPER ADMIN ONLY"}
@@ -2822,20 +2933,20 @@ function EmergencyOps({role,junctions=JUNCTIONS,emergencyState,setEmergencyState
           <span className="badge badge-r">🚨 {activeVehicles.filter(v=>v.status==="ACTIVE").length} ACTIVE</span>
         </div>
         <div style={{overflowX:"auto"}}>
-          <table>
+          <table className="mobile-stack-table">
             <thead><tr><th>Vehicle ID</th><th>Type</th><th>Registration</th><th>Current Junction</th><th>Destination</th><th>ETA</th><th>Corridor</th><th>Signal Status</th><th>Status</th></tr></thead>
             <tbody>
               {activeVehicles.map(v=>(
                 <tr key={v.id}>
-                  <td className="mono-cell">{v.id}</td>
-                  <td><span className="badge badge-r">{v.type}</span></td>
-                  <td className="mono-cell">{v.reg}</td>
-                  <td style={{color:"var(--text0)",fontWeight:500}}>{v.currentJunction}</td>
-                  <td style={{color:"var(--text0)",fontWeight:500}}>{v.destJunction}</td>
-                  <td className="mono-cell">{v.eta} min</td>
-                  <td style={{fontSize:11}}>{v.corridor}</td>
-                  <td><span className={`badge ${v.signal==="GREEN_WAVE"?"badge-g":"badge-y"}`}>{v.signal}</span></td>
-                  <td><span className={`badge ${v.status==="ACTIVE"?"badge-r":"badge-y"}`}>{v.status}</span></td>
+                  <td className="mono-cell" data-label="Vehicle ID">{v.id}</td>
+                  <td data-label="Type"><span className="badge badge-r">{v.type}</span></td>
+                  <td className="mono-cell" data-label="Registration">{v.reg}</td>
+                  <td data-label="Current" style={{color:"var(--text0)",fontWeight:500}}>{v.currentJunction}</td>
+                  <td data-label="Destination" style={{color:"var(--text0)",fontWeight:500}}>{v.destJunction}</td>
+                  <td className="mono-cell" data-label="ETA">{v.eta} min</td>
+                  <td data-label="Corridor">{v.corridor}</td>
+                  <td data-label="Signal"><span className={`badge ${v.signal==="GREEN_WAVE"?"badge-g":"badge-y"}`}>{v.signal}</span></td>
+                  <td data-label="Status"><span className={`badge ${v.status==="ACTIVE"?"badge-r":"badge-y"}`}>{v.status}</span></td>
                 </tr>
               ))}
             </tbody>
@@ -2869,7 +2980,7 @@ function EmergencyOps({role,junctions=JUNCTIONS,emergencyState,setEmergencyState
                     ))}
                   </div>
                   {c.confidence>0&&(
-                    <div style={{display:"flex",gap:16,marginBottom:8,fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)"}}>
+                    <div className="emergency-corridor-stats">
                       <span>ETA Before: <strong style={{color:"var(--red)"}}>{c.etaBefore}m</strong></span>
                       <span>After: <strong style={{color:"var(--green)"}}>{c.etaAfter}m</strong></span>
                       <span>Saved: <strong style={{color:"var(--amber)"}}>{c.timeSaved}m</strong></span>
@@ -2914,7 +3025,7 @@ function EmergencyOps({role,junctions=JUNCTIONS,emergencyState,setEmergencyState
                 {from:"J-005",to:"J-004",eta:6,density:"Low",synced:true},
                 {from:"J-003",to:"J-002",eta:9,density:"High",synced:false},
               ].map((c,i)=>(
-                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:"1px solid var(--borderFaint)"}}>
+                <div key={i} className="emergency-cross-row">
                   <div>
                     <span style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text0)",fontWeight:700}}>{c.from} → {c.to}</span>
                     <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",marginTop:2}}>ETA {c.eta}min  {c.density}</div>
@@ -3036,7 +3147,7 @@ function SensorHealth({junctions=JUNCTIONS}){
       <div className="panel">
         <div className="panel-head"><div className="panel-title">Sensor Status Matrix - All Junctions</div></div>
         <div style={{overflowX:"auto"}}>
-          <table>
+          <table className="mobile-stack-table">
             <thead>
               <tr>
                 <th>Junction</th>
@@ -3055,15 +3166,15 @@ function SensorHealth({junctions=JUNCTIONS}){
                 const overall=vals.every(v=>v==="Healthy")?"Healthy":vals.some(v=>v==="Failed")?"Failed":"Degraded";
                 return(
                   <tr key={j.id} style={{cursor:"pointer",background:selectedJunctionId===j.id?"var(--amberBg)":"transparent"}} onClick={()=>setSelectedJunctionId(j.id)}>
-                    <td>
+                    <td data-label="Junction" data-full>
                       <div style={{fontWeight:600,color:"var(--text0)",fontSize:12}}>{j.id}</div>
                       <div style={{fontSize:10,color:"var(--text3)"}}>{j.name}</div>
                     </td>
-                    <td style={{fontSize:11}}>{j.zone}</td>
+                    <td data-label="Zone" style={{fontSize:11}}>{j.zone}</td>
                     {Object.entries(j.sensorStatus).map(([k,v])=>(
-                      <td key={k}><span className={badgeClass(v)}>{v}</span></td>
+                      <td key={k} data-label={k}><span className={badgeClass(v)}>{v}</span></td>
                     ))}
-                    <td><span className={badgeClass(overall)}>{overall}</span></td>
+                    <td data-label="Overall"><span className={badgeClass(overall)}>{overall}</span></td>
                   </tr>
                 );
               })}
@@ -3176,7 +3287,7 @@ function Analytics({junctions=JUNCTIONS,notify}){
           </div>
         </div>
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
+      <div className="analytics-kpi-grid">
         {[
           {label:"Network Efficiency",val:analytics.kpis.efficiency,delta:`Window: ${analytics.kpis.delta}`,accent:"#1A7F4B",ico:"♥"},
           {label:"AI Actions",val:analytics.kpis.actions,delta:"Automated interventions",accent:"#0077CC",ico:"⬠"},
@@ -3195,7 +3306,7 @@ function Analytics({junctions=JUNCTIONS,notify}){
         <div className="panel">
           <div className="panel-head">
             <div className="panel-title">{analytics.densityTitle}</div>
-            <div style={{display:"flex",gap:10,fontSize:9,fontFamily:"var(--mono)"}}>
+            <div className="analytics-legend">
               <span style={{color:"#0077CC"}}>── ACTUAL</span>
               <span style={{color:"#C97D10"}}>-- PREDICTED</span>
             </div>
@@ -3272,22 +3383,22 @@ function Analytics({junctions=JUNCTIONS,notify}){
       <div className="panel">
         <div className="panel-head"><div className="panel-title">Junction Performance Matrix</div></div>
         <div style={{overflowX:"auto"}}>
-          <table>
+          <table className="mobile-stack-table">
             <thead><tr><th>ID</th><th>Junction</th><th>Region</th><th style={{minWidth:120}}>Density</th><th>Congestion</th><th className="hide-mob">Vehicles</th><th className="hide-mob">Delay</th><th>Priority</th><th>Sensor</th></tr></thead>
             <tbody>
               {junctions.map(j=>{
                 const sensorOk=Object.values(j.sensorStatus).every(v=>v==="Healthy");
                 return(
                   <tr key={j.id}>
-                    <td className="mono-cell">{j.id}</td>
-                    <td style={{color:"var(--text0)",fontWeight:500,fontSize:12}}>{j.name}</td>
-                    <td style={{fontSize:11,color:"var(--text2)"}}>{j.region}</td>
-                    <td><DBar value={j.density}/></td>
-                    <td><span className={badgeClass(getDensityCongestion(j.density))}>{getDensityCongestion(j.density)}</span></td>
-                    <td className="mono-cell hide-mob">{j.vehicles}</td>
-                    <td className="mono-cell hide-mob">{j.delay}m</td>
-                    <td><span className={badgeClass(j.priority)}>{j.priority}</span></td>
-                    <td><span className={`badge ${sensorOk?"badge-g":"badge-y"}`}>{sensorOk?"ALL OK":"CHECK"}</span></td>
+                    <td className="mono-cell" data-label="ID">{j.id}</td>
+                    <td data-label="Junction" style={{color:"var(--text0)",fontWeight:500,fontSize:12}}>{j.name}</td>
+                    <td data-label="Region" style={{fontSize:11,color:"var(--text2)"}}>{j.region}</td>
+                    <td data-label="Density"><DBar value={j.density}/></td>
+                    <td data-label="Congestion"><span className={badgeClass(getDensityCongestion(j.density))}>{getDensityCongestion(j.density)}</span></td>
+                    <td className="mono-cell hide-mob" data-label="Vehicles">{j.vehicles}</td>
+                    <td className="mono-cell hide-mob" data-label="Delay">{j.delay}m</td>
+                    <td data-label="Priority"><span className={badgeClass(j.priority)}>{j.priority}</span></td>
+                    <td data-label="Sensor"><span className={`badge ${sensorOk?"badge-g":"badge-y"}`}>{sensorOk?"ALL OK":"CHECK"}</span></td>
                   </tr>
                 );
               })}
@@ -3328,38 +3439,38 @@ function History({events=LOGS,notify}){
           <button className="btn btn-amber" onClick={handlePrint}>PRINT</button>
         </div>
       </div>
-      <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap"}}>
-        <div style={{position:"relative",flex:"1 1 200px",minWidth:160}}>
+      <div className="history-filters">
+        <div className="history-search">
           <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",color:"var(--text3)",fontSize:12,pointerEvents:"none"}}>🔍</span>
           <input className="inp" style={{paddingLeft:30}} type="text" placeholder="Search events, junctions, IDs" value={q} onChange={e=>{setQ(e.target.value);setPage(1);}}/>
         </div>
-        <select className="sel" style={{flex:"0 0 auto",minWidth:180}} value={tf} onChange={e=>{setTf(e.target.value);setPage(1);}}>
+        <select className="sel history-type" value={tf} onChange={e=>{setTf(e.target.value);setPage(1);}}>
           {types.map(t=><option key={t}>{t}</option>)}
         </select>
       </div>
       <div className="panel">
         <div style={{overflowX:"auto"}}>
-          <table>
+          <table className="mobile-stack-table">
             <thead><tr><th className="hide-mob">Event ID</th><th>Time</th><th>Type</th><th>Junction</th><th className="hide-mob">Details</th><th>Status</th></tr></thead>
             <tbody>
               {paged.length===0?(
                 <tr><td colSpan={6} style={{textAlign:"center",padding:24,fontFamily:"var(--mono)",color:"var(--text3)",fontSize:10}}>NO EVENTS FOUND</td></tr>
               ):paged.map(l=>(
                 <tr key={l.id}>
-                  <td className="mono-cell hide-mob">{l.id}</td>
-                  <td className="mono-cell">{l.time}</td>
-                  <td><span className="badge badge-b">{l.type}</span></td>
-                  <td style={{color:"var(--text0)",fontSize:12}}>{l.junction}</td>
-                  <td className="mono-cell hide-mob" style={{maxWidth:200}}>{l.details}</td>
-                  <td><span className={badgeClass(l.status)}>{l.status}</span></td>
+                  <td className="mono-cell hide-mob" data-label="Event ID">{l.id}</td>
+                  <td className="mono-cell" data-label="Time">{l.time}</td>
+                  <td data-label="Type"><span className="badge badge-b">{l.type}</span></td>
+                  <td data-label="Junction" style={{color:"var(--text0)",fontSize:12}}>{l.junction}</td>
+                  <td className="mono-cell hide-mob" data-label="Details" style={{maxWidth:200}}>{l.details}</td>
+                  <td data-label="Status"><span className={badgeClass(l.status)}>{l.status}</span></td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 14px",borderTop:"1px solid var(--border)",fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)"}}>
+        <div className="history-pagination">
           <span>SHOWING {Math.min((page-1)*PER_PAGE+1,rows.length)}–{Math.min(page*PER_PAGE,rows.length)} / {rows.length} EVENTS</span>
-          <div style={{display:"flex",gap:5}}>
+          <div className="history-pagination-controls">
             <button className="btn btn-ghost btn-sm" onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1}>← PREV</button>
             <span style={{padding:"4px 8px",background:"var(--bg2)",borderRadius:3}}>{page}/{totalPages}</span>
             <button className="btn btn-ghost btn-sm" onClick={()=>setPage(p=>Math.min(totalPages,p+1))} disabled={page===totalPages}>NEXT →</button>
@@ -3419,20 +3530,20 @@ function UserManagement({currentUser,controlGrants,onToggleGrant,notify}){
       </div>
       <div className="panel">
         <div style={{overflowX:"auto"}}>
-          <table>
+          <table className="mobile-stack-table">
             <thead><tr><th className="hide-mob">User ID</th><th>Name</th><th>Role</th><th className="hide-mob">Zone</th><th>MFA</th><th>Emergency Signal Access</th><th>Status</th><th className="hide-mob">Last Login</th><th>Actions</th></tr></thead>
             <tbody>
               {rows.map(u=>(
                 <tr key={u.id}>
-                  <td className="mono-cell hide-mob">{u.id}</td>
-                  <td style={{color:"var(--text0)",fontWeight:600,fontSize:12}}>{u.name}</td>
-                  <td><span className={badgeClass(u.role)}>{u.role}</span></td>
-                  <td className="mono-cell hide-mob">{u.zone}</td>
-                  <td><span className={`badge ${u.mfa?"badge-g":"badge-k"}`}>{u.mfa?"ON":"OFF"}</span></td>
-                  <td><span className={`badge ${(u.role==="Super Administrator"||controlGrants?.[u.id])?"badge-r":"badge-k"}`}>{u.role==="Super Administrator"?"MASTER":controlGrants?.[u.id]?"GRANTED":"AUTO ONLY"}</span></td>
-                  <td><span className={badgeClass(u.status)}>{u.status}</span></td>
-                  <td className="mono-cell hide-mob">{u.last}</td>
-                  <td>
+                  <td className="mono-cell hide-mob" data-label="User ID">{u.id}</td>
+                  <td data-label="Name" style={{color:"var(--text0)",fontWeight:600,fontSize:12}}>{u.name}</td>
+                  <td data-label="Role"><span className={badgeClass(u.role)}>{u.role}</span></td>
+                  <td className="mono-cell hide-mob" data-label="Zone">{u.zone}</td>
+                  <td data-label="MFA"><span className={`badge ${u.mfa?"badge-g":"badge-k"}`}>{u.mfa?"ON":"OFF"}</span></td>
+                  <td data-label="Access"><span className={`badge ${(u.role==="Super Administrator"||controlGrants?.[u.id])?"badge-r":"badge-k"}`}>{u.role==="Super Administrator"?"MASTER":controlGrants?.[u.id]?"GRANTED":"AUTO ONLY"}</span></td>
+                  <td data-label="Status"><span className={badgeClass(u.status)}>{u.status}</span></td>
+                  <td className="mono-cell hide-mob" data-label="Last Login">{u.last}</td>
+                  <td data-label="Actions" data-full>
                     <div className="user-mgmt-row-actions">
                       <ActionPlaceholderButton label="EDIT" description="User profile editing will be enabled when backend directory sync is connected." onInform={notify}/>
                       {u.role!=="Super Administrator"&&(
@@ -3581,7 +3692,7 @@ function SystemSettings({settings,onSave,notify}){
       <div className="panel" style={{marginTop:12}}>
         <div className="panel-head"><div className="panel-title">Database Collections</div></div>
         <div style={{overflowX:"auto"}}>
-          <table>
+          <table className="mobile-stack-table">
             <thead><tr><th>Collection</th><th>Description</th><th>Records</th><th>Status</th></tr></thead>
             <tbody>
               {[
@@ -3600,10 +3711,10 @@ function SystemSettings({settings,onSave,notify}){
                 {c:"Regions",d:"Regional authority mapping",r:"4",s:"Active"},
               ].map(row=>(
                 <tr key={row.c}>
-                  <td style={{fontFamily:"var(--mono)",fontWeight:600,color:"var(--text0)"}}>{row.c}</td>
-                  <td style={{fontSize:12,color:"var(--text2)"}}>{row.d}</td>
-                  <td className="mono-cell">{row.r}</td>
-                  <td><span className="badge badge-g">{row.s}</span></td>
+                  <td data-label="Collection" style={{fontFamily:"var(--mono)",fontWeight:600,color:"var(--text0)"}}>{row.c}</td>
+                  <td data-label="Description" style={{fontSize:12,color:"var(--text2)"}}>{row.d}</td>
+                  <td className="mono-cell" data-label="Records">{row.r}</td>
+                  <td data-label="Status"><span className="badge badge-g">{row.s}</span></td>
                 </tr>
               ))}
             </tbody>
