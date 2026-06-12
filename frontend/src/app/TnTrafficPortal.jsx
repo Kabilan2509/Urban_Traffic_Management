@@ -24,7 +24,7 @@ const STYLES = `
   --purple:#6B35B8; --purpleBg:rgba(107,53,184,0.08);
   --blue:#1A56A8; --blueBg:rgba(26,86,168,0.08);
   --border:#D8E2EE; --border2:#C8D8EA; --borderFaint:#EBF0F7;
-  --text0:#0F172A; --text1:#1E293B; --text2:#475569; --text3:#94A3B8;
+  --text0:#0F172A; --text1:#1E293B; --text2:#334155; --text3:#64748B;
   --shadow:0 2px 8px rgba(15,23,42,0.08); --shadowMd:0 4px 20px rgba(15,23,42,0.12); --shadowLg:0 8px 40px rgba(15,23,42,0.15);
   --mono:'JetBrains Mono',monospace; --sans:'Inter',system-ui,sans-serif;
   --sidebar:228px; --topbar:52px; --radius:6px;
@@ -42,23 +42,27 @@ const STYLES = `
   --purple:#BB86FC; --purpleBg:rgba(187,134,252,0.1);
   --blue:#4D9FFF; --blueBg:rgba(77,159,255,0.1);
   --border:#1E3050; --border2:#2A4068; --borderFaint:#101820;
-  --text0:#EEF2FA; --text1:#CDD8EE; --text2:#8099BA; --text3:#445870;
+  --text0:#F7FAFF; --text1:#E2EAF8; --text2:#B8C8E4; --text3:#8FA4C4;
   --shadow:0 2px 8px rgba(0,0,0,0.4); --shadowMd:0 4px 20px rgba(0,0,0,0.6); --shadowLg:0 8px 40px rgba(0,0,0,0.7);
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{
-  font-family:var(--sans);font-size:14px;line-height:1.65;
+  font-family:var(--sans);font-size:15px;line-height:1.65;
   color:var(--text1);background:var(--bg0);overflow-x:hidden;min-height:100vh;
   transition:background-color 0.3s,color 0.3s;letter-spacing:0.2px;
 }
 button,input,select,textarea{font-family:inherit;}
+button,select,input,textarea{font-size:16px;}
 a{color:var(--cyan);text-decoration:none;}
 ::-webkit-scrollbar{width:6px;height:6px;}
 ::-webkit-scrollbar-track{background:var(--bg2);}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:999px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--accent);}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{
+  outline:2px solid var(--amber);outline-offset:2px;
+}
 
 /* ---- LAYOUT ---- */
 .app-shell{display:flex;min-height:100vh;}
@@ -87,10 +91,10 @@ a{color:var(--cyan);text-decoration:none;}
 .logo-text-wrap .logo-sub{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.74);letter-spacing:.18em;text-transform:uppercase;margin-top:4px;line-height:1.2;}
 .sidebar-body{flex:1;overflow-y:auto;padding:10px 0;}
 .sidebar-section{padding:0 10px;margin-bottom:4px;}
-.sidebar-label{font-family:var(--mono);font-size:8px;font-weight:700;color:var(--text3);letter-spacing:.18em;text-transform:uppercase;padding:8px 8px 5px;}
+.sidebar-label{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.16em;text-transform:uppercase;padding:8px 8px 5px;}
 .nav-btn{
   display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border:none;
-  background:none;font-size:12.5px;font-weight:500;color:var(--text2);cursor:pointer;
+  background:none;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;
   text-align:left;transition:var(--transition);border-radius:5px;margin-bottom:1px;
   border-left:2px solid transparent;
 }
@@ -113,10 +117,10 @@ a{color:var(--cyan);text-decoration:none;}
   font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;
 }
 .user-name{font-size:12px;font-weight:600;color:var(--text0);line-height:1.2;}
-.user-role{font-family:var(--mono);font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:1px;}
+.user-role{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-top:1px;}
 .sys-stat{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;}
-.sys-stat-key{font-family:var(--mono);font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;}
-.sys-stat-val{font-family:var(--mono);font-size:8.5px;font-weight:700;}
+.sys-stat-key{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;}
+.sys-stat-val{font-family:var(--mono);font-size:9px;font-weight:700;}
 
 /* ---- MAIN AREA ---- */
 .main-area{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh;}
@@ -127,10 +131,10 @@ a{color:var(--cyan);text-decoration:none;}
 }
 .topbar-primary{display:flex;align-items:center;gap:12px;flex:1;min-width:0;}
 .topbar-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
-.topbar-breadcrumb{font-family:var(--mono);font-size:10px;color:var(--text3);display:flex;align-items:center;gap:4px;flex:1;}
+.topbar-breadcrumb{font-family:var(--mono);font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px;flex:1;min-width:0;}
 .topbar-breadcrumb b{color:var(--amber);font-weight:700;}
 .live-pill{
-  display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;font-weight:700;
+  display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;font-weight:700;
   color:var(--green);background:var(--greenBg);padding:3px 10px;border-radius:3px;
   border:1px solid rgba(26,127,75,0.25);white-space:nowrap;
 }
@@ -174,7 +178,7 @@ a{color:var(--cyan);text-decoration:none;}
   font-size:22px;font-weight:700;color:var(--text0);
   letter-spacing:-.02em;display:flex;align-items:center;gap:10px;
 }
-.page-header p{font-size:11px;color:var(--text3);margin-top:3px;font-family:var(--mono);letter-spacing:.05em;}
+.page-header p{font-size:12px;color:var(--text2);margin-top:3px;font-family:var(--mono);letter-spacing:.04em;line-height:1.5;}
 .page-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .header-row{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
 .accent-rule{width:32px;height:2px;background:linear-gradient(90deg,var(--amber),transparent);border-radius:1px;margin:4px 0 8px;}
@@ -188,9 +192,9 @@ a{color:var(--cyan);text-decoration:none;}
 .kpi-card:hover{border-color:var(--border2);box-shadow:var(--shadow);}
 .kpi-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--kpi-accent,var(--amber));}
 .kpi-card::before{content:'';position:absolute;top:0;right:0;width:48px;height:48px;background:var(--kpi-accent,var(--amber));opacity:0.05;border-radius:0 0 0 48px;}
-.kpi-label{font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;}
+.kpi-label{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
 .kpi-value{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--text0);line-height:1;margin-bottom:5px;}
-.kpi-delta{font-size:10px;color:var(--text3);}
+.kpi-delta{font-size:11px;color:var(--text2);}
 .kpi-delta.up{color:var(--green);}
 .kpi-delta.dn{color:var(--red);}
 .kpi-ico{position:absolute;top:12px;right:14px;font-size:18px;opacity:0.4;}
@@ -203,7 +207,7 @@ a{color:var(--cyan);text-decoration:none;}
   padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg2);
 }
 .panel-title{
-  font-family:var(--mono);font-size:10px;font-weight:700;color:var(--amber);
+  font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber);
   letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:6px;
 }
 .panel-title::before{content:'';width:3px;height:3px;background:var(--amber);border-radius:50%;}
@@ -225,8 +229,8 @@ a{color:var(--cyan);text-decoration:none;}
 .jrow:hover{background:var(--bg2);border-color:var(--border);}
 .jrow.active-j{background:var(--amberBg);border-color:rgba(201,125,16,0.25);}
 :root.dark-mode .jrow.active-j{background:rgba(255,184,48,0.08);border-color:rgba(255,184,48,0.2);}
-.jrow-id{font-family:var(--mono);font-size:8.5px;color:var(--text3);width:46px;flex-shrink:0;}
-.jrow-name{flex:1;font-size:12.5px;font-weight:500;color:var(--text0);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.jrow-id{font-family:var(--mono);font-size:9.5px;color:var(--text3);width:52px;flex-shrink:0;}
+.jrow-name{flex:1;font-size:13px;font-weight:600;color:var(--text0);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
 /* ---- STATUS DOTS ---- */
 .sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
@@ -238,7 +242,7 @@ a{color:var(--cyan);text-decoration:none;}
 /* ---- BADGES ---- */
 .badge{
   display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:3px;
-  font-family:var(--mono);font-size:9px;font-weight:700;
+  font-family:var(--mono);font-size:10px;font-weight:700;
   text-transform:uppercase;letter-spacing:.08em;border:1px solid;
   white-space:nowrap;
 }
@@ -260,7 +264,7 @@ a{color:var(--cyan);text-decoration:none;}
 .dbar{display:flex;align-items:center;gap:8px;}
 .dbar-track{flex:1;background:var(--bg3);border-radius:2px;height:4px;overflow:hidden;}
 .dbar-fill{height:100%;border-radius:2px;transition:width .4s ease;}
-.dbar-pct{font-family:var(--mono);font-size:10px;font-weight:700;min-width:32px;text-align:right;}
+.dbar-pct{font-family:var(--mono);font-size:10px;font-weight:700;min-width:38px;text-align:right;}
 
 /* ---- TRAFFIC LIGHT ---- */
 .tlight{width:30px;height:75px;background:var(--bg0);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;padding:5px;border:1px solid var(--border2);}
@@ -286,7 +290,7 @@ a{color:var(--cyan);text-decoration:none;}
 /* ---- BUTTONS ---- */
 .btn{
   display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:4px;
-  font-family:var(--mono);font-size:10px;font-weight:700;cursor:pointer;border:1px solid;
+  font-family:var(--mono);font-size:11px;font-weight:700;cursor:pointer;border:1px solid;
   transition:var(--transition);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;
 }
 .btn-primary{background:var(--primary);color:#fff;border-color:var(--primary);}
@@ -304,29 +308,29 @@ a{color:var(--cyan);text-decoration:none;}
 .btn-cyan{background:var(--blueBg);color:var(--cyan);border-color:rgba(0,119,204,0.3);}
 :root.dark-mode .btn-cyan{border-color:rgba(0,207,255,0.3);}
 .btn-cyan:hover{background:rgba(0,119,204,0.12);}
-.btn-sm{padding:4px 9px;font-size:9px;}
+.btn-sm{padding:5px 10px;font-size:10px;}
 .btn:disabled{opacity:.35;cursor:not-allowed;}
 
 /* ---- FORM ELEMENTS ---- */
 .field{margin-bottom:13px;}
-.field label{display:block;font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;}
+.field label{display:block;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
 .inp{width:100%;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:12px;color:var(--text0);outline:none;transition:border-color .15s;}
 .inp:focus{border-color:var(--amber);box-shadow:0 0 0 2px rgba(201,125,16,0.1);}
 .inp::placeholder{color:var(--text3);}
-.sel{width:100%;padding:7px 11px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:11px;color:var(--text1);outline:none;cursor:pointer;}
+.sel{width:100%;padding:7px 11px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:12px;color:var(--text1);outline:none;cursor:pointer;}
 .sel:focus{border-color:var(--amber);}
 
 /* ---- TABLES ---- */
 table{width:100%;border-collapse:collapse;font-size:12px;}
-thead th{background:var(--bg2);padding:8px 12px;font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--text3);text-align:left;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;}
+thead th{background:var(--bg2);padding:8px 12px;font-family:var(--mono);font-size:9.5px;font-weight:700;color:var(--text3);text-align:left;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;}
 tbody tr{border-bottom:1px solid var(--borderFaint);transition:background .12s;}
 tbody tr:last-child{border-bottom:none;}
 tbody tr:hover{background:var(--bg2);}
 tbody td{padding:8px 12px;vertical-align:middle;color:var(--text1);}
-.mono-cell{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.mono-cell{font-family:var(--mono);font-size:11px;color:var(--text2);}
 
 /* ---- ALERTS ---- */
-.alert{padding:9px 13px;border-radius:4px;border-left:3px solid;font-family:var(--mono);font-size:10px;margin-bottom:10px;display:flex;align-items:flex-start;gap:8px;line-height:1.5;}
+.alert{padding:9px 13px;border-radius:4px;border-left:3px solid;font-family:var(--mono);font-size:11px;margin-bottom:10px;display:flex;align-items:flex-start;gap:8px;line-height:1.5;}
 .alert-w{background:var(--amberBg);border-color:var(--amber);color:var(--amber);}
 .alert-e{background:var(--redBg);border-color:var(--red);color:var(--red);}
 .alert-i{background:var(--blueBg);border-color:var(--cyan);color:var(--cyan);}
@@ -344,8 +348,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 /* ---- DETAIL ROW ---- */
 .detail-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--borderFaint);}
 .detail-row:last-child{border-bottom:none;}
-.detail-key{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;}
-.detail-val{font-family:var(--mono);font-size:11px;color:var(--text0);font-weight:700;}
+.detail-key{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;}
+.detail-val{font-family:var(--mono);font-size:12px;color:var(--text0);font-weight:700;}
 
 /* ---- SENSOR CARDS ---- */
 .sensor-card{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:10px 12px;}
@@ -486,7 +490,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;
 }
 .app-footer-copy,.app-footer-links{
-  font-family:var(--mono);font-size:8px;color:var(--text3);line-height:1.6;
+  font-family:var(--mono);font-size:9px;color:var(--text3);line-height:1.6;
 }
 
 .sr-only{
@@ -506,6 +510,39 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 /* ---- CHART TOOLTIP ---- */
 .ct{background:var(--bg1);border:1px solid var(--border);border-radius:5px;padding:9px 12px;font-family:var(--mono);font-size:10px;color:var(--text0);box-shadow:var(--shadowMd);}
 .ct-lbl{color:var(--text3);font-size:8.5px;margin-bottom:3px;letter-spacing:.1em;text-transform:uppercase;}
+
+.dashboard-legend{display:flex;gap:10px;font-size:9px;font-family:var(--mono);flex-wrap:wrap;color:var(--text2);}
+.dashboard-schematic-shell{padding:12px;background:linear-gradient(180deg,var(--bg1),var(--bg2));}
+.dashboard-schematic-card{
+  border:1px solid var(--border);border-radius:8px;
+  background:linear-gradient(180deg,rgba(255,255,255,0.04),rgba(15,23,42,0.02));
+  padding:16px 18px 12px;position:relative;min-height:430px;
+}
+.dashboard-schematic-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;}
+.dashboard-schematic-title{font-family:var(--mono);font-size:10px;color:var(--amber);letter-spacing:.18em;text-transform:uppercase;font-weight:700;}
+.dashboard-schematic-map{width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;}
+.dashboard-schematic-svg{width:100%;min-width:720px;height:auto;display:block;}
+.dashboard-schematic-notes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px;}
+.dashboard-schematic-note{border-top:1px solid var(--border);padding-top:8px;}
+.dashboard-schematic-note-label{font-family:var(--mono);font-size:10px;color:var(--amber);letter-spacing:.12em;text-transform:uppercase;font-weight:700;}
+.dashboard-schematic-note-copy{font-size:13px;color:var(--text2);line-height:1.5;margin-top:4px;}
+.dashboard-detail-head{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.dashboard-search{position:relative;}
+.dashboard-search-icon{
+  position:absolute;left:9px;top:50%;transform:translateY(-50%);
+  font-size:12px;color:var(--text3);pointer-events:none;
+}
+.dashboard-search-input{
+  width:100%;padding:9px 12px 9px 32px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:4px;font-family:var(--mono);font-size:11px;color:var(--text0);outline:none;
+}
+.dashboard-search-input:focus{border-color:var(--amber);box-shadow:0 0 0 2px rgba(201,125,16,0.1);}
+.dashboard-list-panel{padding:10px;max-height:420px;overflow-y:auto;}
+.dashboard-empty{padding:16px 8px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important;}
+}
 
 /* ---- ANIMATIONS ---- */
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
@@ -542,19 +579,21 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   /* Topbar: single compact row, no wrapping */
   .topbar{
     padding:0 14px;
-    min-height:52px;
-    flex-wrap:nowrap;
+    min-height:60px;
+    flex-wrap:wrap;
     gap:8px;
     justify-content:space-between;
   }
+  .topbar-primary,.topbar-tools{width:100%;}
+  .topbar-tools{justify-content:space-between;gap:8px;}
   .topbar-breadcrumb{
-    font-size:9px;min-width:0;
+    font-size:10px;min-width:0;
     overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
     flex:1;
   }
   /* Keep live-pill + clock small but visible */
-  .live-pill{padding:2px 7px;font-size:8px;}
-  .clock-box{padding:3px 7px;font-size:9px;}
+  .live-pill{padding:3px 8px;font-size:9px;}
+  .clock-box{padding:4px 8px;font-size:10px;}
 
   /* Notification panel: edge-aware */
   .notif-panel{
@@ -569,6 +608,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   .header-row{flex-direction:column;align-items:stretch;gap:8px;}
   .page-header,.page-actions{width:100%;}
   .page-actions{justify-content:flex-start;}
+  .dashboard-schematic-notes{grid-template-columns:1fr;}
 
   /* Grids */
   .kpi-strip,.g4{grid-template-columns:repeat(2,1fr);}
@@ -586,15 +626,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   .content{padding:12px 14px;}
   .main-area{padding-bottom:env(safe-area-inset-bottom,0px);}
 
-  /* ---- Topbar: minimal one-liner ---- */
-  .topbar{padding:0 12px;min-height:50px;gap:6px;}
-  .topbar-breadcrumb{font-size:8.5px;max-width:120px;}
-  /* Hide less critical topbar items on very small screens */
-  .live-pill{display:none;}
-  .clock-box{display:none;}
+  /* ---- Topbar ---- */
+  .topbar{padding:10px 12px;min-height:auto;gap:8px;align-items:stretch;}
+  .topbar-primary,.topbar-tools{width:100%;}
+  .topbar-breadcrumb{font-size:9px;max-width:none;}
+  .topbar-tools{flex-wrap:nowrap;align-items:center;}
+  .live-pill,.clock-box{display:flex;}
+  .live-pill{padding:3px 8px;font-size:8px;}
+  .clock-box{padding:4px 8px;font-size:9px;}
+  .notif-btn,.theme-toggle,.mob-menu{width:40px;height:40px;}
 
   /* ---- Sidebar drawer  full width minus a gutter ---- */
-  .sidebar{width:min(var(--sidebar), calc(100vw - 56px));}
+  .sidebar{width:min(320px, calc(100vw - 24px));}
 
   /* ---- Grids: always single column ---- */
   .kpi-strip,.g4,.g2,.g3,.g13,.g31,.signal-grid{
@@ -604,15 +647,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   /* ---- KPI cards: horizontal compact ---- */
   .kpi-card{padding:12px 14px;}
   .kpi-value{font-size:22px;}
-  .kpi-label{font-size:8px;}
+  .kpi-label{font-size:8.5px;}
 
   /* ---- Panel heads: allow wrap ---- */
   .panel-head{flex-wrap:wrap;gap:6px;}
-  .panel-title{font-size:9px;}
+  .panel-title{font-size:10px;}
 
   /* ---- Buttons: full-width feel ---- */
-  .btn{padding:8px 12px;font-size:9.5px;}
-  .btn-sm{padding:5px 9px;font-size:9px;}
+  .btn{padding:9px 12px;font-size:10px;}
+  .btn-sm{padding:7px 10px;font-size:9.5px;}
 
   /* ---- Tables: horizontal scroll ---- */
   .panel > div[style*="overflow"],
@@ -638,12 +681,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
   /* ---- Page header ---- */
   .page-header h1{font-size:17px;gap:7px;}
-  .page-header p{font-size:9.5px;}
+  .page-header p{font-size:10px;}
   .accent-rule{width:24px;}
 
   /* ---- Junction rows: touch-friendly ---- */
   .jrow{padding:10px 10px;min-height:44px;}
   .jrow-name{font-size:12px;}
+  .dashboard-detail-head{align-items:flex-start;flex-direction:column;}
+  .dashboard-search-input{font-size:10px;}
+  .dashboard-schematic-card{padding:14px 14px 12px;min-height:auto;}
+  .dashboard-schematic-svg{min-width:640px;}
 
   /* ---- Notification panel: full-width near top ---- */
   .notif-panel{
@@ -676,7 +723,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .mob-nav-item{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:2px;border:none;background:none;cursor:pointer;
-  color:var(--text3);font-family:var(--mono);font-size:7px;
+  color:var(--text3);font-family:var(--mono);font-size:8px;
   font-weight:700;letter-spacing:.04em;text-transform:uppercase;
   transition:color .15s,background .15s;
   border-top:2.5px solid transparent;
@@ -698,7 +745,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 }
 @media(max-width:576px){
   .main-area{padding-bottom:calc(60px + env(safe-area-inset-bottom,0px));}
-  .mob-nav-item{font-size:6.5px;}
+  .mob-nav-item{font-size:7px;}
   .mob-nav-ico{font-size:15px;}
 }
 `;
@@ -1232,66 +1279,69 @@ function Topbar({tab,onMenuToggle,alerts,user,onNav}){
 
   return(
     <div className="topbar" style={{position:"relative"}}>
-      <button className="mob-menu" onClick={onMenuToggle} style={{display:"none"}}>☰</button>
-      <div className="topbar-breadcrumb">
-        <b>TRAFFIX</b> / {meta?.label||tab}
+      <div className="topbar-primary">
+        <button className="mob-menu" onClick={onMenuToggle} style={{display:"none"}} aria-label="Open navigation menu">☰</button>
+        <div className="topbar-breadcrumb">
+          <b>TRAFFIX</b> / {meta?.label||tab}
+        </div>
       </div>
-      <div className="live-pill"><div className="live-dot"/>SYS LIVE</div>
-      <div className="clock-box"><Clock/></div>
-      <div style={{position:"relative"}}>
-        <button className="notif-btn" onClick={()=>setNotifOpen(o=>!o)}>
-          <span style={{fontSize:16}}>🔔</span>
-          {activeAlerts.length>0&&<span className="notif-dot"/>}
-        </button>
-        {notifOpen&&(
-          <div className="notif-panel">
-            <div className="notif-head">
-              <h4>Active Alerts ({activeAlerts.length})</h4>
-              <button className="btn btn-ghost btn-sm" onClick={()=>setNotifOpen(false)}>✕</button>
-            </div>
-            {activeAlerts.length===0&&(
-              <div style={{padding:16,textAlign:"center",fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)"}}>No critical alerts</div>
-            )}
-            {activeAlerts.slice(0,6).map(a=>{
-              const dest=ALERT_SCOPE_TAB[a.scope];
-              const destLabel=SCOPE_LABEL[a.scope];
-              const ico=SEVERITY_ICON[a.severity]||"ℹ️";
-              return(
-                <button
-                  key={a.id}
-                  className="notif-item"
-                  onClick={()=>handleNotifClick(a)}
-                  title={dest?`Click to open ${destLabel}`:""}
-                  style={{cursor:dest?"pointer":"default"}}
-                >
-                  <div className="notif-inner" style={{display:"flex",alignItems:"flex-start",gap:8}}>
-                    <span style={{fontSize:13,flexShrink:0,marginTop:1}}>{ico}</span>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div className="notif-title">{a.message}</div>
-                      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,marginTop:3}}>
-                        <span className="notif-meta">{a.junction}  {a.severity}</span>
-                        {dest&&(
-                          <span style={{
-                            fontFamily:"var(--mono)",fontSize:8,fontWeight:700,
-                            color:"var(--amber)",letterSpacing:".08em",
-                            whiteSpace:"nowrap",flexShrink:0,
-                          }}>→ {destLabel}</span>
-                        )}
+      <div className="topbar-tools">
+        <div className="live-pill"><div className="live-dot"/>SYS LIVE</div>
+        <div className="clock-box"><Clock/></div>
+        <div style={{position:"relative"}}>
+          <button className="notif-btn" onClick={()=>setNotifOpen(o=>!o)} aria-label={`Open alerts panel${activeAlerts.length?`, ${activeAlerts.length} active alerts`:""}`}>
+            <span style={{fontSize:16}}>🔔</span>
+            {activeAlerts.length>0&&<span className="notif-dot"/>}
+          </button>
+          {notifOpen&&(
+            <div className="notif-panel">
+              <div className="notif-head">
+                <h4>Active Alerts ({activeAlerts.length})</h4>
+                <button className="btn btn-ghost btn-sm" onClick={()=>setNotifOpen(false)}>✕</button>
+              </div>
+              {activeAlerts.length===0&&(
+                <div style={{padding:16,textAlign:"center",fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)"}}>No critical alerts</div>
+              )}
+              {activeAlerts.slice(0,6).map(a=>{
+                const dest=ALERT_SCOPE_TAB[a.scope];
+                const destLabel=SCOPE_LABEL[a.scope];
+                const ico=SEVERITY_ICON[a.severity]||"ℹ️";
+                return(
+                  <button
+                    key={a.id}
+                    className="notif-item"
+                    onClick={()=>handleNotifClick(a)}
+                    title={dest?`Click to open ${destLabel}`:""}
+                    style={{cursor:dest?"pointer":"default"}}
+                  >
+                    <div className="notif-inner" style={{display:"flex",alignItems:"flex-start",gap:8}}>
+                      <span style={{fontSize:13,flexShrink:0,marginTop:1}}>{ico}</span>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div className="notif-title">{a.message}</div>
+                        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,marginTop:3}}>
+                          <span className="notif-meta">{a.junction}  {a.severity}</span>
+                          {dest&&(
+                            <span style={{
+                              fontFamily:"var(--mono)",fontSize:8,fontWeight:700,
+                              color:"var(--amber)",letterSpacing:".08em",
+                              whiteSpace:"nowrap",flexShrink:0,
+                            }}>→ {destLabel}</span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </button>
-
-              );
-            })}
-            <div style={{padding:"8px 14px",borderTop:"1px solid var(--borderFaint)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}>Click alert to navigate to related page</span>
-              {onNav&&<button className="btn btn-ghost btn-sm" style={{fontSize:9}} onClick={()=>{onNav("history");setNotifOpen(false);}}>VIEW ALL LOGS →</button>}
+                  </button>
+                );
+              })}
+              <div style={{padding:"8px 14px",borderTop:"1px solid var(--borderFaint)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}>Click alert to navigate to related page</span>
+                {onNav&&<button className="btn btn-ghost btn-sm" style={{fontSize:9}} onClick={()=>{onNav("history");setNotifOpen(false);}}>VIEW ALL LOGS →</button>}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+        <DarkModeToggle/>
       </div>
-      <DarkModeToggle/>
     </div>
   );
 }
@@ -1487,17 +1537,18 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
               ))}
             </div>
           </div>
-          <div style={{padding:12,background:"linear-gradient(180deg,var(--bg1),var(--bg2))"}}>
-            <div style={{border:"1px solid var(--border)",borderRadius:8,background:"linear-gradient(180deg,rgba(255,255,255,0.04),rgba(15,23,42,0.02))",padding:"16px 18px 12px",position:"relative",minHeight:430}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:8}}>
-                <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--amber)",letterSpacing:".18em",textTransform:"uppercase",fontWeight:700}}>▸ Chennai Traffic Spine</div>
-                <div style={{display:"flex",gap:12,fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)"}}>
+          <div className="dashboard-schematic-shell">
+            <div className="dashboard-schematic-card">
+              <div className="dashboard-schematic-meta">
+                <div className="dashboard-schematic-title">▸ Chennai Traffic Spine</div>
+                <div className="dashboard-legend">
                   <span style={{color:"#1A7F4B"}}>&#9679; Low</span>
                   <span style={{color:"#C97D10"}}>&#9679; Med</span>
                   <span style={{color:"#B03030"}}>&#9679; High</span>
                 </div>
               </div>
-              <svg viewBox="0 0 760 360" style={{width:"100%",height:"auto",display:"block"}}>
+              <div className="dashboard-schematic-map">
+                <svg viewBox="0 0 760 360" className="dashboard-schematic-svg" aria-label="Traffic network schematic for live junction monitoring">
                 {[140,290,440,590].map(x=>(
                   <line key={`vx-${x}`} x1={x} y1="28" x2={x} y2="328" stroke="var(--border)" strokeWidth="1"/>
                 ))}
@@ -1525,16 +1576,17 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
                     </g>
                   );
                 })}
-              </svg>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:10,marginTop:10}}>
+                </svg>
+              </div>
+              <div className="dashboard-schematic-notes">
                 {[
                   {label:"Reading Rule",value:"Follow the connected lines as the main traffic movement path."},
                   {label:"Node Meaning",value:"Each colored node is one live junction in the control network."},
                   {label:"Authority Use",value:"Click a node to inspect signals, density, delay, and police coverage."},
                 ].map(item=>(
-                  <div key={item.label} style={{borderTop:"1px solid var(--border)",paddingTop:8}}>
-                    <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--amber)",letterSpacing:".12em",textTransform:"uppercase",fontWeight:700}}>{item.label}</div>
-                    <div style={{fontSize:12,color:"var(--text2)",lineHeight:1.5,marginTop:4}}>{item.value}</div>
+                  <div key={item.label} className="dashboard-schematic-note">
+                    <div className="dashboard-schematic-note-label">{item.label}</div>
+                    <div className="dashboard-schematic-note-copy">{item.value}</div>
                   </div>
                 ))}
               </div>
@@ -1544,30 +1596,29 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
 
         <div className="panel">
           <div className="panel-head" style={{flexDirection:"column",gap:8,alignItems:"stretch"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div className="dashboard-detail-head">
               <div className="panel-title">{freshSelJ?`Junction Detail  ${freshSelJ.id}`:"All Junctions"}</div>
               {freshSelJ&&<button className="btn btn-ghost btn-sm" onClick={()=>{setSelJ(null);setDashboardSearch("");}}>✕ CLOSE</button>}
             </div>
             {!freshSelJ&&(
-              <div style={{position:"relative"}}>
-                <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:11,color:"var(--text3)",pointerEvents:"none"}}>🔍</span>
+              <div className="dashboard-search">
+                <span className="dashboard-search-icon">🔍</span>
                 <input
                   type="text"
                   placeholder="Search by ID, Name, Zone, Region..."
                   value={dashboardSearch}
                   onChange={e=>setDashboardSearch(e.target.value)}
-                  style={{width:"100%",padding:"7px 10px 7px 28px",background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:4,fontFamily:"var(--mono)",fontSize:10,color:"var(--text0)",outline:"none"}}
-                  onFocus={e=>e.target.style.borderColor="var(--amber)"}
-                  onBlur={e=>e.target.style.borderColor="var(--border)"}
+                  className="dashboard-search-input"
+                  aria-label="Search junctions"
                 />
               </div>
             )}
           </div>
-          <div style={{padding:10,maxHeight:420,overflowY:"auto"}}>
+          <div className="dashboard-list-panel">
             {!freshSelJ?(
               <>
                 {filteredJunctions.length===0&&(
-                  <div style={{padding:"16px 8px",textAlign:"center",fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)"}}>
+                  <div className="dashboard-empty">
                     No junctions match "{dashboardSearch}"
                   </div>
                 )}
@@ -2129,8 +2180,8 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
               </div>
               <div className="alert alert-ok" style={{marginTop:8,marginBottom:0}}>
                 {canEditTiming
-                  ? `\u26a0 Emergency timing editor unlocked. TOTAL CYCLE: ${((timings[sel])?.green??0)+((timings[sel])?.yellow??0)+((timings[sel])?.red??0)}s \u2014 GREEN RATIO: ${Math.round((((timings[sel])?.green??0)/Math.max(1,((timings[sel])?.green??0)+((timings[sel])?.yellow??0)+((timings[sel])?.red??0)))*100)}%`
-                  : "\u2139\ufe0f Adaptive cycle guardrails active. AI resumes and maintains default signal timing outside critical or emergency conditions."}
+                  ? `⚠ Emergency timing editor unlocked. TOTAL CYCLE: ${((timings[sel])?.green??0)+((timings[sel])?.yellow??0)+((timings[sel])?.red??0)}s — GREEN RATIO: ${Math.round((((timings[sel])?.green??0)/Math.max(1,((timings[sel])?.green??0)+((timings[sel])?.yellow??0)+((timings[sel])?.red??0)))*100)}%`
+                  : "ℹ️ Adaptive cycle guardrails active. AI resumes and maintains default signal timing outside critical or emergency conditions."}
               </div>
             </div>
           </div>
@@ -3559,4 +3610,3 @@ export default function App(){
     </>
   );
 }
-
