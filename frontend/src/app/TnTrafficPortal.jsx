@@ -42,8 +42,9 @@ const STYLES = `
   --purple:#BB86FC; --purpleBg:rgba(187,134,252,0.1);
   --blue:#4D9FFF; --blueBg:rgba(77,159,255,0.1);
   --border:#1E3050; --border2:#2A4068; --borderFaint:#101820;
-  --text0:#F7FAFF; --text1:#E2EAF8; --text2:#B8C8E4; --text3:#8FA4C4;
+  --text0:#F7FAFF; --text1:#EAF1FF; --text2:#CAD8EF; --text3:#A9BDD9;
   --shadow:0 2px 8px rgba(0,0,0,0.4); --shadowMd:0 4px 20px rgba(0,0,0,0.6); --shadowLg:0 8px 40px rgba(0,0,0,0.7);
+  --mapPopupBg:#101826; --mapPopupMuted:#AFC2DE; --mapPopupText:#F3F7FF; --mapPopupChipBg:#1D2940;
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -171,6 +172,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .notif-title{font-size:12px;font-weight:500;color:var(--text0);margin-bottom:2px;}
 .notif-meta{font-family:var(--mono);font-size:9px;color:var(--text3);}
 
+.user-mgmt-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
+.user-mgmt-head .page-header{flex:1 1 320px;min-width:0;margin-bottom:0;}
+.user-mgmt-actions{display:flex;align-items:flex-start;justify-content:flex-end;flex:0 0 auto;}
+.user-mgmt-actions .btn{min-height:36px;justify-content:center;}
+.user-mgmt-kpis{margin-bottom:14px;}
+.user-mgmt-filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:stretch;}
+.user-mgmt-search{position:relative;flex:1 1 240px;min-width:220px;}
+.user-mgmt-role{flex:0 1 240px;min-width:220px;}
+.user-mgmt-row-actions{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
+
 
 .content{padding:20px 24px;flex:1;}
 .page-header{margin-bottom:18px;}
@@ -259,6 +270,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .badge-k{background:var(--bg3);color:var(--text2);border-color:var(--border);}
 .badge-a{background:var(--amberBg);color:var(--amber);border-color:rgba(201,125,16,0.35);}
 :root.dark-mode .badge-a{background:rgba(255,184,48,0.1);border-color:rgba(255,184,48,0.35);}
+:root.dark-mode .badge-y,:root.dark-mode .badge-a{color:var(--amber2);}
+:root.dark-mode .btn-amber{color:var(--amber2);}
+:root.dark-mode .panel-title{color:var(--amber2);}
+:root.dark-mode .panel-title::before{background:var(--amber2);}
+:root.dark-mode .alert-w{color:var(--amber2);}
 
 /* ---- DENSITY BAR ---- */
 .dbar{display:flex;align-items:center;gap:8px;}
@@ -585,7 +601,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     justify-content:space-between;
   }
   .topbar-primary,.topbar-tools{width:100%;}
-  .topbar-tools{justify-content:space-between;gap:8px;}
+  .topbar-tools{justify-content:space-between;gap:8px;flex-wrap:nowrap;align-items:center;}
   .topbar-breadcrumb{
     font-size:10px;min-width:0;
     overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
@@ -609,6 +625,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   .page-header,.page-actions{width:100%;}
   .page-actions{justify-content:flex-start;}
   .dashboard-schematic-notes{grid-template-columns:1fr;}
+  .user-mgmt-actions{width:100%;}
+  .user-mgmt-actions .btn{width:100%;}
+  .user-mgmt-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .user-mgmt-filters{flex-direction:column;}
+  .user-mgmt-search,.user-mgmt-role{min-width:0;flex:1 1 auto;width:100%;}
+  .user-mgmt-row-actions{gap:6px;}
+  .user-mgmt-row-actions .btn{flex:1 1 120px;justify-content:center;}
 
   /* Grids */
   .kpi-strip,.g4{grid-template-columns:repeat(2,1fr);}
@@ -643,6 +666,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   .kpi-strip,.g4,.g2,.g3,.g13,.g31,.signal-grid{
     grid-template-columns:1fr;
   }
+  .user-mgmt-kpis{grid-template-columns:1fr;}
 
   /* ---- KPI cards: horizontal compact ---- */
   .kpi-card{padding:12px 14px;}
@@ -1110,6 +1134,149 @@ function buildExcelSpreadsheet(rows,sheetName){
   return new Blob([header,workbook],{type:"application/vnd.ms-excel"});
 }
 
+function ToastStack({toasts,onDismiss}){
+  if(!toasts.length) return null;
+  return(
+    <div style={{position:"fixed",top:64,right:18,zIndex:1200,display:"flex",flexDirection:"column",gap:8,maxWidth:320}}>
+      {toasts.map(toast=>{
+        const tone=toast.tone==="error"
+          ? {bg:"var(--redBg)",border:"var(--red)",fg:"var(--red)"}
+          : toast.tone==="success"
+          ? {bg:"var(--greenBg)",border:"var(--green)",fg:"var(--green)"}
+          : {bg:"var(--blueBg)",border:"var(--cyan)",fg:"var(--cyan)"};
+        return(
+          <div key={toast.id} style={{background:"var(--bg1)",border:`1px solid ${tone.border}`,borderLeft:`3px solid ${tone.border}`,borderRadius:6,boxShadow:"var(--shadowLg)",padding:"10px 12px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",gap:10,alignItems:"flex-start"}}>
+              <div style={{fontFamily:"var(--mono)",fontSize:10,color:tone.fg,lineHeight:1.5}}>{toast.message}</div>
+              <button className="btn btn-ghost btn-sm" onClick={()=>onDismiss(toast.id)} aria-label="Dismiss notification">✕</button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ActionPlaceholderButton({label,description,onInform,className="btn btn-ghost btn-sm"}){
+  return(
+    <button className={className} type="button" onClick={()=>onInform?.(description,"info")} title={description}>
+      {label}
+    </button>
+  );
+}
+
+function ModalShell({title,onClose,children,actions,minWidth=340}){
+  useEffect(()=>{
+    const onKey=(event)=>{ if(event.key==="Escape") onClose?.(); };
+    window.addEventListener("keydown",onKey);
+    return()=>window.removeEventListener("keydown",onKey);
+  },[onClose]);
+
+  return(
+    <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.55)",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center",backdropFilter:"blur(4px)"}} onClick={onClose}>
+      <div style={{background:"var(--bg1)",padding:28,borderRadius:8,minWidth,boxShadow:"var(--shadowLg)",border:"1px solid var(--border)"}} onClick={e=>e.stopPropagation()} role="dialog" aria-modal="true" aria-label={title}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
+          <h2 style={{fontSize:15,fontWeight:700,color:"var(--text0)"}}>{title}</h2>
+          <button className="btn btn-ghost btn-sm" onClick={onClose} aria-label={`Close ${title}`}>✕</button>
+        </div>
+        {children}
+        {actions&&<div style={{display:"flex",gap:10,marginTop:20,justifyContent:"flex-end"}}>{actions}</div>}
+      </div>
+    </div>
+  );
+}
+
+function NotificationsPanel({activeAlerts,onClose,onNav,panelRef,closeButtonRef}){
+  return(
+    <div ref={panelRef} className="notif-panel" id="traffix-alerts-panel" role="dialog" aria-modal="false" aria-label="Active alerts panel">
+      <div className="notif-head">
+        <h4>Active Alerts ({activeAlerts.length})</h4>
+        <button ref={closeButtonRef} className="btn btn-ghost btn-sm" onClick={onClose} aria-label="Close alerts panel">✕</button>
+      </div>
+      {activeAlerts.length===0&&(
+        <div style={{padding:16,textAlign:"center",fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)"}}>No critical alerts</div>
+      )}
+      {activeAlerts.slice(0,6).map(a=>{
+        const dest=ALERT_SCOPE_TAB[a.scope];
+        const destLabel=SCOPE_LABEL[a.scope];
+        const ico=SEVERITY_ICON[a.severity]||"ℹ️";
+        return(
+          <button
+            key={a.id}
+            className="notif-item"
+            onClick={()=>{
+              if(dest&&onNav) onNav(dest);
+              onClose?.();
+            }}
+            title={dest?`Open ${destLabel}`:"Alert details"}
+            style={{cursor:dest?"pointer":"default"}}
+          >
+            <div className="notif-inner" style={{display:"flex",alignItems:"flex-start",gap:8}}>
+              <span style={{fontSize:13,flexShrink:0,marginTop:1}}>{ico}</span>
+              <div style={{flex:1,minWidth:0}}>
+                <div className="notif-title">{a.message}</div>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,marginTop:3}}>
+                  <span className="notif-meta">{a.junction}  {a.severity}</span>
+                  {dest&&(
+                    <span style={{fontFamily:"var(--mono)",fontSize:8,fontWeight:700,color:"var(--amber)",letterSpacing:".08em",whiteSpace:"nowrap",flexShrink:0}}>
+                      → {destLabel}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </button>
+        );
+      })}
+      <div style={{padding:"8px 14px",borderTop:"1px solid var(--borderFaint)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}>Click alert to navigate to related page</span>
+        {onNav&&<button className="btn btn-ghost btn-sm" style={{fontSize:9}} onClick={()=>{onNav("history");onClose?.();}}>VIEW ALL LOGS →</button>}
+      </div>
+    </div>
+  );
+}
+
+function StaticMapFallback({junctions,onSelect,getCongestion}){
+  return(
+    <div style={{height:"100%",minHeight:430,borderRadius:4,background:"linear-gradient(180deg,var(--bg2),var(--bg1))",border:"1px dashed var(--border2)",padding:16,display:"flex",flexDirection:"column",gap:12}}>
+      <div className="alert alert-w" style={{marginBottom:0}}>
+        ⚠️ Live map tiles are unavailable right now. Use the fallback junction board below while the map service reconnects.
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:10,overflowY:"auto"}}>
+        {junctions.map(j=>(
+          <button key={j.id} className="sig-card" style={{textAlign:"left"}} onClick={()=>onSelect?.(j)}>
+            <div className="sig-id">{j.id}</div>
+            <div className="sig-label" style={{marginTop:0,marginBottom:8}}>{j.name}</div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginBottom:6}}>
+              <span className={badgeClass(getCongestion(j))}>{getCongestion(j)}</span>
+              <span className="mono-cell">{j.region}</span>
+            </div>
+            <DBar value={j.density}/>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function buildMapPopupMarkup(junction,chipColor,congestion){
+  return `
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;min-width:200px;padding:2px 0;color:var(--mapPopupText, #0F172A);">
+      <div style="font-size:14px;font-weight:700;color:var(--mapPopupText, #0F172A);margin-bottom:4px;">${junction.name}</div>
+      <div style="color:var(--mapPopupMuted, #64748B);margin-bottom:6px;">${junction.id}  ${junction.zone}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+        <span style="background:${chipColor};color:#fff;border-radius:4px;padding:2px 8px;font-weight:700;font-size:10px;">${congestion}</span>
+        <span style="background:var(--mapPopupChipBg, #f1f5f9);color:var(--mapPopupMuted, #475569);border-radius:4px;padding:2px 8px;font-size:10px;">${junction.priority}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:10px;color:var(--mapPopupMuted, #475569);">
+        <span>Density</span><span style="font-weight:700;color:var(--mapPopupText, #0F172A);">${junction.density}%</span>
+        <span>Vehicles</span><span style="font-weight:700;color:var(--mapPopupText, #0F172A);">${junction.vehicles}</span>
+        <span>Avg Delay</span><span style="font-weight:700;color:var(--mapPopupText, #0F172A);">${junction.delay} min</span>
+        <span>Region</span><span style="font-weight:700;color:var(--mapPopupText, #0F172A);">${junction.region}</span>
+      </div>
+    </div>`;
+}
+
 /* --------------------------------------------------------------
    LOGIN PAGE
 -------------------------------------------------------------- */
@@ -1268,14 +1435,28 @@ function Topbar({tab,onMenuToggle,alerts,user,onNav}){
   const meta=ALL_TABS.find(t=>t.id===tab);
   const [notifOpen,setNotifOpen]=useState(false);
   const activeAlerts=alerts.filter(a=>a.severity==="CRITICAL"||a.severity==="HIGH");
+  const panelRef=useRef(null);
+  const closeButtonRef=useRef(null);
+  const triggerRef=useRef(null);
 
-  const handleNotifClick=(alert)=>{
-    const dest=ALERT_SCOPE_TAB[alert.scope];
-    if(dest&&onNav){
-      onNav(dest);
+  useEffect(()=>{
+    if(!notifOpen) return;
+    closeButtonRef.current?.focus();
+    const onPointerDown=(event)=>{
+      if(triggerRef.current?.contains(event.target)) return;
+      if(panelRef.current?.contains(event.target)) return;
       setNotifOpen(false);
-    }
-  };
+    };
+    const onKeyDown=(event)=>{
+      if(event.key==="Escape") setNotifOpen(false);
+    };
+    document.addEventListener("mousedown",onPointerDown);
+    window.addEventListener("keydown",onKeyDown);
+    return()=>{
+      document.removeEventListener("mousedown",onPointerDown);
+      window.removeEventListener("keydown",onKeyDown);
+    };
+  },[notifOpen]);
 
   return(
     <div className="topbar" style={{position:"relative"}}>
@@ -1289,56 +1470,18 @@ function Topbar({tab,onMenuToggle,alerts,user,onNav}){
         <div className="live-pill"><div className="live-dot"/>SYS LIVE</div>
         <div className="clock-box"><Clock/></div>
         <div style={{position:"relative"}}>
-          <button className="notif-btn" onClick={()=>setNotifOpen(o=>!o)} aria-label={`Open alerts panel${activeAlerts.length?`, ${activeAlerts.length} active alerts`:""}`}>
+          <button
+            ref={triggerRef}
+            className="notif-btn"
+            onClick={()=>setNotifOpen(o=>!o)}
+            aria-label={`Open alerts panel${activeAlerts.length?`, ${activeAlerts.length} active alerts`:""}`}
+            aria-expanded={notifOpen}
+            aria-controls="traffix-alerts-panel"
+          >
             <span style={{fontSize:16}}>🔔</span>
             {activeAlerts.length>0&&<span className="notif-dot"/>}
           </button>
-          {notifOpen&&(
-            <div className="notif-panel">
-              <div className="notif-head">
-                <h4>Active Alerts ({activeAlerts.length})</h4>
-                <button className="btn btn-ghost btn-sm" onClick={()=>setNotifOpen(false)}>✕</button>
-              </div>
-              {activeAlerts.length===0&&(
-                <div style={{padding:16,textAlign:"center",fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)"}}>No critical alerts</div>
-              )}
-              {activeAlerts.slice(0,6).map(a=>{
-                const dest=ALERT_SCOPE_TAB[a.scope];
-                const destLabel=SCOPE_LABEL[a.scope];
-                const ico=SEVERITY_ICON[a.severity]||"ℹ️";
-                return(
-                  <button
-                    key={a.id}
-                    className="notif-item"
-                    onClick={()=>handleNotifClick(a)}
-                    title={dest?`Click to open ${destLabel}`:""}
-                    style={{cursor:dest?"pointer":"default"}}
-                  >
-                    <div className="notif-inner" style={{display:"flex",alignItems:"flex-start",gap:8}}>
-                      <span style={{fontSize:13,flexShrink:0,marginTop:1}}>{ico}</span>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div className="notif-title">{a.message}</div>
-                        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,marginTop:3}}>
-                          <span className="notif-meta">{a.junction}  {a.severity}</span>
-                          {dest&&(
-                            <span style={{
-                              fontFamily:"var(--mono)",fontSize:8,fontWeight:700,
-                              color:"var(--amber)",letterSpacing:".08em",
-                              whiteSpace:"nowrap",flexShrink:0,
-                            }}>→ {destLabel}</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-              <div style={{padding:"8px 14px",borderTop:"1px solid var(--borderFaint)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}>Click alert to navigate to related page</span>
-                {onNav&&<button className="btn btn-ghost btn-sm" style={{fontSize:9}} onClick={()=>{onNav("history");setNotifOpen(false);}}>VIEW ALL LOGS →</button>}
-              </div>
-            </div>
-          )}
+          {notifOpen&&<NotificationsPanel activeAlerts={activeAlerts} onClose={()=>setNotifOpen(false)} onNav={onNav} panelRef={panelRef} closeButtonRef={closeButtonRef}/>}
         </div>
         <DarkModeToggle/>
       </div>
@@ -1404,7 +1547,7 @@ function JunctionSearchBar({junctions=[],searchTerm,setSearchTerm,onSelect,place
               onMouseEnter={(e)=>e.target.style.background="var(--bg2)"}
               onMouseLeave={(e)=>e.target.style.background="transparent"}
             >
-              <div style={{fontWeight:700,color:"var(--text0)"}}>{j.id}  {j.name.split("")[0]}</div>
+              <div style={{fontWeight:700,color:"var(--text0)"}}>{j.id}  {j.name}</div>
               <div style={{fontSize:"9px",color:"var(--text3)",marginTop:"2px"}}>{j.zone}  {j.region}</div>
             </div>
           ))}
@@ -1733,7 +1876,13 @@ function MapPage({junctions=JUNCTIONS}){
   const flyToJunction=useCallback((j)=>{
     const map=leafletMap.current;
     const L=window._leafletLib;
-    if(!map||!j||!L) return;
+    if(!j) return;
+    if(!map||!L){
+      highlightedIdRef.current=j.id;
+      setSelJ(j);
+      setHighlightedId(j.id);
+      return;
+    }
 
     // Remove previous ring (if any)
     if(highlightRingRef.current){ highlightRingRef.current.remove(); highlightRingRef.current=null; }
@@ -1798,21 +1947,7 @@ function MapPage({junctions=JUNCTIONS}){
         iconSize:[16,16],iconAnchor:[8,8],
       });
       const marker=L.marker([j.lat,j.lng],{icon,zIndexOffset:10})
-        .bindPopup(`
-          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;min-width:200px;padding:2px 0;">
-            <div style="font-size:14px;font-weight:700;color:#0F172A;margin-bottom:4px;">${j.name}</div>
-            <div style="color:#64748B;margin-bottom:6px;">${j.id}  ${j.zone}</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
-              <span style="background:${c};color:#fff;border-radius:4px;padding:2px 8px;font-weight:700;font-size:10px;">${congestion}</span>
-              <span style="background:#f1f5f9;color:#475569;border-radius:4px;padding:2px 8px;font-size:10px;">${j.priority}</span>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:10px;color:#475569;">
-              <span>Density</span><span style="font-weight:700;color:#0F172A;">${j.density}%</span>
-              <span>Vehicles</span><span style="font-weight:700;color:#0F172A;">${j.vehicles}</span>
-              <span>Avg Delay</span><span style="font-weight:700;color:#0F172A;">${j.delay} min</span>
-              <span>Region</span><span style="font-weight:700;color:#0F172A;">${j.region}</span>
-            </div>
-          </div>`)
+        .bindPopup(buildMapPopupMarkup(j,c,congestion))
         .on("click",()=>{setSelJ(j);setHighlightedId(j.id);});
       marker.addTo(map);
       markerRefs.current[j.id]=marker;
@@ -1850,21 +1985,7 @@ function MapPage({junctions=JUNCTIONS}){
       // Refresh popup text with latest density/vehicle/delay numbers
       const congestion=getDensityCongestion(j.density);
       const c=congColor[congestion]||"#1A7F4B";
-      m.setPopupContent(`
-        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;min-width:200px;padding:2px 0;">
-          <div style="font-size:14px;font-weight:700;color:#0F172A;margin-bottom:4px;">${j.name}</div>
-          <div style="color:#64748B;margin-bottom:6px;">${j.id}  ${j.zone}</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
-            <span style="background:${c};color:#fff;border-radius:4px;padding:2px 8px;font-weight:700;font-size:10px;">${congestion}</span>
-            <span style="background:#f1f5f9;color:#475569;border-radius:4px;padding:2px 8px;font-size:10px;">${j.priority}</span>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:10px;color:#475569;">
-            <span>Density</span><span style="font-weight:700;color:#0F172A;">${j.density}%</span>
-            <span>Vehicles</span><span style="font-weight:700;color:#0F172A;">${j.vehicles}</span>
-            <span>Avg Delay</span><span style="font-weight:700;color:#0F172A;">${j.delay} min</span>
-            <span>Region</span><span style="font-weight:700;color:#0F172A;">${j.region}</span>
-          </div>
-        </div>`);
+      m.setPopupContent(buildMapPopupMarkup(j,c,congestion));
       // Refresh marker colour to reflect latest congestion level
       if(L){
         const newIcon=L.divIcon({
@@ -1969,9 +2090,9 @@ function MapPage({junctions=JUNCTIONS}){
             </div>
           </div>
           <div style={{padding:10,position:"relative",flex:1,minHeight:450}}>
-            <div ref={mapRef} id="traffix-map" style={{height:"100%",minHeight:430,borderRadius:4}}/>
+            {!err&&<div ref={mapRef} id="traffix-map" style={{height:"100%",minHeight:430,borderRadius:4}}/>}
             {!loaded&&!err&&<div style={{position:"absolute",inset:10,display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg2)",borderRadius:4,fontFamily:"var(--mono)",fontSize:11,color:"var(--text2)"}}>LOADING MAP</div>}
-            {err&&<div style={{position:"absolute",inset:10,display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg2)",borderRadius:4,fontFamily:"var(--mono)",fontSize:11,color:"var(--red)"}}>⚠ MAP SERVICE UNAVAILABLE  Using static schematic</div>}
+            {err&&<StaticMapFallback junctions={filtered.length?filtered:junctions} onSelect={handleJunctionClick} getCongestion={getMapCongestion}/>}
           </div>
         </div>
 
@@ -2001,11 +2122,11 @@ function MapPage({junctions=JUNCTIONS}){
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
                       <div>
                         <span className="mono-cell" style={{fontSize:8,background:isHighlighted?"var(--amber)":"",color:isHighlighted?"#fff":""}}>{j.id}</span>
-                        <div style={{fontSize:11.5,fontWeight:isHighlighted?700:500,color:isHighlighted?"var(--amber)":"var(--text0)",marginTop:1,maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{j.name}</div>
+                        <div style={{fontSize:11.5,fontWeight:isHighlighted?700:500,color:"var(--text0)",marginTop:1,maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{j.name}</div>
                       </div>
                       <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
                         <SdotFor c={getMapCongestion(j)}/>
-                        {isHighlighted&&<span style={{fontSize:8,fontFamily:"var(--mono)",color:"var(--amber)",fontWeight:700}}>◎ FOCUSED</span>}
+                        {isHighlighted&&<span style={{fontSize:8,fontFamily:"var(--mono)",color:"var(--amber2)",fontWeight:700}}>◎ FOCUSED</span>}
                       </div>
                     </div>
                     <DBar value={j.density}/>
@@ -2037,7 +2158,7 @@ function MapPage({junctions=JUNCTIONS}){
                 <button
                   className="btn btn-amber"
                   style={{width:"100%",justifyContent:"center",fontSize:9,marginTop:10}}
-                  onClick={()=>flyToJunction(selJ,window._leafletLib)}
+                  onClick={()=>flyToJunction(selJ)}
                 >
                   ↺ RE-CENTRE MAP
                 </button>
@@ -2142,7 +2263,7 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
                 <div className={`tb tb-r${p==="Red"?" on":""}`}/><div className={`tb tb-y${p==="Yellow"?" on":""}`}/><div className={`tb tb-g${p==="Green"?" on":""}`}/>
               </div>
               <div className="sig-id">{jj.id}</div>
-              <div className="sig-label">{jj.name.split("")[0].trim()}</div>
+              <div className="sig-label">{jj.name}</div>
               <div style={{marginTop:6,display:"flex",flexDirection:"column",gap:4,alignItems:"center"}}>
                 <span className={badgeClass(p)}>{p}</span>
                 <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}>{jj.density}%  {jj.vehicles}v</span>
@@ -2161,7 +2282,7 @@ function JunctionControl({junctions=JUNCTIONS,phases,setPhases,emergencyState,al
               <div style={{display:"flex",gap:6,alignItems:"center"}}>
                 {saved&&<span className="badge badge-g">✓ SAVED</span>}
                 <button className="btn btn-amber" onClick={()=>{if(!canEditTiming) return;setSaved(true);setTimeout(()=>setSaved(false),2500);}} disabled={!canEditTiming}>SAVE</button>
-                <button className="btn btn-ghost" onClick={()=>setTimings(prev=>prev.map((item,idx)=>idx===sel?{green:45,yellow:5,red:40}:item))} disabled={!canEditTiming}>? AI DEFAULT</button>
+                <button className="btn btn-ghost" onClick={()=>setTimings(prev=>prev.map((item,idx)=>idx===sel?{green:45,yellow:5,red:40}:item))} disabled={!canEditTiming}>↺ AI DEFAULT</button>
               </div>
             </div>
             <div className="panel-body">
@@ -2990,7 +3111,7 @@ function SensorHealth({junctions=JUNCTIONS}){
 /* --------------------------------------------------------------
    ANALYTICS & REPORTING
 -------------------------------------------------------------- */
-function Analytics({junctions=JUNCTIONS}){
+function Analytics({junctions=JUNCTIONS,notify}){
   const [range,setRange]=useState("24h");
   const [report,setReport]=useState("daily");
   const total=junctions.reduce((a,j)=>a+j.vehicles,0);
@@ -3020,7 +3141,7 @@ function Analytics({junctions=JUNCTIONS}){
       downloadBlob(`traffix_report_${new Date().toISOString().split('T')[0]}.pdf`,buildSimplePdf(lines));
     }catch(e){
       console.error('PDF export error:',e);
-      alert('PDF export failed. CSV export will be used instead.');
+      notify?.("PDF export failed. CSV export was downloaded instead.","error");
       exportCSV();
     }
   };
@@ -3036,6 +3157,7 @@ function Analytics({junctions=JUNCTIONS}){
       downloadBlob(`traffix_report_${new Date().toISOString().split('T')[0]}.xls`,buildExcelSpreadsheet(rows,"Analytics Report"));
     }catch(e){
       console.error('Excel export error:',e);
+      notify?.("Excel export failed. CSV export was downloaded instead.","error");
       exportCSV();
     }
   };
@@ -3180,7 +3302,7 @@ function Analytics({junctions=JUNCTIONS}){
 /* --------------------------------------------------------------
    AUDIT LOG / HISTORY
 -------------------------------------------------------------- */
-function History({events=LOGS}){
+function History({events=LOGS,notify}){
   const [q,setQ]=useState("");const [tf,setTf]=useState("All");const [page,setPage]=useState(1);
   const types=["All","AI Optimisation","Manual Override","System Event","Sensor Alert","Emergency Override","Peak Transition","Weather Alert"];
   const PER_PAGE=8;
@@ -3193,13 +3315,17 @@ function History({events=LOGS}){
     a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
     a.download="traffix_audit_log.csv";a.click();
   };
+  const handlePrint=()=>{
+    notify?.("Opening the browser print dialog for the filtered audit log.","info");
+    window.print();
+  };
   return(
     <div className="content fade-up">
       <div className="header-row">
         <div className="page-header"><h1>≡ Audit Log</h1><div className="accent-rule"/><p>// IMMUTABLE CHRONOLOGICAL RECORD  ALL AI DECISIONS & OPERATOR ACTIONS  IT ACT 2000 COMPLIANT</p></div>
         <div className="page-actions">
           <button className="btn btn-ghost hide-mob" onClick={exportCSV}>↓ EXPORT CSV</button>
-          <button className="btn btn-amber">PRINT</button>
+          <button className="btn btn-amber" onClick={handlePrint}>PRINT</button>
         </div>
       </div>
       <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap"}}>
@@ -3247,7 +3373,7 @@ function History({events=LOGS}){
 /* --------------------------------------------------------------
    USER MANAGEMENT
 -------------------------------------------------------------- */
-function UserManagement({currentUser,controlGrants,onToggleGrant}){
+function UserManagement({currentUser,controlGrants,onToggleGrant,notify}){
   const [users,setUsers]=useState(USERS);
   const [q,setQ]=useState("");const [rf,setRf]=useState("All");const [showModal,setShowModal]=useState(false);
   const roles=["All","Super Administrator","Regional Traffic Authority","Police Station Controller","Junction Operator","Emergency Operations Controller"];
@@ -3264,12 +3390,12 @@ function UserManagement({currentUser,controlGrants,onToggleGrant}){
 
   return(
     <div className="content fade-up">
-      <div className="header-row">
+      <div className="user-mgmt-head">
         <div className="page-header"><h1>◌ User Management</h1><div className="accent-rule"/><p>// ROLE-BASED ACCESS CONTROL  AUTHORITY ACCOUNTS  ZONE ASSIGNMENTS  MFA STATUS</p></div>
-        <div className="page-actions"><button className="btn btn-amber" onClick={()=>setShowModal(true)}>+ ADD USER</button></div>
+        <div className="user-mgmt-actions"><button className="btn btn-amber" onClick={()=>setShowModal(true)}>+ ADD USER</button></div>
       </div>
       <div className="alert alert-i">ℹ️ Traffic-light control is owned by Super Administrator. Lower roles can receive only temporary emergency signal delegation, and only from Super Administrator.</div>
-      <div className="g4" style={{marginBottom:14}}>
+      <div className="g4 user-mgmt-kpis">
         {[
           {label:"Total Accounts",val:users.length,accent:"#0077CC"},
           {label:"Active",val:users.filter(u=>u.status==="Active").length,accent:"#1A7F4B"},
@@ -3282,12 +3408,12 @@ function UserManagement({currentUser,controlGrants,onToggleGrant}){
           </div>
         ))}
       </div>
-      <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap"}}>
-        <div style={{position:"relative",flex:"1 1 200px",minWidth:160}}>
+      <div className="user-mgmt-filters">
+        <div className="user-mgmt-search">
           <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",color:"var(--text3)",fontSize:12,pointerEvents:"none"}}>🔍</span>
           <input className="inp" style={{paddingLeft:30}} type="text" placeholder="Search users" value={q} onChange={e=>setQ(e.target.value)}/>
         </div>
-        <select className="sel" style={{flex:"0 0 auto",minWidth:220}} value={rf} onChange={e=>setRf(e.target.value)}>
+        <select className="sel user-mgmt-role" value={rf} onChange={e=>setRf(e.target.value)}>
           {roles.map(r=><option key={r}>{r}</option>)}
         </select>
       </div>
@@ -3307,8 +3433,8 @@ function UserManagement({currentUser,controlGrants,onToggleGrant}){
                   <td><span className={badgeClass(u.status)}>{u.status}</span></td>
                   <td className="mono-cell hide-mob">{u.last}</td>
                   <td>
-                    <div style={{display:"flex",gap:4}}>
-                      <button className="btn btn-ghost btn-sm">EDIT</button>
+                    <div className="user-mgmt-row-actions">
+                      <ActionPlaceholderButton label="EDIT" description="User profile editing will be enabled when backend directory sync is connected." onInform={notify}/>
                       {u.role!=="Super Administrator"&&(
                         <button className="btn btn-ghost btn-sm" onClick={()=>canManageGrants&&onToggleGrant?.(u.id)} disabled={!canManageGrants} style={{color:controlGrants?.[u.id]?"var(--amber)":"var(--cyan)"}}>
                           {controlGrants?.[u.id]?"REVOKE ACCESS":"GRANT EMG"}
@@ -3324,12 +3450,14 @@ function UserManagement({currentUser,controlGrants,onToggleGrant}){
         </div>
       </div>
       {showModal&&(
-        <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.55)",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center",backdropFilter:"blur(4px)"}}>
-          <div style={{background:"var(--bg1)",padding:28,borderRadius:8,minWidth:340,boxShadow:"var(--shadowLg)",border:"1px solid var(--border)"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
-              <h2 style={{fontSize:15,fontWeight:700,color:"var(--text0)"}}>Add New User</h2>
-              <button className="btn btn-ghost btn-sm" onClick={()=>setShowModal(false)}>✕</button>
-            </div>
+        <ModalShell
+          title="Add New User"
+          onClose={()=>setShowModal(false)}
+          actions={[
+            <button key="cancel" className="btn btn-ghost" onClick={()=>setShowModal(false)}>Cancel</button>,
+            <button key="add" className="btn btn-amber" onClick={handleAdd}>ADD USER</button>,
+          ]}
+        >
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
               <div className="field"><label>User ID</label><input className="inp" placeholder="USR-008" value={newUser.id} onChange={e=>setNewUser({...newUser,id:e.target.value})}/></div>
               <div className="field"><label>Full Name</label><input className="inp" placeholder="Full name" value={newUser.name} onChange={e=>setNewUser({...newUser,name:e.target.value})}/></div>
@@ -3347,12 +3475,7 @@ function UserManagement({currentUser,controlGrants,onToggleGrant}){
                 </select>
               </div>
             </div>
-            <div style={{display:"flex",gap:10,marginTop:20,justifyContent:"flex-end"}}>
-              <button className="btn btn-ghost" onClick={()=>setShowModal(false)}>Cancel</button>
-              <button className="btn btn-amber" onClick={handleAdd}>ADD USER</button>
-            </div>
-          </div>
-        </div>
+        </ModalShell>
       )}
     </div>
   );
@@ -3361,7 +3484,7 @@ function UserManagement({currentUser,controlGrants,onToggleGrant}){
 /* --------------------------------------------------------------
    SYSTEM SETTINGS
 -------------------------------------------------------------- */
-function SystemSettings({settings,onSave}){
+function SystemSettings({settings,onSave,notify}){
   const [ai,setAi]=useState(settings.autoOptimise);
   const [emg,setEmg]=useState(settings.emergencyBroadcast);
   const [log,setLog]=useState(settings.auditLogging);
@@ -3386,6 +3509,7 @@ function SystemSettings({settings,onSave}){
     await new Promise(r=>setTimeout(r,800));
     onSave({autoOptimise:ai,emergencyBroadcast:emg,auditLogging:log,congestionThreshold:thr,syncInterval:sync});
     setSaving(false);setSaved(true);setTimeout(()=>setSaved(false),2500);
+    notify?.("System settings saved successfully.","success");
   };
 
   return(
@@ -3425,8 +3549,8 @@ function SystemSettings({settings,onSave}){
                 <div style={{fontSize:12,color:"var(--text0)",fontWeight:600,marginBottom:3}}>JWT Authentication</div>
                 <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",marginBottom:8}}>Algorithm: HS256  Token TTL: 60 min  Refresh: 7 days</div>
                 <div style={{display:"flex",gap:8}}>
-                  <button className="btn btn-red btn-sm">ROTATE SECRET KEY</button>
-                  <button className="btn btn-ghost btn-sm">VIEW SESSIONS</button>
+                  <ActionPlaceholderButton label="ROTATE SECRET KEY" description="Secret rotation will be enabled after secure backend key-management is connected." onInform={notify} className="btn btn-red btn-sm"/>
+                  <ActionPlaceholderButton label="VIEW SESSIONS" description="Session inspection will appear here after authentication telemetry is connected." onInform={notify}/>
                 </div>
               </div>
             </div>
@@ -3504,6 +3628,17 @@ export default function App(){
   const [emergencyState,setEmergencyState]=useState({activeCorridor:null,affectedNodes:[],disasterMode:null});
   const [controlGrants,setControlGrants]=useState({"USR-004":true});
   const [tick,setTick]=useState(0);
+  const [toasts,setToasts]=useState([]);
+
+  const dismissToast=useCallback((id)=>{
+    setToasts(prev=>prev.filter(toast=>toast.id!==id));
+  },[]);
+
+  const notify=useCallback((message,tone="info")=>{
+    const id=`toast-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+    setToasts(prev=>[...prev,{id,message,tone}]);
+    setTimeout(()=>dismissToast(id),3200);
+  },[dismissToast]);
 
   // Simulate live data updates every 8 seconds
   useEffect(()=>{
@@ -3554,10 +3689,10 @@ export default function App(){
       case "weather":    return <WeatherIntel junctions={junctions}/>;
       case "emergency":  return <EmergencyOps role={user?.role} junctions={junctions} emergencyState={emergencyState} setEmergencyState={setEmergencyState} alerts={alerts} controlGrant={user?.role!=="Super Administrator"&&controlGrants[user?.id]}/>;
       case "sensors":    return <SensorHealth junctions={junctions}/>;
-      case "analytics":  return <Analytics junctions={junctions}/>;
-      case "history":    return <History events={events}/>;
-      case "users":      return <UserManagement currentUser={user} controlGrants={controlGrants} onToggleGrant={toggleControlGrant}/>;
-      case "settings":   return <SystemSettings settings={settings} onSave={saveSettings}/>;
+      case "analytics":  return <Analytics junctions={junctions} notify={notify}/>;
+      case "history":    return <History events={events} notify={notify}/>;
+      case "users":      return <UserManagement currentUser={user} controlGrants={controlGrants} onToggleGrant={toggleControlGrant} notify={notify}/>;
+      case "settings":   return <SystemSettings settings={settings} onSave={saveSettings} notify={notify}/>;
       default:           return <Dashboard onNav={setTab} junctions={junctions} events={events} alerts={alerts}/>;
     }
   };
@@ -3565,6 +3700,7 @@ export default function App(){
   return(
     <>
       <style dangerouslySetInnerHTML={{__html:STYLES}}/>
+      <ToastStack toasts={toasts} onDismiss={dismissToast}/>
       {!user?(
         <Login onLogin={login}/>
       ):(

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#08111E"/>
+  <rect x="36" y="36" width="1208" height="648" rx="30" fill="#0D1420" stroke="#1E3050" stroke-width="4"/>
+  <rect x="72" y="72" width="228" height="576" rx="18" fill="#121B2B"/>
+  <rect x="330" y="72" width="878" height="72" rx="18" fill="#121B2B"/>
+  <rect x="330" y="168" width="560" height="332" rx="24" fill="#101826" stroke="#1E3050" stroke-width="3"/>
+  <rect x="912" y="168" width="296" height="332" rx="24" fill="#101826" stroke="#1E3050" stroke-width="3"/>
+  <rect x="330" y="524" width="878" height="124" rx="24" fill="#121B2B"/>
+  <text x="112" y="124" fill="#F7FAFF" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="700">TRAFFIX</text>
+  <text x="364" y="116" fill="#F7FAFF" font-family="Inter, Arial, sans-serif" font-size="36" font-weight="700">Traffic Command Dashboard</text>
+  <text x="364" y="208" fill="#FFCF60" font-family="JetBrains Mono, monospace" font-size="20">LIVE CITY MAP</text>
+  <circle cx="458" cy="302" r="18" fill="#00E87A"/>
+  <circle cx="590" cy="246" r="18" fill="#FFB830"/>
+  <circle cx="698" cy="334" r="18" fill="#FF4D4D"/>
+  <line x1="458" y1="302" x2="590" y2="246" stroke="#4D9FFF" stroke-width="8" opacity="0.6"/>
+  <line x1="590" y1="246" x2="698" y2="334" stroke="#4D9FFF" stroke-width="8" opacity="0.6"/>
+  <text x="944" y="208" fill="#FFCF60" font-family="JetBrains Mono, monospace" font-size="18">AUTHORITY SNAPSHOT</text>
+  <rect x="948" y="236" width="224" height="82" rx="16" fill="#192438"/>
+  <rect x="948" y="336" width="224" height="82" rx="16" fill="#192438"/>
+  <text x="968" y="286" fill="#F7FAFF" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">96%</text>
+  <text x="968" y="386" fill="#F7FAFF" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">3 Alerts</text>
+</svg>
