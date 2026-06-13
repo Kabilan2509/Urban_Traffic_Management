@@ -817,14 +817,30 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   .sig-card{padding:10px;}
 
   /* ---- Login ---- */
-  .login-shell{padding:16px;}
-  .login-box{max-width:100%;}
-  .login-head{margin-bottom:20px;}
-  .login-card{padding:20px 16px;}
-  .login-emblem{width:100%;padding:14px;flex-direction:column;gap:10px;align-items:flex-start;}
-  .login-emblem-text .login-title{font-size:19px;}
-  .login-dept{font-size:8px;letter-spacing:.08em;}
+  .login-shell{padding:18px 14px;justify-content:center;}
+  .login-box{
+    max-width:420px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .login-head{margin-bottom:20px;width:100%;text-align:center;}
+  .login-card{padding:22px 18px;width:100%;}
+  .login-emblem{
+    width:100%;
+    padding:16px 14px;
+    flex-direction:column;
+    gap:12px;
+    align-items:center;
+    text-align:center;
+  }
+  .login-emblem-text{align-items:center;}
+  .login-emblem-text .login-title{font-size:19px;text-align:center;}
+  .login-emblem-text .login-sub{text-align:center;}
+  .login-dept{font-size:8px;letter-spacing:.08em;text-align:center;max-width:24rem;}
   .cred-grid{grid-template-columns:1fr 1fr;}
+  .login-footer-text{width:100%;text-align:center;max-width:26rem;}
 
   /* ---- Page header ---- */
   .page-header h1{font-size:17px;gap:7px;}
