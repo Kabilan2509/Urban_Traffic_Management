@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
@@ -142,6 +142,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 :root.dark-mode .live-pill{border-color:rgba(0,232,122,0.25);}
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.4s infinite;}
 .clock-box{font-family:var(--mono);font-size:10px;color:var(--text1);background:var(--bg2);padding:4px 10px;border-radius:3px;border:1px solid var(--border);white-space:nowrap;}
+.session-timer{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  color:var(--blue);background:var(--blueBg);padding:4px 10px;border-radius:3px;
+  border:1px solid rgba(26,86,168,0.22);white-space:nowrap;
+}
+.session-timer.warn{
+  color:var(--amber);background:var(--amberBg);
+  border-color:rgba(201,125,16,0.28);
+}
+:root.dark-mode .session-timer{border-color:rgba(77,159,255,0.32);}
+:root.dark-mode .session-timer.warn{border-color:rgba(255,184,48,0.35);}
 .mob-menu{display:none;width:34px;height:34px;border:1px solid var(--border);background:var(--bg2);border-radius:4px;cursor:pointer;align-items:center;justify-content:center;color:var(--text1);font-size:16px;}
 .notif-btn{
   position:relative;width:34px;height:34px;border:1px solid var(--border);
@@ -645,7 +657,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   }
   /* Keep live-pill + clock small but visible */
   .live-pill{padding:3px 8px;font-size:9px;}
-  .clock-box{padding:4px 8px;font-size:10px;}
+  .clock-box,.session-timer{padding:4px 8px;font-size:10px;}
 
   /* Notification panel: edge-aware */
   .notif-panel{
@@ -709,9 +721,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   .topbar-primary,.topbar-tools{width:100%;}
   .topbar-breadcrumb{font-size:9px;max-width:none;}
   .topbar-tools{flex-wrap:nowrap;align-items:center;}
-  .live-pill,.clock-box{display:flex;}
+  .live-pill,.clock-box,.session-timer{display:flex;}
   .live-pill{padding:3px 8px;font-size:8px;}
-  .clock-box{padding:4px 8px;font-size:9px;}
+  .clock-box,.session-timer{padding:4px 8px;font-size:9px;}
   .notif-btn,.theme-toggle,.mob-menu{width:40px;height:40px;}
 
   /* ---- Sidebar drawer  full width minus a gutter ---- */
@@ -883,6 +895,93 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   .mob-nav-item{font-size:7px;}
   .mob-nav-ico{font-size:15px;}
 }
+
+/* ---- IDLE LOGOUT OVERLAY ---- */
+.idle-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(6,10,16,0.82);
+  backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  animation:fadeInOverlay .25s ease;
+}
+@keyframes fadeInOverlay{from{opacity:0}to{opacity:1}}
+.idle-modal{
+  background:var(--bg1);
+  border:1.5px solid rgba(176,48,48,0.7);
+  border-radius:12px;
+  padding:36px 32px 28px;
+  max-width:380px;width:calc(100% - 32px);
+  text-align:center;
+  box-shadow:0 24px 64px rgba(176,48,48,0.30),0 0 0 1px rgba(176,48,48,0.12);
+  animation:slideUpModal .28s cubic-bezier(.22,1,.36,1);
+}
+@keyframes slideUpModal{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+.idle-icon{
+  width:60px;height:60px;border-radius:50%;
+  background:rgba(176,48,48,0.10);
+  border:2px solid rgba(176,48,48,0.30);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;margin:0 auto 18px;
+  animation:idlePulse 1.4s ease-in-out infinite;
+}
+@keyframes idlePulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(176,48,48,0.38);}
+  50%{box-shadow:0 0 0 12px rgba(176,48,48,0);}
+}
+.idle-title{
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--red);margin-bottom:10px;
+}
+.idle-msg{
+  font-size:15px;font-weight:600;color:var(--text0);
+  line-height:1.5;margin-bottom:4px;
+}
+.idle-sub{
+  font-size:11px;color:var(--text3);margin-bottom:18px;
+  font-family:var(--mono);letter-spacing:.04em;
+}
+.idle-countdown{
+  font-family:var(--mono);font-size:52px;font-weight:800;
+  color:var(--red);letter-spacing:.02em;
+  margin-bottom:6px;line-height:1;
+  transition:color .4s;
+}
+.idle-countdown.warn{color:var(--amber);}
+.idle-bar-track{
+  width:100%;height:7px;background:var(--bg3);
+  border-radius:4px;overflow:hidden;margin-bottom:24px;
+}
+.idle-bar-fill{
+  height:100%;border-radius:4px;
+  background:linear-gradient(90deg,#B03030,#ff6060);
+  transition:width 1s linear,background .6s;
+}
+.idle-bar-fill.warn{background:linear-gradient(90deg,var(--amber),#ffd166);}
+.idle-actions{display:flex;gap:10px;justify-content:center;}
+.idle-btn-stay{
+  flex:1;padding:12px 16px;
+  background:var(--primary);border:none;border-radius:7px;
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;
+  color:#fff;cursor:pointer;
+  transition:opacity .15s,transform .1s;
+  box-shadow:0 4px 16px rgba(0,119,204,0.3);
+}
+.idle-btn-stay:hover{opacity:.88;transform:translateY(-1px);}
+.idle-btn-stay:active{transform:translateY(0);}
+.idle-btn-logout{
+  flex:1;padding:12px 16px;
+  background:transparent;
+  border:1.5px solid rgba(176,48,48,0.4);
+  border-radius:7px;
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;
+  color:var(--red);cursor:pointer;
+  transition:background .15s,transform .1s;
+}
+.idle-btn-logout:hover{background:rgba(176,48,48,0.08);transform:translateY(-1px);}
+.idle-btn-logout:active{transform:translateY(0);}
 `;
 
 /* --------------------------------------------------------------
@@ -1542,13 +1641,16 @@ const SEVERITY_ICON={
   LOW:      "🟢",
 };
 
-function Topbar({tab,onMenuToggle,alerts,user,onNav}){
+function Topbar({tab,onMenuToggle,alerts,user,onNav,idleRemaining=IDLE_TIMEOUT}){
   const meta=ALL_TABS.find(t=>t.id===tab);
   const [notifOpen,setNotifOpen]=useState(false);
   const activeAlerts=alerts.filter(a=>a.severity==="CRITICAL"||a.severity==="HIGH");
   const panelRef=useRef(null);
   const closeButtonRef=useRef(null);
   const triggerRef=useRef(null);
+  const sessionMinutes=String(Math.floor(idleRemaining/60)).padStart(2,"0");
+  const sessionSeconds=String(idleRemaining%60).padStart(2,"0");
+  const sessionWarn=idleRemaining<=WARN_THRESHOLD;
 
   useEffect(()=>{
     if(!notifOpen) return;
@@ -1578,6 +1680,12 @@ function Topbar({tab,onMenuToggle,alerts,user,onNav}){
         </div>
       </div>
       <div className="topbar-tools">
+        {user&&(
+          <div className={`session-timer${sessionWarn?" warn":""}`} title="Automatic logout timer based on inactivity">
+            <span>SESSION</span>
+            <span>{sessionMinutes}:{sessionSeconds}</span>
+          </div>
+        )}
         <div className="live-pill"><div className="live-dot"/>SYS LIVE</div>
         <div className="clock-box"><Clock/></div>
         <div style={{position:"relative"}}>
@@ -3728,10 +3836,122 @@ function SystemSettings({settings,onSave,notify}){
 /* --------------------------------------------------------------
    ROOT APPLICATION
 -------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------
+   IDLE AUTO-LOGOUT  (2 min 30 s idle = 150 s, 30 s warning)
+--------------------------------------------------------------- */
+const IDLE_TIMEOUT   = 150; // seconds before auto-logout
+const WARN_THRESHOLD = 30;  // seconds before logout to show warning
+
+function IdleLogoutManager({ onLogout, onTimerUpdate }) {
+  const [timeLeft, setTimeLeft] = useState(IDLE_TIMEOUT);
+  const [showWarn,  setShowWarn]  = useState(false);
+  const idleRef   = useRef(null);
+  const warnRef   = useRef(null);
+  const countRef  = useRef(null);
+  const deadlineRef = useRef(0);
+
+  const clearAllTimers = useCallback(() => {
+    clearTimeout(idleRef.current);
+    clearTimeout(warnRef.current);
+    clearInterval(countRef.current);
+  }, []);
+
+  const startCountdown = useCallback(() => {
+    clearInterval(countRef.current);
+    countRef.current = setInterval(() => {
+      const next = Math.max(0, Math.ceil((deadlineRef.current - Date.now()) / 1000));
+      setTimeLeft(next);
+      if (next <= 0) clearInterval(countRef.current);
+    }, 250);
+  }, []);
+
+  const resetTimer = useCallback(() => {
+    clearAllTimers();
+    setShowWarn(false);
+    setTimeLeft(IDLE_TIMEOUT);
+    deadlineRef.current = Date.now() + (IDLE_TIMEOUT * 1000);
+    startCountdown();
+    // Schedule warning
+    warnRef.current = setTimeout(() => {
+      setShowWarn(true);
+    }, (IDLE_TIMEOUT - WARN_THRESHOLD) * 1000);
+    // Schedule auto-logout
+    idleRef.current = setTimeout(() => {
+      onLogout();
+    }, IDLE_TIMEOUT * 1000);
+  }, [clearAllTimers, startCountdown, onLogout]);
+
+  // Start on mount, restart on user activity
+  useEffect(() => {
+    resetTimer();
+    const EVENTS = ['mousemove','mousedown','keydown','scroll','touchstart','touchmove','click','wheel'];
+    const handle = () => resetTimer();
+    EVENTS.forEach(e => window.addEventListener(e, handle, { passive: true }));
+    return () => {
+      clearAllTimers();
+      EVENTS.forEach(e => window.removeEventListener(e, handle));
+    };
+  }, [resetTimer, clearAllTimers]);
+
+  useEffect(() => {
+    onTimerUpdate?.(timeLeft);
+  }, [timeLeft, onTimerUpdate]);
+
+  // Auto-logout when countdown hits 0
+  useEffect(() => {
+    if (timeLeft === 0 && showWarn) onLogout();
+  }, [timeLeft, showWarn, onLogout]);
+
+  if (!showWarn) return null;
+
+  const warningCountdown = Math.min(timeLeft, WARN_THRESHOLD);
+  const pct = Math.round((warningCountdown / WARN_THRESHOLD) * 100);
+  const isWarn = warningCountdown > 10;
+  const mm = String(Math.floor(warningCountdown / 60)).padStart(2, '0');
+  const ss = String(warningCountdown % 60).padStart(2, '0');
+
+  return (
+    <div className="idle-overlay" role="alertdialog" aria-modal="true" aria-labelledby="idle-title">
+      <div className="idle-modal">
+        <div className="idle-icon">⏰</div>
+        <div className="idle-title" id="idle-title">Session Timeout Warning</div>
+        <div className="idle-msg">Your session is about to expire</div>
+        <div className="idle-sub">No activity detected &mdash; auto logout in</div>
+        <div className={`idle-countdown${isWarn ? ' warn' : ''}`}>
+          {mm}:{ss}
+        </div>
+        <div className="idle-bar-track">
+          <div
+            className={`idle-bar-fill${isWarn ? ' warn' : ''}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <div className="idle-actions">
+          <button
+            className="idle-btn-stay"
+            onClick={resetTimer}
+            autoFocus
+          >
+            ✓ Stay Logged In
+          </button>
+          <button
+            className="idle-btn-logout"
+            onClick={onLogout}
+          >
+            Logout Now
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App(){
   const [user,setUser]=useState(null);
   const [tab,setTab]=useState("dashboard");
   const [drawerOpen,setDrawerOpen]=useState(false);
+  const [idleRemaining,setIdleRemaining]=useState(IDLE_TIMEOUT);
   const [junctions,setJunctions]=useState(JUNCTIONS);
   const [events,setEvents]=useState(LOGS);
   const [settings,setSettings]=useState({autoOptimise:true,emergencyBroadcast:true,auditLogging:true,congestionThreshold:75,syncInterval:10});
@@ -3786,9 +4006,9 @@ export default function App(){
     return a;
   },[junctions,settings.congestionThreshold,emergencyState]);
 
-  const login=(u)=>{setUser(u);setTab("dashboard");};
-  const logout=()=>{setUser(null);setTab("dashboard");};
-  const saveSettings=(next)=>{setSettings(prev=>({...prev,...next}));};
+  const login=useCallback((u)=>{setUser(u);setTab("dashboard");},[]);
+  const logout=useCallback(()=>{setUser(null);setTab("dashboard");},[]);
+  const saveSettings=useCallback((next)=>{setSettings(prev=>({...prev,...next}));},[]);
   const toggleControlGrant=(userId)=>setControlGrants(prev=>({...prev,[userId]:!prev[userId]}));
 
   const renderPage=()=>{
@@ -3812,13 +4032,14 @@ export default function App(){
     <>
       <style dangerouslySetInnerHTML={{__html:STYLES}}/>
       <ToastStack toasts={toasts} onDismiss={dismissToast}/>
+      {user&&<IdleLogoutManager onLogout={logout} onTimerUpdate={setIdleRemaining}/>}
       {!user?(
         <Login onLogin={login}/>
       ):(
         <div className="app-shell">
           <Sidebar tab={tab} setTab={setTab} user={user} open={drawerOpen} onClose={()=>setDrawerOpen(false)} onLogout={logout}/>
           <div className="main-area">
-            <Topbar tab={tab} onMenuToggle={()=>setDrawerOpen(o=>!o)} alerts={alerts} user={user} onNav={setTab}/>
+            <Topbar tab={tab} onMenuToggle={()=>setDrawerOpen(o=>!o)} alerts={alerts} user={user} onNav={setTab} idleRemaining={idleRemaining}/>
             <main style={{flex:1}}>{renderPage()}</main>
             <footer className="app-footer">
               <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)"}}> 2026 GOVT OF TAMIL NADU  DEPT. OF HIGHWAYS & TRAFFIC ENGINEERING  TRAFFIX PORTAL v4.0.1</span>
