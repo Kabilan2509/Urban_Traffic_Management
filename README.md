@@ -258,5 +258,5 @@ This project is licensed under the MIT License.
 
 Developed by **Kabilan K A**
 
-AI & Data Science | Intelligent Transportation Systems
+CSE | Intelligent Transportation Systems
 
