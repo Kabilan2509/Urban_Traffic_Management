@@ -1,5 +1,5 @@
-import TnTrafficPortal from "./TnTrafficPortal";
+import PortalClientPage from "./PortalClientPage";
 
 export default function HomePage() {
-  return <TnTrafficPortal />;
+  return <PortalClientPage />;
 }

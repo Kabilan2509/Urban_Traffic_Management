@@ -49,6 +49,24 @@ export default function RootLayout({
           const dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
           if (dark) document.documentElement.classList.add(darkClass);
         `}} suppressHydrationWarning/>
+        <script dangerouslySetInnerHTML={{__html: `
+          (function () {
+            const isLocalHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+            if (!isLocalHost || !("serviceWorker" in navigator)) return;
+
+            window.__TRAFFIX_DISABLE_PWA__ = true;
+
+            navigator.serviceWorker.getRegistrations()
+              .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+              .catch(() => {});
+
+            if ("caches" in window) {
+              caches.keys()
+                .then((keys) => Promise.all(keys.filter((key) => key.startsWith("traffix-pwa")).map((key) => caches.delete(key))))
+                .catch(() => {});
+            }
+          })();
+        `}} suppressHydrationWarning/>
       </head>
       <body style={{ margin: 0, padding: 0, fontFamily: "'Inter', 'Outfit', sans-serif" }}>
         <PWARegistrar />
