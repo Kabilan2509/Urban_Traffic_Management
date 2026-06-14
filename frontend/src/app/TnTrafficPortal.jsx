@@ -1088,7 +1088,7 @@ const ALL_TABS = [
   {id:"dashboard",label:"Command Centre",ico:"⬡",roles:["Super Administrator","Regional Traffic Authority","Police Station Controller","Junction Operator","Emergency Operations Controller"]},
   {id:"map",label:"Live City Map",ico:"◈",roles:["Super Administrator","Regional Traffic Authority","Police Station Controller","Junction Operator","Emergency Operations Controller"]},
   {id:"junction",label:"Junction Control",ico:"◉",roles:["Super Administrator","Regional Traffic Authority","Police Station Controller","Junction Operator"]},
-  {id:"lstm",label:"AI Predictions",ico:"⬠",roles:["Super Administrator","Regional Traffic Authority"]},
+  {id:"lstm",label:"AI Predictions",ico:"⬠",roles:["Super Administrator","Regional Traffic Authority","Police Station Controller"]},
   {id:"weather",label:"Weather Intel",ico:"☁",roles:["Super Administrator","Regional Traffic Authority","Emergency Operations Controller"]},
   {id:"emergency",label:"Emergency Ops",ico:"⚠",roles:["Super Administrator","Emergency Operations Controller"],badge:true},
   {id:"sensors",label:"Sensor Health",ico:"◎",roles:["Super Administrator","Regional Traffic Authority","Police Station Controller"]},
