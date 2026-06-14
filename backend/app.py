@@ -12,6 +12,8 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 import jwt as pyjwt
 
+from lstm_predictor_v2 import LSTMPredictor
+
 # ─────────────────────────────────────────────────────────────────────────────
 # App & Config
 # ─────────────────────────────────────────────────────────────────────────────
@@ -141,6 +143,15 @@ JUNCTIONS_STATIC = [
     {"id": "J-012", "name": "Sholinganallur Junction",      "lat": 12.9010, "lng": 80.2279, "zone": "East",      "police_station": "Sholinganallur PS","region": "Chennai East",   "priority_class": "HIGH",     "base_density": 0.78, "base_speed": 22},
 ]
 
+traffic_predictor = LSTMPredictor()
+for junction in JUNCTIONS_STATIC:
+    traffic_predictor.bootstrap_junction(
+        junction_id=junction["id"],
+        base_density_pct=junction["base_density"] * 100.0,
+        base_speed=junction["base_speed"],
+        priority_class=junction["priority_class"],
+    )
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Data Simulation Helpers
 # ─────────────────────────────────────────────────────────────────────────────
@@ -202,42 +213,48 @@ def _mmwave_radar(base_speed: float) -> dict:
     return {"lanes": lanes, "last_updated": datetime.now().isoformat()}
 
 
-def _lstm_predictions(base_density: float) -> dict:
-    horizons = {
-        "5min":  {"factor": 1.0,  "conf_range": (0.88, 0.97)},
-        "15min": {"factor": 1.05, "conf_range": (0.82, 0.93)},
-        "30min": {"factor": 1.10, "conf_range": (0.78, 0.90)},
-        "1hr":   {"factor": 1.20, "conf_range": (0.72, 0.86)},
-    }
-    result = {}
-    hf = _hour_factor()
-    for label, cfg in horizons.items():
-        density = min(1.0, _jitter(base_density * hf * cfg["factor"], 0.06))
-        cong_prob = round(min(1.0, density * random.uniform(0.9, 1.1)), 3)
-        result[label] = {
-            "predicted_density":    round(density, 3),
-            "congestion_prob":      cong_prob,
-            "queue_length":         int(density * random.randint(60, 150)),
-            "vehicle_arrival_rate": round(density * random.uniform(8, 20), 1),
-            "signal_recommendation": "EXTEND_GREEN" if cong_prob > 0.75 else ("NORMAL" if cong_prob > 0.45 else "REDUCE_GREEN"),
-            "confidence":           round(random.uniform(*cfg["conf_range"]), 3),
-        }
+def _predict_with_live_state(j: dict, obs: dict) -> dict:
+    result = traffic_predictor.predict(
+        junction_id=j["id"],
+        priority_class=j["priority_class"],
+        current_density=obs["density"] * 100.0,
+        vehicle_count=obs["vehicle_count"],
+        avg_speed=obs["avg_speed"],
+        queue_length=obs["queue_length"],
+        wait_time_seconds=obs["wait_time"],
+        occupancy_pct=min(100.0, obs["density"] * 100.0 * 0.92 + obs["queue_length"] * 0.18),
+    )
     return result
 
 
 def _build_traffic_data(j: dict) -> dict:
-    hf = _hour_factor()
-    density = min(1.0, _jitter(j["base_density"] * hf))
-    speed   = max(5, _jitter(j["base_speed"] / hf))
+    live_obs = traffic_predictor.generate_live_observation(
+        junction_id=j["id"],
+        base_density_pct=j["base_density"] * 100.0,
+        base_speed=j["base_speed"],
+        priority_class=j["priority_class"],
+    )
+    density = live_obs.density_pct / 100.0
+    speed = live_obs.avg_speed
+    prediction_result = _predict_with_live_state(
+        j,
+        {
+            "density": density,
+            "vehicle_count": live_obs.vehicle_count,
+            "avg_speed": live_obs.avg_speed,
+            "queue_length": live_obs.queue_length,
+            "wait_time": live_obs.wait_time_seconds,
+        },
+    )
     return {
         "junction_id":    j["id"],
         "junction_name":  j["name"],
         "timestamp":      datetime.now().isoformat(),
-        "vehicle_count":  int(density * random.randint(120, 280)),
+        "vehicle_count":  live_obs.vehicle_count,
         "avg_speed":      round(speed, 1),
         "density":        round(density, 3),
-        "queue_length":   int(density * random.randint(40, 130)),
-        "wait_time":      int(density * random.randint(30, 180)),
+        "queue_length":   live_obs.queue_length,
+        "wait_time":      live_obs.wait_time_seconds,
         "congestion_level": (
             "CRITICAL" if density > 0.85 else
             "HIGH"     if density > 0.70 else
@@ -246,18 +263,24 @@ def _build_traffic_data(j: dict) -> dict:
         ),
         "signal_phases":  _signal_phases(),
         "sensor_status":  _sensor_status(),
-        "predictions":    _lstm_predictions(j["base_density"]),
+        "predictions":    prediction_result["predictions"],
+        "prediction_accuracy": prediction_result["accuracy_metrics"],
         "radar":          _mmwave_radar(j["base_speed"]),
-        "throughput_vph": int(density * random.randint(800, 1800)),
+        "throughput_vph": max(240, int(round(live_obs.vehicle_count * 6.8))),
         "incidents":      random.randint(0, 2),
     }
 
 
 def _build_all_junctions_summary() -> List[dict]:
-    hf = _hour_factor()
     result = []
     for j in JUNCTIONS_STATIC:
-        density = min(1.0, _jitter(j["base_density"] * hf))
+        live_obs = traffic_predictor.generate_live_observation(
+            junction_id=j["id"],
+            base_density_pct=j["base_density"] * 100.0,
+            base_speed=j["base_speed"],
+            priority_class=j["priority_class"],
+        )
+        density = live_obs.density_pct / 100.0
         result.append({
             **j,
             "density":         round(density, 3),
@@ -267,8 +290,8 @@ def _build_all_junctions_summary() -> List[dict]:
                 "MODERATE" if density > 0.50 else
                 "LOW"
             ),
-            "vehicle_count":   int(density * random.randint(120, 280)),
-            "avg_speed":       round(max(5, _jitter(j["base_speed"] / hf)), 1),
+            "vehicle_count":   live_obs.vehicle_count,
+            "avg_speed":       round(live_obs.avg_speed, 1),
             "status":          random.choices(["OPERATIONAL", "OPERATIONAL", "DEGRADED", "MAINTENANCE"], weights=[80, 10, 7, 3])[0],
             "active_incidents": random.randint(0, 2),
             "last_updated":    datetime.now().isoformat(),
@@ -749,21 +772,29 @@ async def get_junction_history(junction_id: str, hours: int = 24, current_user: 
     j = next((x for x in JUNCTIONS_STATIC if x["id"] == junction_id), None)
     if not j:
         raise HTTPException(status_code=404, detail=f"Junction {junction_id} not found")
-    history = []
-    for h in range(hours, 0, -1):
-        ts = datetime.now() - timedelta(hours=h)
-        hour_val = ts.hour
-        hf = 1.4 if 7 <= hour_val <= 10 else (1.5 if 17 <= hour_val <= 21 else (0.3 if 0 <= hour_val <= 5 else 1.0))
-        density = min(1.0, _jitter(j["base_density"] * hf, 0.12))
-        history.append({
-            "timestamp":    ts.isoformat(),
-            "vehicle_count": int(density * random.randint(100, 280)),
-            "avg_speed":    round(max(5, j["base_speed"] / (hf + 0.1)), 1),
-            "density":      round(density, 3),
-            "queue_length": int(density * random.randint(30, 120)),
-            "incidents":    random.randint(0, 2),
-        })
-    return {"junction_id": junction_id, "junction_name": j["name"], "period_hours": hours, "data": history}
+    traffic_predictor.ensure_bootstrapped(
+        junction_id=j["id"],
+        base_density_pct=j["base_density"] * 100.0,
+        base_speed=j["base_speed"],
+        priority_class=j["priority_class"],
+    )
+    history = traffic_predictor.get_recent_history(junction_id, hours=hours)
+    return {
+        "junction_id": junction_id,
+        "junction_name": j["name"],
+        "period_hours": hours,
+        "data": [
+            {
+                "timestamp": item["timestamp"],
+                "vehicle_count": item["vehicle_count"],
+                "avg_speed": item["avg_speed"],
+                "density": item["density"],
+                "queue_length": item["queue_length"],
+                "incidents": 0,
+            }
+            for item in history
+        ],
+    }
 
 
 @app.get("/api/junction/{junction_id}/prediction")
@@ -771,12 +802,30 @@ async def get_junction_prediction(junction_id: str, current_user: dict = Depends
     j = next((x for x in JUNCTIONS_STATIC if x["id"] == junction_id), None)
     if not j:
         raise HTTPException(status_code=404, detail=f"Junction {junction_id} not found")
+    obs = traffic_predictor.generate_live_observation(
+        junction_id=j["id"],
+        base_density_pct=j["base_density"] * 100.0,
+        base_speed=j["base_speed"],
+        priority_class=j["priority_class"],
+    )
+    prediction = traffic_predictor.predict(
+        junction_id=j["id"],
+        priority_class=j["priority_class"],
+        current_density=obs.density_pct,
+        vehicle_count=obs.vehicle_count,
+        avg_speed=obs.avg_speed,
+        queue_length=obs.queue_length,
+        wait_time_seconds=obs.wait_time_seconds,
+        occupancy_pct=obs.occupancy_pct,
+    )
     return {
         "junction_id":   junction_id,
         "junction_name": j["name"],
-        "model":         "LSTM-v3.2.1",
-        "generated_at":  datetime.now().isoformat(),
-        "predictions":   _lstm_predictions(j["base_density"]),
+        "model":         prediction["model_version"],
+        "generated_at":  prediction["generated_at"],
+        "current_state": prediction["current_state"],
+        "predictions":   prediction["predictions"],
+        "accuracy_metrics": prediction["accuracy_metrics"],
     }
 
 
@@ -785,6 +834,9 @@ class LSTMPredictionRequest(BaseModel):
     current_density: float
     vehicle_count: int
     hour: int
+    avg_speed: Optional[float] = None
+    queue_length: Optional[int] = None
+    wait_time_seconds: Optional[int] = None
 
 
 @app.post("/api/lstm/predict")
@@ -792,35 +844,27 @@ async def predict_lstm(req: LSTMPredictionRequest, current_user: dict = Depends(
     j = next((x for x in JUNCTIONS_STATIC if x["id"] == req.junction_id), None)
     if not j:
         raise HTTPException(status_code=404, detail=f"Junction {req.junction_id} not found")
-    
-    # Simulate LSTM predictions based on hour factor
-    hour_factor = 1.4 if 7 <= req.hour <= 10 else (1.5 if 17 <= req.hour <= 21 else (0.3 if 0 <= req.hour <= 5 else 1.0))
-    base_density = req.current_density / 100.0
-    
-    predictions = []
-    signals = []
-    horizons = ["5min", "15min", "30min", "1hour"]
-    factors = [1.0, 1.05, 1.10, 1.20]
-    
-    for horizon, factor in zip(horizons, factors):
-        pred_density = min(0.99, base_density * hour_factor * factor + random.uniform(-0.05, 0.05))
-        pred_density_pct = int(pred_density * 100)
-        predictions.append(pred_density_pct)
-        
-        if pred_density > 0.85:
-            signals.append("EXTEND_GREEN")
-        elif pred_density > 0.65:
-            signals.append("NORMAL")
-        else:
-            signals.append("REDUCE_GREEN")
-    
+    ts = datetime.now().replace(hour=req.hour % 24, second=0, microsecond=0)
+    prediction = traffic_predictor.predict(
+        junction_id=req.junction_id,
+        priority_class=j["priority_class"],
+        current_density=req.current_density,
+        vehicle_count=req.vehicle_count,
+        avg_speed=req.avg_speed,
+        queue_length=req.queue_length,
+        wait_time_seconds=req.wait_time_seconds,
+        timestamp=ts,
+    )
+    horizon_labels = ["5min", "15min", "30min", "1hour"]
     return {
         "junction_id": req.junction_id,
-        "predictions": predictions,
-        "signals": signals,
-        "confidence": [0.92, 0.87, 0.81, 0.73],
-        "model": "LSTM-v3.2.1",
-        "timestamp": datetime.now().isoformat(),
+        "predictions": [prediction["predictions"][label]["density_percent"] for label in horizon_labels],
+        "signals": [prediction["predictions"][label]["signal_recommendation"] for label in horizon_labels],
+        "confidence": [prediction["predictions"][label]["confidence"] for label in horizon_labels],
+        "forecast_details": prediction["predictions"],
+        "accuracy_metrics": prediction["accuracy_metrics"],
+        "model": prediction["model_version"],
+        "timestamp": prediction["generated_at"],
     }
 
 

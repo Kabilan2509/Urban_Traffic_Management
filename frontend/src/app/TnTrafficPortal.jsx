@@ -428,6 +428,46 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .pred-horizon{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;line-height:1.5;}
 .pred-density{font-family:var(--mono);font-size:20px;font-weight:700;line-height:1;margin-bottom:3px;}
 .pred-conf{font-family:var(--mono);font-size:9.5px;color:var(--text3);margin-bottom:8px;line-height:1.45;}
+.accuracy-hero{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding:18px 20px;border-radius:10px;margin-bottom:12px;
+  background:linear-gradient(135deg,rgba(15,76,117,0.16),rgba(26,127,75,0.10));
+  border:1px solid rgba(26,86,168,0.24);box-shadow:var(--shadowMd);
+}
+.accuracy-hero-copy{min-width:220px;flex:1;}
+.accuracy-hero-label{
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--text3);margin-bottom:6px;
+}
+.accuracy-hero-value{
+  font-family:var(--mono);font-size:38px;font-weight:800;line-height:1;color:var(--green);
+}
+.accuracy-hero-sub{
+  font-size:12px;color:var(--text2);margin-top:8px;line-height:1.6;
+}
+.accuracy-hero-badges{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.accuracy-pill{
+  display:flex;flex-direction:column;gap:4px;min-width:140px;
+  padding:10px 12px;border-radius:8px;background:var(--bg1);border:1px solid var(--border);
+}
+.accuracy-pill-key{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);}
+.accuracy-pill-val{font-family:var(--mono);font-size:16px;font-weight:800;color:var(--text0);}
+.accuracy-top-badge{
+  display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;
+  min-width:170px;padding:10px 12px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(26,127,75,0.18),rgba(0,119,204,0.14));
+  border:1px solid rgba(26,127,75,0.3);
+  box-shadow:var(--shadow);
+}
+.accuracy-top-badge .k{
+  font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);
+}
+.accuracy-top-badge .v{
+  font-family:var(--mono);font-size:24px;font-weight:800;line-height:1;color:var(--green);
+}
+.accuracy-top-badge .s{
+  font-family:var(--mono);font-size:8.5px;color:var(--text2);text-align:right;
+}
 .pred-recommend{font-size:11.5px;color:var(--text2);line-height:1.55;}
 
 /* ---- EMERGENCY ---- */
@@ -1101,6 +1141,8 @@ const ALL_TABS = [
 /* --------------------------------------------------------------
    HELPER UTILITIES
 -------------------------------------------------------------- */
+const BACKEND_API_BASE=process.env.NEXT_PUBLIC_TRAFFIX_API_BASE||"http://localhost:8000";
+
 function congestColor(c){
   return c==="Red"?"#B03030":c==="Yellow"?"#C97D10":c==="Blue"?"#1A56A8":"#1A7F4B";
 }
@@ -1512,13 +1554,28 @@ function Login({onLogin}){
   const authorityIdInputId="authority-id";
   const passkeyInputId="authority-passkey";
   const loginErrorId="login-error";
-  const submit=(e)=>{
+  const submit=async(e)=>{
     e.preventDefault();setErr("");setLd(true);
-    setTimeout(()=>{
-      const c=CREDS[u.trim().toLowerCase()];
-      if(c&&p===u.trim().toLowerCase()){onLogin(c);}
-      else{setErr("AUTHENTICATION FAILED  INVALID AUTHORITY ID OR PASSKEY");setLd(false);}
-    },800);
+    const key=u.trim().toLowerCase();
+    const c=CREDS[key];
+    if(!(c&&p===key)){
+      setErr("AUTHENTICATION FAILED  INVALID AUTHORITY ID OR PASSKEY");
+      setLd(false);
+      return;
+    }
+    try{
+      const res=await fetch(`${BACKEND_API_BASE}/api/auth/login`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({username:c.username,password:p}),
+      });
+      if(res.ok){
+        const data=await res.json();
+        onLogin({...c,token:data.access_token,backendUser:data.user});
+        return;
+      }
+    }catch{}
+    onLogin(c);
   };
   return(
     <div className="login-shell">
@@ -2669,13 +2726,61 @@ function buildRealtimePredictionModel(junction,now=new Date()){
   };
 }
 
-function LSTMPredictions({junctions=JUNCTIONS}){
+function mapBackendPrediction(payload,junction){
+  const horizonMap={"5m":"5min","15m":"15min","30m":"30min","1h":"1hour"};
+  const currentState=payload?.current_state||{};
+  const basedOnDate=payload?.generated_at?new Date(payload.generated_at):new Date();
+  const prediction=LSTM_HORIZONS.reduce((acc,h)=>{
+    const raw=payload?.predictions?.[horizonMap[h.key]];
+    if(!raw) return acc;
+    acc[h.key]={
+      density:raw.density_percent??Math.round((raw.predicted_density??0)*100),
+      confidence:raw.confidence??0,
+      prob:Math.round((raw.congestion_prob??0)*100),
+      queue:raw.queue_length_estimate??0,
+      waitTime:raw.wait_time_estimate_seconds??0,
+      signal:raw.signal_recommendation||"NORMAL",
+      validationAccuracy:raw.validation_accuracy_percent??payload?.accuracy_metrics?.overall_accuracy_percent??null,
+    };
+    return acc;
+  },{});
+  const chartData=[
+    {
+      min:0,
+      density:Math.round(currentState.density_percent??junction?.density??0),
+      prob:Math.round((payload?.predictions?.[horizonMap["5m"]]?.congestion_prob??0)*100),
+      waitTime:currentState.wait_time_seconds??Math.round((junction?.delay??0)*60),
+    },
+    ...LSTM_HORIZONS.map(h=>prediction[h.key]?{min:h.minutes,density:prediction[h.key].density,prob:prediction[h.key].prob,waitTime:prediction[h.key].waitTime}:null).filter(Boolean),
+  ];
+  return{
+    prediction,
+    chartData,
+    inputs:{
+      vehicleCount:currentState.vehicle_count!=null?`${currentState.vehicle_count} now`:`${junction?.vehicles??"--"} now`,
+      density:currentState.density_percent!=null?`${Math.round(currentState.density_percent)}%`:`${junction?.density??"--"}%`,
+      avgSpeed:currentState.avg_speed!=null?`${Math.round(currentState.avg_speed)} km/h`:"--",
+      laneOccupancy:currentState.occupancy_percent!=null?`${Math.round(currentState.occupancy_percent)}%`:"--",
+      currentDelay:currentState.wait_time_seconds!=null?`${(currentState.wait_time_seconds/60).toFixed(1)} min`:`${typeof junction?.delay==="number"?junction.delay.toFixed(1):"--"} min`,
+      priority:junction?.priority||"Standard",
+      timeOfDay:basedOnDate.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true,timeZoneName:"short"}),
+      day:basedOnDate.toLocaleDateString("en-IN",{weekday:"long"}),
+    },
+    accuracy:payload?.accuracy_metrics||null,
+    model:payload?.model||payload?.model_version||"Adaptive-LSTM",
+  };
+}
+
+function LSTMPredictions({junctions=JUNCTIONS,authToken}){
   const [selectedJunctionId,setSelectedJunctionId]=useState(junctions[0]?.id);
   const [loading,setLoading]=useState(false);
   const [pred,setPred]=useState(null);
   const [chartData,setChartData]=useState([]);
   const [lstmSearch,setLstmSearch]=useState("");
-  const [currentTime,setCurrentTime]=useState(()=>new Date());
+  const [modelInputs,setModelInputs]=useState(null);
+  const [accuracy,setAccuracy]=useState(null);
+  const [modelVersion,setModelVersion]=useState("");
+  const [predictionError,setPredictionError]=useState("");
 
   const filteredLstm=useMemo(()=>{
     const q=lstmSearch.trim().toLowerCase();
@@ -2696,40 +2801,112 @@ function LSTMPredictions({junctions=JUNCTIONS}){
     if(!selJ&&junctions[0]) setSelectedJunctionId(junctions[0].id);
   },[junctions,selJ]);
 
-  useEffect(()=>{
-    const id=setInterval(()=>setCurrentTime(new Date()),1000);
-    return()=>clearInterval(id);
-  },[]);
-
-  const generatePrediction=useCallback((j,atTime=new Date())=>{
+  const generatePrediction=useCallback(async(j)=>{
     if(!j) return;
     setLoading(true);
-    const realtimeModel=buildRealtimePredictionModel(j,atTime);
-    setPred(realtimeModel.prediction);
-    setChartData(realtimeModel.chartData);
-    setLoading(false);
-  },[]);
-
-  const realtimeModel=useMemo(
-    ()=>selJ?buildRealtimePredictionModel(selJ,currentTime):null,
-    [selJ,currentTime]
-  );
+    setPredictionError("");
+    try{
+      if(!authToken) throw new Error("Backend authentication unavailable");
+      const res=await fetch(`${BACKEND_API_BASE}/api/junction/${encodeURIComponent(j.id)}/prediction`,{
+        headers:{Authorization:`Bearer ${authToken}`},
+      });
+      if(!res.ok) throw new Error(`Prediction API returned ${res.status}`);
+      const data=await res.json();
+      const mapped=mapBackendPrediction(data,j);
+      setPred(mapped.prediction);
+      setChartData(mapped.chartData);
+      setModelInputs(mapped.inputs);
+      setAccuracy(mapped.accuracy);
+      setModelVersion(mapped.model);
+    }catch(error){
+      const fallback=buildRealtimePredictionModel(j,new Date());
+      setPred(fallback.prediction);
+      setChartData(fallback.chartData);
+      setModelInputs(fallback.inputs);
+      setAccuracy(null);
+      setModelVersion("Frontend Fallback Model");
+      setPredictionError(error?.message||"Prediction service unavailable");
+    }finally{
+      setLoading(false);
+    }
+  },[authToken]);
 
   useEffect(()=>{
-    if(selJ&&realtimeModel){
-      setPred(realtimeModel.prediction);
-      setChartData(realtimeModel.chartData);
-    }
-  },[selJ,realtimeModel]);
+    if(!selJ) return;
+    generatePrediction(selJ);
+    const id=setInterval(()=>generatePrediction(selJ),15000);
+    return()=>clearInterval(id);
+  },[selJ,generatePrediction]);
 
   return(
     <div className="content fade-up">
       <div className="header-row">
         <div className="page-header"><h1>LSTM AI Prediction Engine</h1><div className="accent-rule"/><p>// LONG SHORT-TERM MEMORY NETWORK · MULTI-HORIZON TRAFFIC FORECASTING · CONFIDENCE SCORES</p></div>
         <div className="page-actions">
-          <button className="btn btn-amber" onClick={()=>{const now=new Date();setCurrentTime(now);generatePrediction(selJ,now);}} disabled={loading||!selJ}>{loading?"COMPUTING...":"REFRESH PREDICTION"}</button>
+          {accuracy&&(
+            <div className="accuracy-top-badge" aria-label="Measured model accuracy">
+              <div className="k">Live Accuracy</div>
+              <div className="v">{accuracy.overall_accuracy_percent?.toFixed?.(2)??accuracy.overall_accuracy_percent}%</div>
+              <div className="s">Target 89%  {accuracy.target_met?"MET":"CHECK"}</div>
+            </div>
+          )}
+          <button className="btn btn-amber" onClick={()=>generatePrediction(selJ)} disabled={loading||!selJ}>{loading?"COMPUTING...":"REFRESH PREDICTION"}</button>
         </div>
       </div>
+      {predictionError&&<div className="alert alert-w" style={{marginBottom:12}}>Prediction backend unavailable. Showing local fallback estimate. Details: {predictionError}</div>}
+      {accuracy&&(
+        <div className="accuracy-hero">
+          <div className="accuracy-hero-copy">
+            <div className="accuracy-hero-label">Measured Model Accuracy</div>
+            <div className="accuracy-hero-value">{accuracy.overall_accuracy_percent?.toFixed?.(2)??accuracy.overall_accuracy_percent}%</div>
+            <div className="accuracy-hero-sub">
+              {modelVersion||"Adaptive-LSTM"}  Target 89%: {accuracy.target_met?"Met":"Below Target"}  History Points: {accuracy.history_points}
+            </div>
+          </div>
+          <div className="accuracy-hero-badges">
+            <div className="accuracy-pill">
+              <div className="accuracy-pill-key">5 Min Accuracy</div>
+              <div className="accuracy-pill-val">{accuracy.per_horizon_accuracy_percent?.["5min"]?.toFixed?.(2)??"--"}%</div>
+            </div>
+            <div className="accuracy-pill">
+              <div className="accuracy-pill-key">15 Min Accuracy</div>
+              <div className="accuracy-pill-val">{accuracy.per_horizon_accuracy_percent?.["15min"]?.toFixed?.(2)??"--"}%</div>
+            </div>
+            <div className="accuracy-pill">
+              <div className="accuracy-pill-key">30 Min Accuracy</div>
+              <div className="accuracy-pill-val">{accuracy.per_horizon_accuracy_percent?.["30min"]?.toFixed?.(2)??"--"}%</div>
+            </div>
+            <div className="accuracy-pill">
+              <div className="accuracy-pill-key">1 Hour Accuracy</div>
+              <div className="accuracy-pill-val">{accuracy.per_horizon_accuracy_percent?.["1hour"]?.toFixed?.(2)??"--"}%</div>
+            </div>
+          </div>
+        </div>
+      )}
+      {accuracy&&(
+        <div className="g4" style={{marginBottom:12}}>
+          <div className="kpi-card" style={{"--kpi-accent":"#1A7F4B"}}>
+            <div className="kpi-label">Overall Accuracy</div>
+            <div className="kpi-value" style={{color:"#1A7F4B"}}>{accuracy.overall_accuracy_percent?.toFixed?.(2)??accuracy.overall_accuracy_percent}%</div>
+            <div className={`kpi-delta ${accuracy.target_met?"up":"dn"}`}>Target 89%  {accuracy.target_met?"Met":"Below Target"}</div>
+          </div>
+          <div className="kpi-card" style={{"--kpi-accent":"#0077CC"}}>
+            <div className="kpi-label">5 / 15 Min Accuracy</div>
+            <div className="kpi-value" style={{color:"#0077CC"}}>{accuracy.per_horizon_accuracy_percent?.["5min"]?.toFixed?.(2)??"--"}%</div>
+            <div className="kpi-delta">15m: {accuracy.per_horizon_accuracy_percent?.["15min"]?.toFixed?.(2)??"--"}%</div>
+          </div>
+          <div className="kpi-card" style={{"--kpi-accent":"#C97D10"}}>
+            <div className="kpi-label">30 / 60 Min Accuracy</div>
+            <div className="kpi-value" style={{color:"#C97D10"}}>{accuracy.per_horizon_accuracy_percent?.["30min"]?.toFixed?.(2)??"--"}%</div>
+            <div className="kpi-delta">1h: {accuracy.per_horizon_accuracy_percent?.["1hour"]?.toFixed?.(2)??"--"}%</div>
+          </div>
+          <div className="kpi-card" style={{"--kpi-accent":"#B03030"}}>
+            <div className="kpi-label">Model Confidence Base</div>
+            <div className="kpi-value" style={{color:"#B03030"}}>{accuracy.history_points??"--"}</div>
+            <div className="kpi-delta">History points  Lookback: {accuracy.lookback_steps??"--"} steps</div>
+          </div>
+        </div>
+      )}
 
       <div className="g2" style={{marginBottom:12}}>
         <div className="panel">
@@ -2774,14 +2951,14 @@ function LSTMPredictions({junctions=JUNCTIONS}){
           <div className="panel-body">
             <div className="g2">
               {[
-                ["Vehicle Count",realtimeModel?.inputs.vehicleCount||"--","#0077CC"],
-                ["Current Density",realtimeModel?.inputs.density||"--","#C97D10"],
-                ["Avg Speed",realtimeModel?.inputs.avgSpeed||"--","#1A7F4B"],
-                ["Lane Occupancy",realtimeModel?.inputs.laneOccupancy||"--","#6B35B8"],
-                ["Current Delay",realtimeModel?.inputs.currentDelay||"--","#B03030"],
-                ["Priority",realtimeModel?.inputs.priority||"--","#0077CC"],
-                ["Time of Day",realtimeModel?.inputs.timeOfDay||"--","#C97D10"],
-                ["Day",realtimeModel?.inputs.day||"--","#1A7F4B"],
+                ["Vehicle Count",modelInputs?.vehicleCount||"--","#0077CC"],
+                ["Current Density",modelInputs?.density||"--","#C97D10"],
+                ["Avg Speed",modelInputs?.avgSpeed||"--","#1A7F4B"],
+                ["Lane Occupancy",modelInputs?.laneOccupancy||"--","#6B35B8"],
+                ["Current Delay",modelInputs?.currentDelay||"--","#B03030"],
+                ["Priority",modelInputs?.priority||"--","#0077CC"],
+                ["Time of Day",modelInputs?.timeOfDay||"--","#C97D10"],
+                ["Day",modelInputs?.day||"--","#1A7F4B"],
               ].map(([k,v,c])=>(
                 <div key={k} className="sensor-card">
                   <div className="sensor-name">{k}</div>
@@ -2802,6 +2979,7 @@ function LSTMPredictions({junctions=JUNCTIONS}){
                 <div className="pred-horizon">{h.label} FORECAST</div>
                 <div className="pred-density" style={{color:h.color}}>{pred[h.key].density}%</div>
                 <div className="pred-conf">Density · Conf: {(pred[h.key].confidence*100).toFixed(0)}%</div>
+                {pred[h.key].validationAccuracy!=null&&<div className="sensor-name" style={{marginBottom:6}}>Validated Accuracy: {pred[h.key].validationAccuracy.toFixed(2)}%</div>}
                 <div style={{margin:"6px 0"}}>
                   <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
                     <span className="sensor-name">Congestion Prob</span>
@@ -4032,7 +4210,7 @@ export default function App(){
       case "dashboard":  return <Dashboard onNav={setTab} junctions={junctions} events={events} alerts={alerts}/>;
       case "map":        return <MapPage junctions={junctions}/>;
       case "junction":   return <JunctionControl junctions={junctions} phases={signalPhases} setPhases={setSignalPhases} emergencyState={emergencyState} alerts={alerts} role={user?.role} userId={user?.id} controlGrant={user?.role!=="Super Administrator"&&controlGrants[user?.id]}/>;
-      case "lstm":       return <LSTMPredictions junctions={junctions}/>;
+      case "lstm":       return <LSTMPredictions junctions={junctions} authToken={user?.token}/>;
       case "weather":    return <WeatherIntel junctions={junctions}/>;
       case "emergency":  return <EmergencyOps role={user?.role} junctions={junctions} emergencyState={emergencyState} setEmergencyState={setEmergencyState} alerts={alerts} controlGrant={user?.role!=="Super Administrator"&&controlGrants[user?.id]}/>;
       case "sensors":    return <SensorHealth junctions={junctions}/>;
