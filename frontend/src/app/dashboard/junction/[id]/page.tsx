@@ -8,6 +8,7 @@ import {
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
+import { apiUrl } from "@/lib/apiBase";
 
 interface Lane {
     direction: string;
@@ -63,8 +64,8 @@ export default function JunctionDetailPage({ params }: { params: Promise<{ id: s
         const fetchData = async () => {
             try {
                 const [trafficRes, predictionRes] = await Promise.all([
-                    fetch(`http://localhost:8000/api/junction/${id}/traffic`),
-                    fetch(`http://localhost:8000/api/junction/${id}/prediction`),
+                    fetch(apiUrl(`/api/junction/${id}/traffic`)),
+                    fetch(apiUrl(`/api/junction/${id}/prediction`)),
                 ]);
 
                 const trafficJson = await trafficRes.json();
@@ -92,7 +93,7 @@ export default function JunctionDetailPage({ params }: { params: Promise<{ id: s
         if (confirm(`INITIATE MANUAL OVERRIDE: Force Green for ${direction} lane?`)) {
             setOverrideActive(direction);
             try {
-                await fetch("http://localhost:8000/api/signal/control", {
+                await fetch(apiUrl("/api/signal/control"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ junction_id: id, action: `Force Green ${direction}` }),

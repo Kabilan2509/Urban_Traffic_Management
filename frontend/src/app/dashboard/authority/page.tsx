@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { apiUrl } from "@/lib/apiBase";
 import {
     BrainCircuit,
     Siren,
@@ -70,7 +71,7 @@ export default function AuthorityDeskPage() {
     useEffect(() => {
         const fetchInsights = async () => {
             try {
-                const res = await fetch("http://localhost:8000/api/authority/insights");
+                const res = await fetch(apiUrl("/api/authority/insights"));
                 const data = await res.json();
                 setInsights(data);
             } catch (error) {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { Loader2, Activity, BrainCircuit, TriangleAlert } from "lucide-react";
+import { apiUrl } from "@/lib/apiBase";
 
 // Dynamically import the Leaflet map to avoid SSR issues
 const MapComponent = dynamic(() => import("@/components/CityMap"), {
@@ -46,7 +47,7 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchJunctions = async () => {
             try {
-                const res = await fetch("http://localhost:8000/api/junctions");
+                const res = await fetch(apiUrl("/api/junctions"));
                 const data = await res.json();
                 setJunctions(data);
             } catch (err) {
@@ -56,7 +57,7 @@ export default function DashboardPage() {
 
         const fetchInsights = async () => {
             try {
-                const res = await fetch("http://localhost:8000/api/authority/insights");
+                const res = await fetch(apiUrl("/api/authority/insights"));
                 const data = await res.json();
                 setInsights(data);
             } catch (err) {
