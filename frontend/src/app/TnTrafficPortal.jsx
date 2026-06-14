@@ -1125,7 +1125,8 @@ const ALL_TABS = [
 /* --------------------------------------------------------------
    HELPER UTILITIES
 -------------------------------------------------------------- */
-const BACKEND_API_BASE=process.env.NEXT_PUBLIC_TRAFFIX_API_BASE||"http://localhost:8000";
+const DEFAULT_PRODUCTION_API_BASE="https://urban-traffic-backend-xb8s.onrender.com";
+const BACKEND_API_BASE=process.env.NEXT_PUBLIC_TRAFFIX_API_BASE||((typeof window!=="undefined"&&window.location.hostname==="localhost")?"http://localhost:8000":DEFAULT_PRODUCTION_API_BASE);
 
 async function requestBackendAccessToken(user){
   if(!user?.username) return null;
