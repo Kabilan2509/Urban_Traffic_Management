@@ -62,3 +62,58 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
+self.addEventListener("message", (event) => {
+  const data = event.data || {};
+  if (data?.type !== "SHOW_NOTIFICATION") return;
+
+  const title = data.title || "Traffix Alert";
+  const options = {
+    body: data.body || "",
+    icon: "/pwa-192.svg",
+    badge: "/pwa-192.svg",
+    tag: data.tag || "traffix-alert",
+    renotify: true,
+    requireInteraction: data.requireInteraction ?? true,
+    data: data.data || {},
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("push", (event) => {
+  let payload = {};
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch {
+    payload = { title: "Traffix Alert", body: event.data?.text?.() || "" };
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title || "Traffix Alert", {
+      body: payload.body || "",
+      icon: "/pwa-192.svg",
+      badge: "/pwa-192.svg",
+      tag: payload.tag || "traffix-push",
+      renotify: true,
+      requireInteraction: payload.requireInteraction ?? true,
+      data: payload.data || {},
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || "/";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        if ("focus" in client) {
+          client.navigate?.(targetUrl).catch?.(() => {});
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(targetUrl);
+    })
+  );
+});

@@ -452,22 +452,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 }
 .accuracy-pill-key{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);}
 .accuracy-pill-val{font-family:var(--mono);font-size:16px;font-weight:800;color:var(--text0);}
-.accuracy-top-badge{
-  display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;
-  min-width:170px;padding:10px 12px;border-radius:8px;
-  background:linear-gradient(135deg,rgba(26,127,75,0.18),rgba(0,119,204,0.14));
-  border:1px solid rgba(26,127,75,0.3);
-  box-shadow:var(--shadow);
-}
-.accuracy-top-badge .k{
-  font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);
-}
-.accuracy-top-badge .v{
-  font-family:var(--mono);font-size:24px;font-weight:800;line-height:1;color:var(--green);
-}
-.accuracy-top-badge .s{
-  font-family:var(--mono);font-size:8.5px;color:var(--text2);text-align:right;
-}
 .pred-recommend{font-size:11.5px;color:var(--text2);line-height:1.55;}
 
 /* ---- EMERGENCY ---- */
@@ -1142,6 +1126,22 @@ const ALL_TABS = [
    HELPER UTILITIES
 -------------------------------------------------------------- */
 const BACKEND_API_BASE=process.env.NEXT_PUBLIC_TRAFFIX_API_BASE||"http://localhost:8000";
+
+async function requestBackendAccessToken(user){
+  if(!user?.username) return null;
+  try{
+    const res=await fetch(`${BACKEND_API_BASE}/api/auth/login`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({username:user.username,password:user.username}),
+    });
+    if(!res.ok) return null;
+    const data=await res.json();
+    return data?.access_token||null;
+  }catch{
+    return null;
+  }
+}
 
 function congestColor(c){
   return c==="Red"?"#B03030":c==="Yellow"?"#C97D10":c==="Blue"?"#1A56A8":"#1A7F4B";
@@ -1871,10 +1871,12 @@ function getDensityCongestion(density){
 /* --------------------------------------------------------------
    COMMAND CENTRE DASHBOARD
 -------------------------------------------------------------- */
-function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){  
+function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[],authToken,currentUser}){  
   const [dashboardSearch,setDashboardSearch]=useState("");
   const [selJ,setSelJ]=useState(null);
   const [tick,setTick]=useState(0);
+  const [dashboardAccuracy,setDashboardAccuracy]=useState(null);
+  const [dashboardAccuracyState,setDashboardAccuracyState]=useState("loading");
   useEffect(()=>{const i=setInterval(()=>setTick(t=>t+1),5000);return()=>clearInterval(i);},[]);
 
   const filteredJunctions=useMemo(()=>{
@@ -1895,6 +1897,7 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
   const sensorFails=junctions.filter(j=>Object.values(j.sensorStatus).some(s=>s==="Failed")).length;
   const critAlerts=alerts.filter(a=>a.severity==="CRITICAL").length;
   const systemHealth=100-Math.round((congested/junctions.length)*30+sensorFails*5);
+  const mostCongestedJunction=useMemo(()=>junctions.reduce((best,j)=>!best||j.density>best.density?j:best,null),[junctions]);
   const dotColor={Red:"#B03030",Yellow:"#C97D10",Green:"#1A7F4B",Blue:"#1A56A8"};
   const statusLabel={Green:"NORMAL",Yellow:"MODERATE",Red:"CONGESTED",Blue:"EMERGENCY"};
   // freshSelJ: re-derived on every render so detail panel shows latest live data
@@ -1921,6 +1924,46 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
     ["J-004","J-006"],
   ];
   const selectedSchematicNode=freshSelJ?schematicNodes.find(node=>node.id===freshSelJ.id):null;
+
+  useEffect(()=>{
+    if(!mostCongestedJunction) return;
+    let cancelled=false;
+    const loadAccuracy=async()=>{
+      try{
+        const token=authToken||await requestBackendAccessToken(currentUser);
+        if(!token){
+          if(!cancelled){
+            setDashboardAccuracy(null);
+            setDashboardAccuracyState("error");
+          }
+          return;
+        }
+        const res=await fetch(`${BACKEND_API_BASE}/api/junction/${encodeURIComponent(mostCongestedJunction.id)}/prediction`,{
+          headers:{Authorization:`Bearer ${token}`},
+        });
+        if(!res.ok){
+          if(!cancelled){
+            setDashboardAccuracy(null);
+            setDashboardAccuracyState("error");
+          }
+          return;
+        }
+        const data=await res.json();
+        if(!cancelled){
+          setDashboardAccuracy(data?.accuracy_metrics||null);
+          setDashboardAccuracyState("live");
+        }
+      }catch{
+        if(!cancelled){
+          setDashboardAccuracy(null);
+          setDashboardAccuracyState("error");
+        }
+      }
+    };
+    loadAccuracy();
+    const id=setInterval(loadAccuracy,30000);
+    return()=>{cancelled=true;clearInterval(id);};
+  },[authToken,currentUser,mostCongestedJunction]);
 
   return(
     <div className="content fade-up">
@@ -1954,6 +1997,37 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[]}){
             <div className="kpi-delta">{k.delta}</div>
           </div>
         ))}
+      </div>
+
+      <div className="panel" style={{marginBottom:12}}>
+        <div className="panel-head">
+          <div className="panel-title">AI Prediction Accuracy</div>
+          <button className="btn btn-ghost btn-sm" onClick={()=>onNav("lstm")}>OPEN AI PREDICTIONS &rarr;</button>
+        </div>
+        <div className="panel-body">
+          <div className="g4">
+            <div className="kpi-card" style={{"--kpi-accent":"#1A7F4B"}}>
+              <div className="kpi-label">Overall Accuracy</div>
+              <div className="kpi-value" style={{color:"#1A7F4B",fontSize:22}}>{dashboardAccuracy?`${dashboardAccuracy.overall_accuracy_percent?.toFixed?.(2)??dashboardAccuracy.overall_accuracy_percent}%`:"--"}</div>
+              <div className="kpi-delta">{dashboardAccuracy?`Target 89% ${dashboardAccuracy.target_met?"met":"check"}`:dashboardAccuracyState==="error"?"Prediction model backend unavailable":"Waiting for live prediction model metric"}</div>
+            </div>
+            <div className="kpi-card" style={{"--kpi-accent":"#0077CC"}}>
+              <div className="kpi-label">5 / 15 Min</div>
+              <div className="kpi-value" style={{color:"#0077CC",fontSize:22}}>{dashboardAccuracy?.per_horizon_accuracy_percent?.["5min"]?.toFixed?.(2)??"--"}%</div>
+              <div className="kpi-delta">15m: {dashboardAccuracy?.per_horizon_accuracy_percent?.["15min"]?.toFixed?.(2)??"--"}%</div>
+            </div>
+            <div className="kpi-card" style={{"--kpi-accent":"#C97D10"}}>
+              <div className="kpi-label">30 Min / 1 Hour</div>
+              <div className="kpi-value" style={{color:"#C97D10",fontSize:22}}>{dashboardAccuracy?.per_horizon_accuracy_percent?.["30min"]?.toFixed?.(2)??"--"}%</div>
+              <div className="kpi-delta">1h: {dashboardAccuracy?.per_horizon_accuracy_percent?.["1hour"]?.toFixed?.(2)??"--"}%</div>
+            </div>
+            <div className="kpi-card" style={{"--kpi-accent":"#B03030"}}>
+              <div className="kpi-label">History Window</div>
+              <div className="kpi-value" style={{color:"#B03030",fontSize:22}}>{dashboardAccuracy?.history_points??"--"}</div>
+              <div className="kpi-delta">Lookback: {dashboardAccuracy?.lookback_steps??"--"} steps</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {critAlerts>0&&(
@@ -2771,7 +2845,38 @@ function mapBackendPrediction(payload,junction){
   };
 }
 
-function LSTMPredictions({junctions=JUNCTIONS,authToken}){
+async function ensurePwaNotificationPermission(){
+  if(typeof window==="undefined"||!("Notification" in window)) return "unsupported";
+  if(Notification.permission==="granted") return "granted";
+  if(Notification.permission==="denied") return "denied";
+  return Notification.requestPermission();
+}
+
+async function triggerPwaNotification(payload){
+  if(typeof window==="undefined"||!("serviceWorker" in navigator)||!("Notification" in window)) return false;
+  if(Notification.permission!=="granted") return false;
+  const registration=await navigator.serviceWorker.getRegistration();
+  if(!registration) return false;
+  if(registration.active){
+    registration.active.postMessage({type:"SHOW_NOTIFICATION",...payload});
+    return true;
+  }
+  if("showNotification" in registration){
+    await registration.showNotification(payload.title||"Traffix Alert",{
+      body:payload.body||"",
+      icon:"/pwa-192.svg",
+      badge:"/pwa-192.svg",
+      tag:payload.tag||"traffix-alert",
+      renotify:true,
+      requireInteraction:payload.requireInteraction??true,
+      data:payload.data||{},
+    });
+    return true;
+  }
+  return false;
+}
+
+function LSTMPredictions({junctions=JUNCTIONS,authToken,currentUser}){
   const [selectedJunctionId,setSelectedJunctionId]=useState(junctions[0]?.id);
   const [loading,setLoading]=useState(false);
   const [pred,setPred]=useState(null);
@@ -2781,6 +2886,7 @@ function LSTMPredictions({junctions=JUNCTIONS,authToken}){
   const [accuracy,setAccuracy]=useState(null);
   const [modelVersion,setModelVersion]=useState("");
   const [predictionError,setPredictionError]=useState("");
+  const lastNotificationRef=useRef("");
 
   const filteredLstm=useMemo(()=>{
     const q=lstmSearch.trim().toLowerCase();
@@ -2796,6 +2902,10 @@ function LSTMPredictions({junctions=JUNCTIONS,authToken}){
     ()=>junctions.find(j=>j.id===selectedJunctionId)||junctions[0]||null,
     [junctions,selectedJunctionId]
   );
+  const activePoliceStation=useMemo(()=>{
+    if(currentUser?.role!=="Police Station Controller") return null;
+    return POLICE_STATIONS.find(station=>station.name===currentUser.zone)||null;
+  },[currentUser]);
 
   useEffect(()=>{
     if(!selJ&&junctions[0]) setSelectedJunctionId(junctions[0].id);
@@ -2838,18 +2948,40 @@ function LSTMPredictions({junctions=JUNCTIONS,authToken}){
     return()=>clearInterval(id);
   },[selJ,generatePrediction]);
 
+  useEffect(()=>{
+    if(currentUser?.role!=="Police Station Controller") return;
+    ensurePwaNotificationPermission().catch(()=>{});
+  },[currentUser]);
+
+  useEffect(()=>{
+    if(currentUser?.role!=="Police Station Controller"||!accuracy||!pred||!selJ||!activePoliceStation) return;
+    if(selJ.policeStation!==activePoliceStation.id) return;
+    const peakHorizon=LSTM_HORIZONS.reduce((best,h)=>{
+      const item=pred[h.key];
+      if(!item) return best;
+      return !best||item.density>best.item.density?{h,item}:best;
+    },null);
+    if(!peakHorizon) return;
+    const isHighAccuracy=(accuracy.overall_accuracy_percent??0)>=89;
+    const isHighTraffic=peakHorizon.item.density>=85;
+    if(!isHighAccuracy||!isHighTraffic) return;
+    const notificationKey=`${selJ.id}-${peakHorizon.h.key}-${peakHorizon.item.density}-${Math.round(accuracy.overall_accuracy_percent)}`;
+    if(lastNotificationRef.current===notificationKey) return;
+    lastNotificationRef.current=notificationKey;
+    triggerPwaNotification({
+      title:`High Traffic Forecast · ${activePoliceStation.name}`,
+      body:`${selJ.name} is predicted at ${peakHorizon.item.density}% density in ${peakHorizon.h.label}. Accuracy ${accuracy.overall_accuracy_percent.toFixed(2)}%. Dispatch review recommended.`,
+      tag:`forecast-${selJ.id}`,
+      requireInteraction:true,
+      data:{url:"/",junctionId:selJ.id,policeStation:activePoliceStation.id},
+    }).catch(()=>{});
+  },[accuracy,pred,selJ,currentUser,activePoliceStation]);
+
   return(
     <div className="content fade-up">
       <div className="header-row">
         <div className="page-header"><h1>LSTM AI Prediction Engine</h1><div className="accent-rule"/><p>// LONG SHORT-TERM MEMORY NETWORK · MULTI-HORIZON TRAFFIC FORECASTING · CONFIDENCE SCORES</p></div>
         <div className="page-actions">
-          {accuracy&&(
-            <div className="accuracy-top-badge" aria-label="Measured model accuracy">
-              <div className="k">Live Accuracy</div>
-              <div className="v">{accuracy.overall_accuracy_percent?.toFixed?.(2)??accuracy.overall_accuracy_percent}%</div>
-              <div className="s">Target 89%  {accuracy.target_met?"MET":"CHECK"}</div>
-            </div>
-          )}
           <button className="btn btn-amber" onClick={()=>generatePrediction(selJ)} disabled={loading||!selJ}>{loading?"COMPUTING...":"REFRESH PREDICTION"}</button>
         </div>
       </div>
@@ -2883,28 +3015,9 @@ function LSTMPredictions({junctions=JUNCTIONS,authToken}){
           </div>
         </div>
       )}
-      {accuracy&&(
-        <div className="g4" style={{marginBottom:12}}>
-          <div className="kpi-card" style={{"--kpi-accent":"#1A7F4B"}}>
-            <div className="kpi-label">Overall Accuracy</div>
-            <div className="kpi-value" style={{color:"#1A7F4B"}}>{accuracy.overall_accuracy_percent?.toFixed?.(2)??accuracy.overall_accuracy_percent}%</div>
-            <div className={`kpi-delta ${accuracy.target_met?"up":"dn"}`}>Target 89%  {accuracy.target_met?"Met":"Below Target"}</div>
-          </div>
-          <div className="kpi-card" style={{"--kpi-accent":"#0077CC"}}>
-            <div className="kpi-label">5 / 15 Min Accuracy</div>
-            <div className="kpi-value" style={{color:"#0077CC"}}>{accuracy.per_horizon_accuracy_percent?.["5min"]?.toFixed?.(2)??"--"}%</div>
-            <div className="kpi-delta">15m: {accuracy.per_horizon_accuracy_percent?.["15min"]?.toFixed?.(2)??"--"}%</div>
-          </div>
-          <div className="kpi-card" style={{"--kpi-accent":"#C97D10"}}>
-            <div className="kpi-label">30 / 60 Min Accuracy</div>
-            <div className="kpi-value" style={{color:"#C97D10"}}>{accuracy.per_horizon_accuracy_percent?.["30min"]?.toFixed?.(2)??"--"}%</div>
-            <div className="kpi-delta">1h: {accuracy.per_horizon_accuracy_percent?.["1hour"]?.toFixed?.(2)??"--"}%</div>
-          </div>
-          <div className="kpi-card" style={{"--kpi-accent":"#B03030"}}>
-            <div className="kpi-label">Model Confidence Base</div>
-            <div className="kpi-value" style={{color:"#B03030"}}>{accuracy.history_points??"--"}</div>
-            <div className="kpi-delta">History points  Lookback: {accuracy.lookback_steps??"--"} steps</div>
-          </div>
+      {currentUser?.role==="Police Station Controller"&&activePoliceStation&&(
+        <div className="alert alert-i" style={{marginBottom:12}}>
+          Mobile PWA alerting is armed for {activePoliceStation.name}. A push-style notification will be triggered automatically when forecast accuracy is at least 89% and predicted density for this station's junction crosses 85%.
         </div>
       )}
 
@@ -4207,10 +4320,10 @@ export default function App(){
 
   const renderPage=()=>{
     switch(tab){
-      case "dashboard":  return <Dashboard onNav={setTab} junctions={junctions} events={events} alerts={alerts}/>;
+      case "dashboard":  return <Dashboard onNav={setTab} junctions={junctions} events={events} alerts={alerts} authToken={user?.token} currentUser={user}/>;
       case "map":        return <MapPage junctions={junctions}/>;
       case "junction":   return <JunctionControl junctions={junctions} phases={signalPhases} setPhases={setSignalPhases} emergencyState={emergencyState} alerts={alerts} role={user?.role} userId={user?.id} controlGrant={user?.role!=="Super Administrator"&&controlGrants[user?.id]}/>;
-      case "lstm":       return <LSTMPredictions junctions={junctions} authToken={user?.token}/>;
+      case "lstm":       return <LSTMPredictions junctions={junctions} authToken={user?.token} currentUser={user}/>;
       case "weather":    return <WeatherIntel junctions={junctions}/>;
       case "emergency":  return <EmergencyOps role={user?.role} junctions={junctions} emergencyState={emergencyState} setEmergencyState={setEmergencyState} alerts={alerts} controlGrant={user?.role!=="Super Administrator"&&controlGrants[user?.id]}/>;
       case "sensors":    return <SensorHealth junctions={junctions}/>;
@@ -4218,7 +4331,7 @@ export default function App(){
       case "history":    return <History events={events} notify={notify}/>;
       case "users":      return <UserManagement currentUser={user} controlGrants={controlGrants} onToggleGrant={toggleControlGrant} notify={notify}/>;
       case "settings":   return <SystemSettings settings={settings} onSave={saveSettings} notify={notify}/>;
-      default:           return <Dashboard onNav={setTab} junctions={junctions} events={events} alerts={alerts}/>;
+      default:           return <Dashboard onNav={setTab} junctions={junctions} events={events} alerts={alerts} authToken={user?.token} currentUser={user}/>;
     }
   };
 
