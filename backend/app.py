@@ -798,25 +798,50 @@ async def get_junction_history(junction_id: str, hours: int = 24, current_user: 
 
 
 @app.get("/api/junction/{junction_id}/prediction")
-async def get_junction_prediction(junction_id: str, current_user: dict = Depends(get_current_user)):
+async def get_junction_prediction(
+    junction_id: str,
+    current_user: dict = Depends(get_current_user),
+    density: Optional[float] = None,
+    vehicles: Optional[int] = None,
+    speed: Optional[float] = None,
+    delay: Optional[float] = None,
+):
     j = next((x for x in JUNCTIONS_STATIC if x["id"] == junction_id), None)
     if not j:
         raise HTTPException(status_code=404, detail=f"Junction {junction_id} not found")
-    obs = traffic_predictor.generate_live_observation(
-        junction_id=j["id"],
-        base_density_pct=j["base_density"] * 100.0,
-        base_speed=j["base_speed"],
-        priority_class=j["priority_class"],
-    )
+
+    # Use frontend-provided live state when available so predictions
+    # are anchored to what the user actually sees on screen.
+    if density is not None:
+        use_density = max(5.0, min(98.0, density))
+        use_speed = speed if speed is not None else max(8.0, 55.0 - use_density * 0.35)
+        use_vehicles = vehicles if vehicles is not None else max(20, int(use_density * 2.8))
+        use_queue = max(4, int(use_density * 1.6))
+        use_wait = max(10, int((delay or 0) * 60)) if delay else max(10, int(use_density * 1.2))
+        use_occupancy = min(100.0, use_density * 0.92 + use_queue * 0.18)
+    else:
+        obs = traffic_predictor.generate_live_observation(
+            junction_id=j["id"],
+            base_density_pct=j["base_density"] * 100.0,
+            base_speed=j["base_speed"],
+            priority_class=j["priority_class"],
+        )
+        use_density = obs.density_pct
+        use_speed = obs.avg_speed
+        use_vehicles = obs.vehicle_count
+        use_queue = obs.queue_length
+        use_wait = obs.wait_time_seconds
+        use_occupancy = obs.occupancy_pct
+
     prediction = traffic_predictor.predict(
         junction_id=j["id"],
         priority_class=j["priority_class"],
-        current_density=obs.density_pct,
-        vehicle_count=obs.vehicle_count,
-        avg_speed=obs.avg_speed,
-        queue_length=obs.queue_length,
-        wait_time_seconds=obs.wait_time_seconds,
-        occupancy_pct=obs.occupancy_pct,
+        current_density=use_density,
+        vehicle_count=use_vehicles,
+        avg_speed=use_speed,
+        queue_length=use_queue,
+        wait_time_seconds=use_wait,
+        occupancy_pct=use_occupancy,
     )
     return {
         "junction_id":   junction_id,

@@ -376,8 +376,32 @@ class LSTMPredictor:
             mape = float(np.mean(np.abs((y_test - y_pred) / np.clip(y_test, 1.0, None))))
             accuracy_pct = round(max(0.0, 100.0 - (mape * 100.0)), 2)
 
-            predicted_density = float(model.predict(latest_features)[0])
-            predicted_density = _clamp(predicted_density, 0.0, 100.0)
+            raw_predicted = float(model.predict(latest_features)[0])
+            raw_predicted = _clamp(raw_predicted, 5.0, 100.0)
+
+            # ── Anchor predictions to current density ──
+            # Short horizons stay very close to current values;
+            # longer horizons allow more model-driven divergence.
+            # This produces realistic gradual changes instead of wild jumps.
+            anchor_weights = {"5min": 0.80, "15min": 0.65, "30min": 0.50, "1hour": 0.35}
+            anchor = anchor_weights.get(label, 0.50)
+            current_density_pct = current.density_pct
+
+            # Time-of-day trend nudge (small, realistic)
+            hour_float = current.timestamp.hour + current.timestamp.minute / 60.0
+            morning_trend = 3.5 * math.exp(-((hour_float - 8.5) ** 2) / 4.0)
+            evening_trend = 4.2 * math.exp(-((hour_float - 18.4) ** 2) / 5.0)
+            time_nudge = (morning_trend + evening_trend) * (step_ahead / 12.0)
+            if current.timestamp.weekday() >= 5:
+                time_nudge *= 0.4  # weekends are calmer
+
+            predicted_density = _clamp(
+                current_density_pct * anchor
+                + raw_predicted * (1.0 - anchor)
+                + time_nudge,
+                5.0,
+                100.0,
+            )
 
             density_ratio = predicted_density / 100.0
             congestion_prob = _clamp(
@@ -394,25 +418,30 @@ class LSTMPredictor:
 
             if predicted_density >= 85:
                 recommendation = "EXTEND_GREEN"
+                recommendation_desc = "Pre-extend inbound green phase and trigger adaptive overflow plan for heavy traffic."
             elif predicted_density >= 65:
                 recommendation = "NORMAL"
+                recommendation_desc = "Hold current adaptive cycle and monitor inflow from dominant approach."
             elif predicted_density >= 48:
                 recommendation = "REDUCE_GREEN"
+                recommendation_desc = "Compress off-peak cycle and rebalance side-road clearance time."
             else:
                 recommendation = "OPTIMIZE_CYCLE"
+                recommendation_desc = "Maintain optimized cycle with rolling sensor validation and lower phase duration."
 
             confidence = round(_clamp((accuracy_pct / 100.0) - (mae / 160.0), 0.55, 0.98), 3)
 
             predictions[label] = {
-                "density_percent": int(round(predicted_density)),
-                "density_float": round(predicted_density / 100.0, 3),
-                "predicted_density": round(predicted_density / 100.0, 3),
-                "congestion_prob": round(congestion_prob, 3),
+                "density_percent": max(5, int(round(predicted_density))),
+                "density_float": round(max(0.05, predicted_density / 100.0), 3),
+                "predicted_density": round(max(0.05, predicted_density / 100.0), 3),
+                "congestion_prob": round(max(0.05, congestion_prob), 3),
                 "confidence": confidence,
                 "signal_recommendation": recommendation,
-                "queue_length_estimate": queue_estimate,
-                "wait_time_estimate_seconds": wait_estimate,
-                "vehicle_arrival_rate": arrival_rate,
+                "signal_description": recommendation_desc,
+                "queue_length_estimate": max(4, queue_estimate),
+                "wait_time_estimate_seconds": max(10, wait_estimate),
+                "vehicle_arrival_rate": max(2.0, arrival_rate),
                 "validation_accuracy_percent": accuracy_pct,
                 "validation_mae": round(mae, 2),
             }

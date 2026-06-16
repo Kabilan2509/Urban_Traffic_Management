@@ -1939,7 +1939,12 @@ function Dashboard({onNav,junctions=JUNCTIONS,events=LOGS,alerts=[],authToken,cu
           }
           return;
         }
-        const res=await fetch(`${BACKEND_API_BASE}/api/junction/${encodeURIComponent(mostCongestedJunction.id)}/prediction`,{
+        const dParams=new URLSearchParams();
+        if(typeof mostCongestedJunction.density==="number") dParams.set("density",String(mostCongestedJunction.density));
+        if(typeof mostCongestedJunction.vehicles==="number") dParams.set("vehicles",String(mostCongestedJunction.vehicles));
+        if(typeof mostCongestedJunction.delay==="number") dParams.set("delay",String(mostCongestedJunction.delay));
+        const dQs=dParams.toString();
+        const res=await fetch(`${BACKEND_API_BASE}/api/junction/${encodeURIComponent(mostCongestedJunction.id)}/prediction${dQs?"?"+dQs:""}`,{
           headers:{Authorization:`Bearer ${token}`},
         });
         if(!res.ok){
@@ -2753,10 +2758,14 @@ function buildRealtimePredictionModel(junction,now=new Date()){
   const occupancy=clampNumber(Math.round(density*0.92+delay*1.8),8,99);
   const avgSpeed=clampNumber(Math.round(54-density*0.26-delay*1.9-(temporal.morningPeak||temporal.eveningPeak?4:0)),8,58);
   const prediction=LSTM_HORIZONS.reduce((acc,horizon,idx)=>{
+    // Anchor weights — short horizons stay very close to current density
+    const anchorWeights={"5m":0.80,"15m":0.65,"30m":0.50,"1h":0.35};
+    const anchor=anchorWeights[horizon.key]||0.50;
     const horizonWeight=horizon.minutes/15;
-    const directionalTrend=(baselinePressure-46)*0.14;
-    const recoveryFactor=temporal.lateNight?-0.75:temporal.isWeekend?-0.35:0;
-    const futureDensity=clampNumber(Math.round(density+directionalTrend*horizonWeight+recoveryFactor*horizonWeight),8,99);
+    const directionalTrend=(baselinePressure-46)*0.08;
+    const recoveryFactor=temporal.lateNight?-0.5:temporal.isWeekend?-0.25:0;
+    const trendTarget=clampNumber(Math.round(density+directionalTrend*horizonWeight+recoveryFactor*horizonWeight),8,99);
+    const futureDensity=clampNumber(Math.round(density*anchor+trendTarget*(1-anchor)),8,99);
     const congestionProb=clampNumber(Math.round(futureDensity*0.82+delay*2.1+(horizon.minutes>=30?4:0)),5,99);
     const queue=clampNumber(Math.round((vehicles/12)+(futureDensity*0.34)+(delay*1.7)+(idx*3)),6,240);
     const waitTime=clampNumber(Math.round(delay*32+(futureDensity*0.68)+(idx*10)),12,180);
@@ -2803,18 +2812,26 @@ function buildRealtimePredictionModel(junction,now=new Date()){
 
 function mapBackendPrediction(payload,junction){
   const horizonMap={"5m":"5min","15m":"15min","30m":"30min","1h":"1hour"};
+  const signalDescriptions={
+    EXTEND_GREEN:"Pre-extend inbound green phase and trigger adaptive overflow plan for heavy traffic.",
+    NORMAL:"Hold current adaptive cycle and monitor inflow from dominant approach.",
+    REDUCE_GREEN:"Compress off-peak cycle and rebalance side-road clearance time.",
+    OPTIMIZE_CYCLE:"Maintain optimized cycle with rolling sensor validation and lower phase duration.",
+  };
   const currentState=payload?.current_state||{};
   const basedOnDate=payload?.generated_at?new Date(payload.generated_at):new Date();
   const prediction=LSTM_HORIZONS.reduce((acc,h)=>{
     const raw=payload?.predictions?.[horizonMap[h.key]];
     if(!raw) return acc;
+    const rawDensity=raw.density_percent??Math.round((raw.predicted_density??0)*100);
+    const rawProb=Math.round((raw.congestion_prob??0)*100);
     acc[h.key]={
-      density:raw.density_percent??Math.round((raw.predicted_density??0)*100),
-      confidence:raw.confidence??0,
-      prob:Math.round((raw.congestion_prob??0)*100),
-      queue:raw.queue_length_estimate??0,
-      waitTime:raw.wait_time_estimate_seconds??0,
-      signal:raw.signal_recommendation||"NORMAL",
+      density:Math.max(5,rawDensity),
+      confidence:Math.max(0.55,raw.confidence??0),
+      prob:Math.max(5,rawProb),
+      queue:Math.max(4,raw.queue_length_estimate??0),
+      waitTime:Math.max(10,raw.wait_time_estimate_seconds??0),
+      signal:raw.signal_description||signalDescriptions[raw.signal_recommendation]||"Maintain current adaptive cycle with rolling sensor validation.",
       validationAccuracy:raw.validation_accuracy_percent??payload?.accuracy_metrics?.overall_accuracy_percent??null,
     };
     return acc;
@@ -2822,9 +2839,9 @@ function mapBackendPrediction(payload,junction){
   const chartData=[
     {
       min:0,
-      density:Math.round(currentState.density_percent??junction?.density??0),
-      prob:Math.round((payload?.predictions?.[horizonMap["5m"]]?.congestion_prob??0)*100),
-      waitTime:currentState.wait_time_seconds??Math.round((junction?.delay??0)*60),
+      density:Math.max(5,Math.round(currentState.density_percent??junction?.density??0)),
+      prob:Math.max(5,Math.round((payload?.predictions?.[horizonMap["5m"]]?.congestion_prob??0)*100)),
+      waitTime:Math.max(10,currentState.wait_time_seconds??Math.round((junction?.delay??0)*60)),
     },
     ...LSTM_HORIZONS.map(h=>prediction[h.key]?{min:h.minutes,density:prediction[h.key].density,prob:prediction[h.key].prob,waitTime:prediction[h.key].waitTime}:null).filter(Boolean),
   ];
@@ -2888,6 +2905,12 @@ function LSTMPredictions({junctions=JUNCTIONS,authToken,currentUser}){
   const [modelVersion,setModelVersion]=useState("");
   const [predictionError,setPredictionError]=useState("");
   const lastNotificationRef=useRef("");
+  const [liveTime,setLiveTime]=useState(new Date());
+
+  useEffect(()=>{
+    const clockId=setInterval(()=>setLiveTime(new Date()),1000);
+    return()=>clearInterval(clockId);
+  },[]);
 
   const filteredLstm=useMemo(()=>{
     const q=lstmSearch.trim().toLowerCase();
@@ -2912,42 +2935,95 @@ function LSTMPredictions({junctions=JUNCTIONS,authToken,currentUser}){
     if(!selJ&&junctions[0]) setSelectedJunctionId(junctions[0].id);
   },[junctions,selJ]);
 
-  const generatePrediction=useCallback(async(j)=>{
+  const [countdown,setCountdown]=useState(40);
+  const countdownRef=useRef(40);
+  const [lastPredictionTime,setLastPredictionTime]=useState(null);
+  const selJRef=useRef(selJ);
+  const predCacheRef=useRef({});
+  const junctionsRef=useRef(junctions);
+
+  // Keep refs in sync with latest data (updates every 8s without re-triggering effects)
+  useEffect(()=>{selJRef.current=selJ;junctionsRef.current=junctions;},[selJ,junctions]);
+
+  const generatePrediction=useCallback(async(junctionId)=>{
+    const j=selJRef.current?.id===junctionId?selJRef.current:junctionsRef.current.find(x=>x.id===junctionId);
     if(!j) return;
     setLoading(true);
     setPredictionError("");
     try{
-      if(!authToken) throw new Error("Backend authentication unavailable");
-      const res=await fetch(`${BACKEND_API_BASE}/api/junction/${encodeURIComponent(j.id)}/prediction`,{
-        headers:{Authorization:`Bearer ${authToken}`},
+      let token=authToken;
+      if(!token){
+        token=await requestBackendAccessToken(currentUser);
+      }
+      if(!token) throw new Error("Backend authentication unavailable");
+      const params=new URLSearchParams();
+      if(typeof j.density==="number") params.set("density",String(j.density));
+      if(typeof j.vehicles==="number") params.set("vehicles",String(j.vehicles));
+      if(typeof j.delay==="number") params.set("delay",String(j.delay));
+      const qs=params.toString();
+      const res=await fetch(`${BACKEND_API_BASE}/api/junction/${encodeURIComponent(j.id)}/prediction${qs?"?"+qs:""}`,{
+        headers:{Authorization:`Bearer ${token}`},
       });
       if(!res.ok) throw new Error(`Prediction API returned ${res.status}`);
       const data=await res.json();
       const mapped=mapBackendPrediction(data,j);
-      setPred(mapped.prediction);
-      setChartData(mapped.chartData);
-      setModelInputs(mapped.inputs);
-      setAccuracy(mapped.accuracy);
-      setModelVersion(mapped.model);
+      const result={prediction:mapped.prediction,chartData:mapped.chartData,inputs:mapped.inputs,accuracy:mapped.accuracy,model:mapped.model,error:""};
+      predCacheRef.current[j.id]=result;
+      if(selJRef.current?.id===j.id||selectedJunctionId===j.id){
+        setPred(result.prediction);
+        setChartData(result.chartData);
+        setModelInputs(result.inputs);
+        setAccuracy(result.accuracy);
+        setModelVersion(result.model);
+        setPredictionError("");
+      }
     }catch(error){
       const fallback=buildRealtimePredictionModel(j,new Date());
-      setPred(fallback.prediction);
-      setChartData(fallback.chartData);
-      setModelInputs(fallback.inputs);
-      setAccuracy(null);
-      setModelVersion("Frontend Fallback Model");
-      setPredictionError(error?.message||"Prediction service unavailable");
+      const result={prediction:fallback.prediction,chartData:fallback.chartData,inputs:fallback.inputs,accuracy:null,model:"Frontend Fallback Model",error:error?.message||"Prediction service unavailable"};
+      predCacheRef.current[j.id]=result;
+      if(selJRef.current?.id===j.id||selectedJunctionId===j.id){
+        setPred(result.prediction);
+        setChartData(result.chartData);
+        setModelInputs(result.inputs);
+        setAccuracy(null);
+        setModelVersion("Frontend Fallback Model");
+        setPredictionError(result.error);
+      }
     }finally{
       setLoading(false);
+      setLastPredictionTime(new Date());
+      countdownRef.current=40;
+      setCountdown(40);
     }
-  },[authToken]);
+  },[authToken,currentUser]);
 
+  // When user switches junction: load from cache instantly, then fetch fresh
   useEffect(()=>{
-    if(!selJ) return;
-    generatePrediction(selJ);
-    const id=setInterval(()=>generatePrediction(selJ),15000);
-    return()=>clearInterval(id);
-  },[selJ,generatePrediction]);
+    if(!selectedJunctionId) return;
+    const cached=predCacheRef.current[selectedJunctionId];
+    if(cached){
+      setPred(cached.prediction);
+      setChartData(cached.chartData);
+      setModelInputs(cached.inputs);
+      setAccuracy(cached.accuracy);
+      setModelVersion(cached.model);
+      setPredictionError(cached.error||"");
+    }
+    generatePrediction(selectedJunctionId);
+    countdownRef.current=40;
+    setCountdown(40);
+    const predId=setInterval(()=>generatePrediction(selectedJunctionId),40000);
+    return()=>clearInterval(predId);
+  },[selectedJunctionId,generatePrediction]);
+
+  // Separate 1-second countdown tick (never destroyed by junction changes)
+  useEffect(()=>{
+    const tickId=setInterval(()=>{
+      countdownRef.current=Math.max(0,countdownRef.current-1);
+      setCountdown(countdownRef.current);
+    },1000);
+    return()=>clearInterval(tickId);
+  },[]);
 
   useEffect(()=>{
     if(currentUser?.role!=="Police Station Controller") return;
@@ -2982,8 +3058,23 @@ function LSTMPredictions({junctions=JUNCTIONS,authToken,currentUser}){
     <div className="content fade-up">
       <div className="header-row">
         <div className="page-header"><h1>LSTM AI Prediction Engine</h1><div className="accent-rule"/><p>// LONG SHORT-TERM MEMORY NETWORK · MULTI-HORIZON TRAFFIC FORECASTING · CONFIDENCE SCORES</p></div>
-        <div className="page-actions">
-          <button className="btn btn-amber" onClick={()=>generatePrediction(selJ)} disabled={loading||!selJ}>{loading?"COMPUTING...":"REFRESH PREDICTION"}</button>
+        <div className="page-actions" style={{display:"flex",alignItems:"center",gap:10}}>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:2}}>
+            <span style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",letterSpacing:".08em"}}>
+              NEXT PREDICTION IN
+            </span>
+            <span style={{fontFamily:"var(--mono)",fontSize:18,fontWeight:800,color:countdown<=5?"var(--red)":countdown<=15?"var(--amber)":"var(--green)",lineHeight:1,minWidth:28,textAlign:"right"}}>
+              {countdown}s
+            </span>
+          </div>
+          <button className="btn btn-amber" onClick={()=>generatePrediction(selectedJunctionId)} disabled={loading||!selectedJunctionId} style={{minWidth:160}}>
+            {loading?"⟳ COMPUTING...":"⟳ FORCE REFRESH NOW"}
+          </button>
+          {lastPredictionTime&&(
+            <span style={{fontFamily:"var(--mono)",fontSize:8,color:"var(--text3)",maxWidth:90,textAlign:"right",lineHeight:1.4}}>
+              Last: {lastPredictionTime.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true,timeZone:"Asia/Kolkata"})}
+            </span>
+          )}
         </div>
       </div>
       {predictionError&&<div className="alert alert-w" style={{marginBottom:12}}>Prediction backend unavailable. Showing local fallback estimate. Details: {predictionError}</div>}
@@ -3071,8 +3162,8 @@ function LSTMPredictions({junctions=JUNCTIONS,authToken,currentUser}){
                 ["Lane Occupancy",modelInputs?.laneOccupancy||"--","#6B35B8"],
                 ["Current Delay",modelInputs?.currentDelay||"--","#B03030"],
                 ["Priority",modelInputs?.priority||"--","#0077CC"],
-                ["Time of Day",modelInputs?.timeOfDay||"--","#C97D10"],
-                ["Day",modelInputs?.day||"--","#1A7F4B"],
+                ["Time of Day",liveTime.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true,timeZone:"Asia/Kolkata"}),"#C97D10"],
+                ["Day",liveTime.toLocaleDateString("en-IN",{weekday:"long",timeZone:"Asia/Kolkata"}),"#1A7F4B"],
               ].map(([k,v,c])=>(
                 <div key={k} className="sensor-card">
                   <div className="sensor-name">{k}</div>
